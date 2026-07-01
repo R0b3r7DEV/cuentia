@@ -16,9 +16,9 @@ Goal: a running skeleton and the documentation discipline in place.
 
 - ✅ Decide project + stack (see [ADR 0002](decisions/0002-project-and-stack.md))
 - ✅ Documentation skeleton (README, ROADMAP, ARCHITECTURE, DEVLOG, ADRs)
-- ⬜ Install tooling (PHP, Composer, Symfony CLI, PostgreSQL)
-- ⬜ Scaffold Symfony API + React app, connected to PostgreSQL
-- ⬜ First green: `GET /api/health` returns 200 and the React app calls it
+- ✅ Install tooling (PHP, Composer, Symfony CLI, PostgreSQL)
+- 🟨 Scaffold Symfony API + React app, connected to PostgreSQL (Symfony API done; React + DB next)
+- 🟨 First green: `GET /api/health` returns 200 (✅ API) and the React app calls it (pending)
 
 ### Phase 1 — MVP: import → categorize → see your money ⬜
 Goal: the core loop works end to end with sample data.
@@ -67,9 +67,9 @@ Objetivo: un esqueleto que arranca y la disciplina de documentación en marcha.
 
 - ✅ Decidir proyecto + stack (ver [ADR 0002](decisions/0002-project-and-stack.md))
 - ✅ Esqueleto de documentación (README, ROADMAP, ARCHITECTURE, DEVLOG, ADRs)
-- ⬜ Instalar herramientas (PHP, Composer, Symfony CLI, PostgreSQL)
-- ⬜ Generar el backend Symfony (API) + la app React, conectados a PostgreSQL
-- ⬜ Primer "verde": `GET /api/health` devuelve 200 y la app React lo llama
+- ✅ Instalar herramientas (PHP, Composer, Symfony CLI, PostgreSQL)
+- 🟨 Generar el backend Symfony (API) + la app React (API Symfony hecha; React + BD siguiente)
+- 🟨 Primer "verde": `GET /api/health` devuelve 200 (✅ API) y la app React lo llama (pendiente)
 
 ### Fase 1 — MVP: importar → categorizar → ver tu dinero ⬜
 Objetivo: el bucle principal funciona de punta a punta con datos de ejemplo.

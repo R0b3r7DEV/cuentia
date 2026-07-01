@@ -12,6 +12,21 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-01 — Entry 004: Backend scaffold + first green
+**Done**
+- Scaffolded the Symfony 8.1 API in `backend/` (`symfony new backend`); removed its nested `.git`
+  to keep a single monorepo.
+- Added `HealthController` with `GET /api/health`; verified it returns
+  `{"status":"ok","service":"cuentia-api"}` via a local server.
+- Documented the whole thing in the teaching [`guide/`](guide/) (00-environment, 01-backend-scaffold).
+
+**Why**
+- A health endpoint is the smallest possible proof that the request→controller→response chain works —
+  the right first milestone before adding a database or features.
+
+**Next**
+- Scaffold the React frontend (Vite) and have it call `/api/health` (guide 02).
+
 ### 2026-07-01 — Entry 003: Repo published + toolchain installed
 **Done**
 - Created and pushed the public repo: **github.com/R0b3r7DEV/cuentia** (first commit = docs).
@@ -49,6 +64,22 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-01 — Entrada 004: Scaffold del backend + primer verde
+**Hecho**
+- Generada la API Symfony 8.1 en `backend/` (`symfony new backend`); eliminado su `.git` anidado
+  para mantener un único monorepo.
+- Añadido `HealthController` con `GET /api/health`; verificado que devuelve
+  `{"status":"ok","service":"cuentia-api"}` con un servidor local.
+- Documentado todo en la [`guide/`](guide/) didáctica (00-entorno, 01-scaffold del backend).
+
+**Por qué**
+- Un endpoint de salud es la prueba más pequeña posible de que la cadena
+  petición→controlador→respuesta funciona — el primer hito correcto antes de añadir base de datos o
+  funciones.
+
+**Siguiente**
+- Generar el frontend React (Vite) y que llame a `/api/health` (guía 02).
 
 ### 2026-07-01 — Entrada 003: Repo publicado + entorno instalado
 **Hecho**
