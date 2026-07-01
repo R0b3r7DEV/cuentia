@@ -12,6 +12,20 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-01 — Entry 003: Repo published + toolchain installed
+**Done**
+- Created and pushed the public repo: **github.com/R0b3r7DEV/cuentia** (first commit = docs).
+- Installed the backend toolchain via Scoop: **PHP 8.5.7**, **Composer 2.10.2**,
+  **Symfony CLI 5.17.1**, **PostgreSQL 18.4** (cluster initialized; local `trust` auth).
+- Created a `php.ini` enabling the extensions Symfony needs: `pdo_pgsql`, `pgsql`, `intl`,
+  `mbstring`, `openssl`, `curl`, `fileinfo`, `sodium`, `zip`.
+
+**Why**
+- Building in public from commit 1 tells a strong story; a fully working local toolchain unblocks Phase 0.
+
+**Next**
+- Scaffold the Symfony API and the React app; first green `GET /api/health` → 200.
+
 ### 2026-07-01 — Entry 002: Bilingual documentation
 **Done:** made all docs bilingual (English first, Spanish below).
 **Why:** the author uses the docs in Spanish while learning, and recruiters read the English.
@@ -35,6 +49,21 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-01 — Entrada 003: Repo publicado + entorno instalado
+**Hecho**
+- Creado y pusheado el repo público: **github.com/R0b3r7DEV/cuentia** (primer commit = docs).
+- Instalado el entorno del backend con Scoop: **PHP 8.5.7**, **Composer 2.10.2**,
+  **Symfony CLI 5.17.1**, **PostgreSQL 18.4** (clúster inicializado; auth `trust` en local).
+- Creado un `php.ini` que habilita las extensiones que Symfony necesita: `pdo_pgsql`, `pgsql`,
+  `intl`, `mbstring`, `openssl`, `curl`, `fileinfo`, `sodium`, `zip`.
+
+**Por qué**
+- Construir en público desde el commit 1 cuenta una buena historia; un entorno local funcionando
+  desbloquea la Fase 0.
+
+**Siguiente**
+- Generar la API Symfony y la app React; primer "verde" `GET /api/health` → 200.
 
 ### 2026-07-01 — Entrada 002: Documentación bilingüe
 **Hecho:** toda la documentación es ahora bilingüe (inglés primero, español debajo).
