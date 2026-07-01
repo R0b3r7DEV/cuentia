@@ -1,0 +1,22 @@
+# ── Symfony / PHP ──
+/backend/vendor/
+/backend/var/
+/backend/.env.local
+/backend/.env.*.local
+/backend/public/bundles/
+
+# ── Node / React ──
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.env.local
+
+# ── Env & secrets ──
+.env
+.env.local
+*.local
+
+# ── Editor / OS ──
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
