@@ -45,55 +45,51 @@ export default function MovementsPage() {
 
   return (
     <>
-      <h1 style={{ marginBottom: 4 }}>Movements</h1>
-      <p style={{ color: '#666', marginTop: 0 }}>Import a bank CSV and categorize your transactions.</p>
+      <h1 className="page-title">Movements</h1>
+      <p className="page-subtitle">Import a bank CSV and categorize your transactions.</p>
 
-      <div style={{ margin: '1rem 0' }}>
-        <label>
-          <span style={{ fontWeight: 600 }}>Import bank CSV: </span>
-          <input type="file" accept=".csv,text/csv" onChange={handleImport} disabled={importing} />
-        </label>
-        <button
-          onClick={handleCategorize}
-          disabled={categorizing || transactions.length === 0}
-          style={{ marginLeft: 12, padding: '6px 12px', cursor: 'pointer' }}
-        >
-          {categorizing ? 'Categorizing…' : '🧠 Categorize'}
-        </button>
-        {message && <p style={{ color: '#555' }}>{message}</p>}
+      <div className="card">
+        <div className="file-field">
+          <label className="file-field">
+            <span style={{ fontWeight: 600, fontSize: 14 }}>Import bank CSV</span>
+            <input type="file" accept=".csv,text/csv" onChange={handleImport} disabled={importing} />
+          </label>
+          <button
+            className="btn btn-primary"
+            onClick={handleCategorize}
+            disabled={categorizing || transactions.length === 0}
+          >
+            {categorizing ? 'Categorizing…' : '🧠 Categorize'}
+          </button>
+        </div>
+        {message && <p className="msg">{message}</p>}
       </div>
 
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-        <thead>
-          <tr style={{ textAlign: 'left', borderBottom: '2px solid #eee' }}>
-            <th style={{ padding: '8px 6px' }}>Date</th>
-            <th style={{ padding: '8px 6px' }}>Description</th>
-            <th style={{ padding: '8px 6px' }}>Category</th>
-            <th style={{ padding: '8px 6px', textAlign: 'right' }}>Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((t) => (
-            <tr key={t.id} style={{ borderBottom: '1px solid #f2f2f2' }}>
-              <td style={{ padding: '8px 6px', color: '#666', whiteSpace: 'nowrap' }}>{t.bookedAt}</td>
-              <td style={{ padding: '8px 6px' }}>{t.description}</td>
-              <td style={{ padding: '8px 6px' }}>
-                {t.category
-                  ? <span style={{ background: '#eef2ff', color: '#3730a3', padding: '2px 8px', borderRadius: 999, fontSize: 12 }}>{t.category}</span>
-                  : <span style={{ color: '#ccc' }}>—</span>}
-              </td>
-              <td style={{ padding: '8px 6px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: Number(t.amount) < 0 ? '#dc2626' : '#16a34a' }}>
-                {eur(t.amount)}
-              </td>
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th className="right">Amount</th>
             </tr>
-          ))}
-          {transactions.length === 0 && (
-            <tr><td colSpan={4} style={{ padding: '1.5rem', color: '#999', textAlign: 'center' }}>
-              No transactions yet — import a CSV to get started.
-            </td></tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {transactions.map((t) => (
+              <tr key={t.id}>
+                <td className="muted" style={{ whiteSpace: 'nowrap' }}>{t.bookedAt}</td>
+                <td>{t.description}</td>
+                <td>{t.category ? <span className="tag">{t.category}</span> : <span className="tag-empty">—</span>}</td>
+                <td className={`right num ${Number(t.amount) < 0 ? 'amount-neg' : 'amount-pos'}`}>{eur(t.amount)}</td>
+              </tr>
+            ))}
+            {transactions.length === 0 && (
+              <tr><td className="empty" colSpan={4}>No transactions yet — import a CSV to get started.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </>
   )
 }

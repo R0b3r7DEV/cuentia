@@ -1,111 +1,140 @@
+/* ============================================================================
+   Cuentia — design tokens + base styles
+   A sober fintech look: one brand blue, careful neutrals, no gradients/glows.
+   ES: Estética fintech sobria: un azul de marca, neutros cuidados, sin gradientes.
+   ============================================================================ */
+
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* surfaces & ink */
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #f9fafb;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --text: #111827;
+  --text-muted: #6b7280;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* brand & semantics (aligned with the validated chart palette) */
+  --accent: #2a78d6;
+  --accent-weak: #eef4fc;
+  --pos: #16a34a;
+  --neg: #dc2626;
+  --warn-bg: #fff7ed;
+  --warn-border: #fed7aa;
+  --warn-text: #9a3412;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
+  /* charts */
+  --chart-1: #2a78d6;
+  --chart-2: #e34948;
+  --chart-grid: #e1e0d9;
+  --chart-muted: #898781;
+
+  /* shape */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-pill: 999px;
+  --shadow: 0 1px 3px rgba(16, 24, 40, 0.08), 0 1px 2px rgba(16, 24, 40, 0.04);
+
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
   color-scheme: light dark;
+  font: 15px/1.5 var(--sans);
   color: var(--text);
   background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+    --bg: #0f1115;
+    --surface: #171a21;
+    --surface-2: #1b1f27;
+    --border: #262b34;
+    --border-strong: #333a45;
+    --text: #e5e7eb;
+    --text-muted: #9aa4b2;
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
+    --accent: #3987e5;
+    --accent-weak: rgba(57, 135, 229, 0.15);
+    --pos: #22c55e;
+    --neg: #f87171;
+    --warn-bg: rgba(154, 52, 18, 0.18);
+    --warn-border: rgba(251, 146, 60, 0.4);
+    --warn-text: #fdba74;
 
-body {
-  margin: 0;
-}
-
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+    --chart-1: #3987e5;
+    --chart-2: #e66767;
+    --chart-grid: #2c2c2a;
+    --chart-muted: #898781;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.25);
   }
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
-}
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
+* { box-sizing: border-box; }
+body { margin: 0; }
+#root { min-height: 100svh; }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.4px; margin: 0 0 4px; }
+h2 { font-size: 16px; font-weight: 600; margin: 0 0 12px; }
+p { margin: 0; }
+a { color: inherit; }
+
+/* ── Layout ─────────────────────────────────────────────────────────────── */
+.app-main { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+.page-title { margin-bottom: 2px; }
+.page-subtitle { color: var(--text-muted); margin: 0 0 1.5rem; }
+.muted { color: var(--text-muted); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ── Navbar ─────────────────────────────────────────────────────────────── */
+.navbar { border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 10; }
+.navbar-inner { max-width: 1000px; margin: 0 auto; padding: 0.75rem 2rem; display: flex; align-items: center; gap: 8px; }
+.brand { font-weight: 800; font-size: 18px; margin-right: 12px; letter-spacing: -0.3px; }
+.brand-dot { color: var(--accent); }
+.navlink { padding: 6px 12px; border-radius: var(--radius-sm); text-decoration: none; font-size: 14px; font-weight: 600; color: var(--text-muted); }
+.navlink:hover { background: var(--surface-2); color: var(--text); }
+.navlink.active { color: var(--accent); background: var(--accent-weak); }
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
+
+/* ── Stat tiles ─────────────────────────────────────────────────────────── */
+.stat-row { display: flex; flex-wrap: wrap; gap: 2rem; }
+.stat-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+.stat-value { font-size: 24px; font-weight: 700; margin-top: 2px; }
+
+/* ── Buttons & inputs ───────────────────────────────────────────────────── */
+.btn { font: inherit; font-weight: 600; font-size: 14px; padding: 8px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+.btn:hover:not(:disabled) { background: var(--surface-2); border-color: var(--text-muted); }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn-primary:hover:not(:disabled) { filter: brightness(0.95); background: var(--accent); }
+.file-field { display: inline-flex; align-items: center; gap: 8px; }
+.file-field input[type="file"] { font: inherit; font-size: 13px; color: var(--text-muted); }
+
+/* ── Table ──────────────────────────────────────────────────────────────── */
+.table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.table th { text-align: left; font-weight: 600; color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; padding: 10px 8px; border-bottom: 1px solid var(--border); }
+.table td { padding: 10px 8px; border-bottom: 1px solid var(--border); }
+.table tbody tr:hover { background: var(--surface-2); }
+.table .right { text-align: right; }
+.amount-pos { color: var(--pos); }
+.amount-neg { color: var(--neg); }
+.empty { text-align: center; color: var(--text-muted); padding: 2rem; }
+
+/* ── Badges / tags / alerts ─────────────────────────────────────────────── */
+.tag { background: var(--accent-weak); color: var(--accent); padding: 2px 10px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.tag-empty { color: var(--border-strong); }
+.alert-warn { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn-text); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 14px; margin-bottom: 12px; }
+.msg { color: var(--text-muted); font-size: 14px; margin-top: 10px; }
+.error { color: var(--neg); }
+
+/* ── Charts ─────────────────────────────────────────────────────────────── */
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.figure { margin: 0; }
+.figure figcaption { font-weight: 600; margin-bottom: 10px; font-size: 14px; }
+@media (max-width: 800px) {
+  .chart-grid { grid-template-columns: 1fr; }
+  .app-main, .navbar-inner { padding-left: 1.25rem; padding-right: 1.25rem; }
 }

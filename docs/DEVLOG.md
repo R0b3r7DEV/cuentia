@@ -12,6 +12,22 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-02 — Entry 014: Visual redesign (design tokens, no "AI look")
+**Done**
+- Replaced the template CSS (purple accent) with a **design-token system** in `index.css`: surfaces, ink,
+  one brand blue, semantic money colors, radii, shadows — plus a full **dark theme**.
+- Refactored every component/page to **class names** reading the tokens (`.card`, `.btn`, `.table`,
+  `.tag`, `.navbar`, `.stat-value`, `.alert-warn`…). Charts read `--chart-*` at runtime to follow the theme.
+- Sober, financial styling (hairline borders, subtle shadows, tabular figures) — deliberately not the
+  flashy AI-template look. Documented in [guide 11](guide/11-visual-redesign.md).
+
+**Why**
+- With all the functionality in place, a clean professional look is what turns "functional" into
+  "impressive" for a recruiter.
+
+**Next**
+- Internationalization: an ES/EN language toggle.
+
 ### 2026-07-02 — Entry 013: Frontend split into pages + navbar (React Router)
 **Done**
 - Added React Router: a `Layout` (navbar + `<Outlet/>`) that loads data once via `useFinanceData()` and
@@ -202,6 +218,24 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-02 — Entrada 014: Rediseño visual (tokens de diseño, sin "look de IA")
+**Hecho**
+- Sustituido el CSS de plantilla (acento morado) por un **sistema de tokens de diseño** en `index.css`:
+  superficies, tinta, un azul de marca, colores semánticos del dinero, radios, sombras — más un **tema
+  oscuro** completo.
+- Refactorizados todos los componentes/páginas a **clases** que leen los tokens (`.card`, `.btn`,
+  `.table`, `.tag`, `.navbar`, `.stat-value`, `.alert-warn`…). Los gráficos leen `--chart-*` en tiempo de
+  ejecución para seguir el tema.
+- Estética sobria y financiera (bordes finos, sombras sutiles, cifras tabulares) — deliberadamente lejos
+  del look de plantilla de IA. Documentado en la [guía 11](guide/11-visual-redesign.md).
+
+**Por qué**
+- Con toda la funcionalidad ya lista, un aspecto limpio y profesional es lo que convierte "funcional" en
+  "impresionante" para un reclutador.
+
+**Siguiente**
+- Internacionalización: un botón de idioma ES/EN.
 
 ### 2026-07-02 — Entrada 013: Frontend dividido en páginas + navbar (React Router)
 **Hecho**

@@ -12,16 +12,20 @@ export default function DashboardPage() {
 
   return (
     <>
-      <h1 style={{ marginBottom: 4 }}>Dashboard</h1>
-      <p style={{ color: '#666', marginTop: 0 }}>Where your money comes from and goes to.</p>
+      <h1 className="page-title">Dashboard</h1>
+      <p className="page-subtitle">Where your money comes from and goes to.</p>
 
-      <div style={{ display: 'flex', gap: 32, margin: '1.5rem 0' }}>
-        <Stat label="Income" value={eur(income)} color="#16a34a" />
-        <Stat label="Expenses" value={eur(expenses)} color="#dc2626" />
-        <Stat label="Balance" value={eur(balance)} />
+      <div className="card">
+        <div className="stat-row">
+          <Stat label="Income" value={eur(income)} color="var(--pos)" />
+          <Stat label="Expenses" value={eur(expenses)} color="var(--neg)" />
+          <Stat label="Balance" value={eur(balance)} />
+        </div>
       </div>
 
-      <Dashboard stats={stats} />
+      <div className="card">
+        <Dashboard stats={stats} />
+      </div>
     </>
   )
 }
