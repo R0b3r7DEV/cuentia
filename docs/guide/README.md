@@ -32,7 +32,8 @@ to a step. This complements:
 15. [14 — Continuous Integration (GitHub Actions)](14-ci.md)
 16. [15 — Norma 43 import](15-norma43.md)
 17. [16 — Cash-flow forecast (Phase 3)](16-forecast.md)
-18. *17 — Natural-language chat (next)*
+18. [17 — Natural-language assistant](17-chat.md)
+19. *18 — Auth & deploy (next)*
 
 ---
 
@@ -64,4 +65,5 @@ paso. Complementa a:
 15. [14 — Integración continua (GitHub Actions)](14-ci.md)
 16. [15 — Importación Norma 43](15-norma43.md)
 17. [16 — Previsión de tesorería (Fase 3)](16-forecast.md)
-18. *17 — Chat en lenguaje natural (siguiente)*
+18. [17 — Asistente en lenguaje natural](17-chat.md)
+19. *18 — Auth y deploy (siguiente)*

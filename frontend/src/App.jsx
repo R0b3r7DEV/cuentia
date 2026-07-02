@@ -3,6 +3,7 @@ import Layout from './components/Layout'
 import MovementsPage from './pages/MovementsPage'
 import DashboardPage from './pages/DashboardPage'
 import TaxesPage from './pages/TaxesPage'
+import ChatPage from './pages/ChatPage'
 
 // Routing: the Layout (navbar + shared data) wraps the three pages.
 // ES: Enrutado: el Layout (navbar + datos compartidos) envuelve las tres páginas.
@@ -14,6 +15,7 @@ export default function App() {
           <Route path="/" element={<MovementsPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/taxes" element={<TaxesPage />} />
+          <Route path="/chat" element={<ChatPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

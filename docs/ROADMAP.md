@@ -39,7 +39,7 @@ Goal: the features a generic dev could not build without finance knowledge.
 
 ### Phase 3 — Intelligence & real data 🟨
 - ✅ **Cash-flow forecast** (30 / 60 / 90 days) — linear projection from the average daily net
-- ⬜ **Natural-language chat** over your transactions ("how much on X this quarter?")
+- ✅ **Natural-language chat** over your transactions (AI, with a data-summary fallback)
 - ⬜ **Real open banking** via GoCardless Bank Account Data (free sandbox → real banks)
 
 ### Phase 4 — Production quality ⬜
@@ -90,7 +90,7 @@ Objetivo: las funciones que un dev genérico no podría construir sin conocer fi
 
 ### Fase 3 — Inteligencia y datos reales 🟨
 - ✅ **Previsión de tesorería** (30 / 60 / 90 días) — proyección lineal del neto diario medio
-- ⬜ **Chat en lenguaje natural** sobre tus movimientos ("¿cuánto en X este trimestre?")
+- ✅ **Chat en lenguaje natural** sobre tus movimientos (IA, con fallback de resumen de datos)
 - ⬜ **Open banking real** vía GoCardless Bank Account Data (sandbox gratis → bancos reales)
 
 ### Fase 4 — Calidad de producción ⬜

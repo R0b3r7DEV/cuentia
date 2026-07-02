@@ -13,6 +13,7 @@ export default function Navbar() {
         <NavLink to="/" className={cls} end>{t('nav.movements')}</NavLink>
         <NavLink to="/dashboard" className={cls}>{t('nav.dashboard')}</NavLink>
         <NavLink to="/taxes" className={cls}>{t('nav.taxes')}</NavLink>
+        <NavLink to="/chat" className={cls}>{t('nav.assistant')}</NavLink>
         <button
           className="lang-btn"
           onClick={() => setLang(lang === 'es' ? 'en' : 'es')}

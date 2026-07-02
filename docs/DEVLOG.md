@@ -12,6 +12,22 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-02 — Entry 020: Natural-language assistant (AI + fallback)
+**Done**
+- Added `ChatService`: builds a factual context (balance, income/expenses, top categories, VAT, next IRPF
+  payment) and asks Claude to answer using only it; deterministic **data-summary fallback** without a key.
+- Added `POST /api/chat` and an **Assistant** page (`/chat`) with a chat UI; added the navbar link and ES/EN
+  translations. Wired into the app.
+- Added `ChatServiceTest` (fallback path). `php bin/phpunit` → **OK (11 tests, 37 assertions)**. Documented
+  in [guide 17](guide/17-chat.md).
+
+**Why**
+- Natural-language Q&A grounded on the user's own data is the flagship AI feature — and the fallback keeps
+  it honest and always usable.
+
+**Next**
+- Phase 4: authentication/multi-user, then the live deploy.
+
 ### 2026-07-02 — Entry 019: Cash-flow forecast (Phase 3 begins)
 **Done**
 - Added `ForecastService` (linear projection of the balance at +30/60/90 days from the average daily net)
@@ -294,6 +310,23 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-02 — Entrada 020: Asistente en lenguaje natural (IA + fallback)
+**Hecho**
+- Añadido `ChatService`: construye un contexto factual (balance, ingresos/gastos, categorías top, IVA,
+  próximo pago de IRPF) y le pide a Claude que responda usando solo eso; **fallback** determinista de
+  resumen sin clave.
+- Añadido `POST /api/chat` y una página **Asistente** (`/chat`) con UI de chat; añadido el enlace en la
+  navbar y traducciones ES/EN.
+- Añadido `ChatServiceTest` (ruta de fallback). `php bin/phpunit` → **OK (11 tests, 37 assertions)**.
+  Documentado en la [guía 17](guide/17-chat.md).
+
+**Por qué**
+- El Q&A en lenguaje natural anclado en los datos del propio usuario es la función IA estrella — y el
+  fallback la mantiene honesta y siempre utilizable.
+
+**Siguiente**
+- Fase 4: autenticación/multiusuario y luego el deploy en vivo.
 
 ### 2026-07-02 — Entrada 019: Previsión de tesorería (empieza la Fase 3)
 **Hecho**

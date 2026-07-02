@@ -132,6 +132,18 @@ a { color: inherit; }
 .msg { color: var(--text-muted); font-size: 14px; margin-top: 10px; }
 .error { color: var(--neg); }
 
+/* ── Chat ───────────────────────────────────────────────────────────────── */
+.chat-log { min-height: 200px; max-height: 420px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 1rem; }
+.chat-msg { max-width: 80%; padding: 10px 12px; border-radius: var(--radius-sm); font-size: 14px; line-height: 1.45; }
+.chat-user { align-self: flex-end; background: var(--accent-weak); color: var(--text); }
+.chat-assistant { align-self: flex-start; background: var(--surface-2); border: 1px solid var(--border); }
+.chat-role { font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); margin-bottom: 4px; }
+.chat-text { white-space: pre-wrap; }
+.chat-note { margin-top: 6px; font-size: 12px; color: var(--warn-text); }
+.chat-form { display: flex; gap: 8px; }
+.chat-input { flex: 1; font: inherit; font-size: 14px; padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); }
+.chat-input:focus { outline: 2px solid var(--accent-weak); border-color: var(--accent); }
+
 /* ── Charts ─────────────────────────────────────────────────────────────── */
 .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 .figure { margin: 0; }
