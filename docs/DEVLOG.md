@@ -12,6 +12,22 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-02 — Entry 016: Unit tests for the finance logic (PHPUnit)
+**Done**
+- Installed PHPUnit (`symfony/test-pack`).
+- Added `VatServiceTest` and `IrpfServiceTest`: pure unit tests that build Transaction/Category objects in
+  memory and feed them via a **stub** repository (no DB). Assert VAT (336/23/313), IRPF Q1 payment 230.64,
+  salary excluded, and the next-deadline countdown.
+- `php bin/phpunit` → **OK (6 tests, 14 assertions)**, no notices (used `createStub` per PHPUnit 13).
+  Documented in [guide 13](guide/13-testing.md).
+
+**Why**
+- The tax logic is where a bug costs the most; testing it proves correctness, guards against regressions,
+  and is a strong interview talking point.
+
+**Next**
+- CI (GitHub Actions running the tests) + a live deploy, or the Norma 43 importer.
+
 ### 2026-07-02 — Entry 015: Internationalization (ES/EN toggle)
 **Done**
 - Added a dependency-free i18n: a translations dictionary (en/es), a `LanguageContext` with `useTranslation()`
@@ -233,6 +249,22 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-02 — Entrada 016: Tests unitarios de la lógica fiscal (PHPUnit)
+**Hecho**
+- Instalado PHPUnit (`symfony/test-pack`).
+- Añadidos `VatServiceTest` e `IrpfServiceTest`: tests unitarios puros que construyen objetos
+  Transaction/Category en memoria y los pasan por un **stub** del repositorio (sin BD). Comprueban el IVA
+  (336/23/313), el pago del T1 de IRPF 230,64, la nómina excluida y la cuenta atrás del vencimiento.
+- `php bin/phpunit` → **OK (6 tests, 14 assertions)**, sin avisos (usé `createStub`, como recomienda
+  PHPUnit 13). Documentado en la [guía 13](guide/13-testing.md).
+
+**Por qué**
+- La lógica fiscal es donde más cuesta un error; testearla demuestra corrección, protege de regresiones y
+  es un gran argumento en una entrevista.
+
+**Siguiente**
+- CI (GitHub Actions ejecutando los tests) + un deploy en vivo, o el importador Norma 43.
 
 ### 2026-07-02 — Entrada 015: Internacionalización (botón ES/EN)
 **Hecho**

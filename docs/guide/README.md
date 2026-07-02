@@ -28,7 +28,8 @@ to a step. This complements:
 11. [10 — Frontend structure: pages & routing](10-frontend-routing.md)
 12. [11 — Visual redesign](11-visual-redesign.md)
 13. [12 — Internationalization (ES/EN toggle)](12-i18n.md)
-14. *13 — Norma 43 import / production (next)*
+14. [13 — Testing the finance logic](13-testing.md)
+15. *14 — CI & deploy / Norma 43 (next)*
 
 ---
 
@@ -56,4 +57,5 @@ paso. Complementa a:
 11. [10 — Estructura del frontend: páginas y enrutado](10-frontend-routing.md)
 12. [11 — Rediseño visual](11-visual-redesign.md)
 13. [12 — Internacionalización (botón ES/EN)](12-i18n.md)
-14. *13 — Importación Norma 43 / producción (siguiente)*
+14. [13 — Tests de la lógica fiscal](13-testing.md)
+15. *14 — CI y deploy / Norma 43 (siguiente)*
