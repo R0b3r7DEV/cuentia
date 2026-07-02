@@ -25,7 +25,8 @@ to a step. This complements:
 8. [07 — Dashboard (charts)](07-dashboard.md)
 9. [08 — VAT panel (Phase 2)](08-vat-panel.md)
 10. [09 — IRPF estimate & quarter alerts](09-irpf.md)
-11. *10 — Frontend redesign (next)*
+11. [10 — Frontend structure: pages & routing](10-frontend-routing.md)
+12. *11 — Visual redesign (next)*
 
 ---
 
@@ -50,4 +51,5 @@ paso. Complementa a:
 8. [07 — Panel (gráficos)](07-dashboard.md)
 9. [08 — Panel de IVA (Fase 2)](08-vat-panel.md)
 10. [09 — Estimación de IRPF y avisos de trimestre](09-irpf.md)
-11. *10 — Rediseño del frontend (siguiente)*
+11. [10 — Estructura del frontend: páginas y enrutado](10-frontend-routing.md)
+12. *11 — Rediseño visual (siguiente)*

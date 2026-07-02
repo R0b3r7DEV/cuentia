@@ -12,6 +12,21 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-02 — Entry 013: Frontend split into pages + navbar (React Router)
+**Done**
+- Added React Router: a `Layout` (navbar + `<Outlet/>`) that loads data once via `useFinanceData()` and
+  shares it with pages through the Outlet context.
+- Split the single page into **Movements** (`/`), **Dashboard** (`/dashboard`) and **Taxes** (`/taxes`).
+- Extracted shared helpers (`lib/format`, `components/Stat`). Verified all routes return 200 (SPA
+  fallback) and the API proxy still works. Documented in [guide 10](guide/10-frontend-routing.md).
+
+**Why**
+- A real multi-page SPA structure is cleaner, scalable and what a recruiter expects — and it sets the
+  stage for the visual redesign.
+
+**Next**
+- Visual redesign: a clean, professional look that doesn't look AI-generated.
+
 ### 2026-07-02 — Entry 012: IRPF estimate (modelo 130) + deadline alert
 **Done**
 - Added `IrpfService` (reuses `VatService::baseCents()`): cumulative 20% of year-to-date net
@@ -187,6 +202,22 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-02 — Entrada 013: Frontend dividido en páginas + navbar (React Router)
+**Hecho**
+- Añadido React Router: un `Layout` (navbar + `<Outlet/>`) que carga los datos una vez con
+  `useFinanceData()` y los comparte con las páginas por el contexto del Outlet.
+- Dividida la página única en **Movements** (`/`), **Dashboard** (`/dashboard`) y **Taxes** (`/taxes`).
+- Extraídos helpers compartidos (`lib/format`, `components/Stat`). Verificado que todas las rutas
+  devuelven 200 (fallback SPA) y que el proxy de API sigue funcionando. Documentado en la
+  [guía 10](guide/10-frontend-routing.md).
+
+**Por qué**
+- Una estructura real de SPA multipágina es más limpia, escalable y lo que un reclutador espera — y
+  prepara el terreno para el rediseño visual.
+
+**Siguiente**
+- Rediseño visual: un aspecto limpio y profesional que no parezca generado por IA.
 
 ### 2026-07-02 — Entrada 012: Estimación de IRPF (modelo 130) + aviso de vencimiento
 **Hecho**
