@@ -12,6 +12,21 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-02 — Entry 008: List transactions (visible end-to-end loop)
+**Done**
+- Added `GET /api/transactions` (maps entities to a plain DTO array, ordered by date).
+- Rebuilt the React `App.jsx`: a transactions table (euro formatting, red/green by sign), an
+  income/expenses/balance summary, and a file input that uploads a CSV (FormData) and refreshes.
+- Verified: the endpoint returns 8 rows through the Vite proxy and the frontend builds cleanly.
+  Documented in [guide 05](guide/05-list-transactions.md).
+
+**Why**
+- First fully visible loop: upload a CSV → see your movements. It turns the backend work into something
+  a person (or a recruiter) can actually see.
+
+**Next**
+- AI categorization: assign a category to each transaction with Claude + a rule-based fallback.
+
 ### 2026-07-02 — Entry 007: CSV import
 **Done**
 - Added `ImportService` (parses a bank CSV) and `POST /api/import/csv` (thin controller).
@@ -112,6 +127,21 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-02 — Entrada 008: Listar movimientos (bucle visible de punta a punta)
+**Hecho**
+- Añadido `GET /api/transactions` (mapea entidades a un array DTO plano, ordenado por fecha).
+- Reescrito el `App.jsx` de React: tabla de movimientos (formato euro, rojo/verde según signo), un
+  resumen de ingresos/gastos/balance, y un input de fichero que sube un CSV (FormData) y refresca.
+- Verificado: el endpoint devuelve 8 filas a través del proxy de Vite y el frontend compila sin errores.
+  Documentado en la [guía 05](guide/05-list-transactions.md).
+
+**Por qué**
+- Primer bucle totalmente visible: subes un CSV → ves tus movimientos. Convierte el trabajo del backend
+  en algo que una persona (o un reclutador) puede ver de verdad.
+
+**Siguiente**
+- Categorización con IA: asignar una categoría a cada movimiento con Claude + fallback por reglas.
 
 ### 2026-07-02 — Entrada 007: Importación CSV
 **Hecho**

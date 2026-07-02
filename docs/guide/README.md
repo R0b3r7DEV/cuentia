@@ -20,7 +20,8 @@ to a step. This complements:
 3. [02 — React frontend](02-frontend-scaffold.md)
 4. [03 — Database & domain model](03-database-and-entities.md)
 5. [04 — CSV import](04-csv-import.md)
-6. *05 — List transactions (API + React) (next)*
+6. [05 — List transactions (API + React)](05-list-transactions.md)
+7. *06 — AI categorization (next)*
 
 ---
 
@@ -40,4 +41,5 @@ paso. Complementa a:
 3. [02 — Frontend React](02-frontend-scaffold.md)
 4. [03 — Base de datos y modelo de dominio](03-database-and-entities.md)
 5. [04 — Importación CSV](04-csv-import.md)
-6. *05 — Listar movimientos (API + React) (siguiente)*
+6. [05 — Listar movimientos (API + React)](05-list-transactions.md)
+7. *06 — Categorización con IA (siguiente)*
