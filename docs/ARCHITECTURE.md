@@ -46,7 +46,7 @@ The AI is one pluggable service among several — never load-bearing on its own.
 
 ```
 Transaction
-  id            uuid
+  id            int             -- auto-increment primary key
   bookedAt      date            -- value date of the movement
   description   text            -- raw text from the bank
   amount        decimal(12,2)   -- signed: negative = expense, positive = income
@@ -58,7 +58,7 @@ Transaction
   createdAt     timestamptz
 
 Category
-  id      uuid
+  id      int                   -- auto-increment primary key
   name    text                  -- 'Software', 'Suppliers', 'Client income', ...
   kind    enum                  -- 'income' | 'expense'
   color   text
@@ -119,7 +119,7 @@ es un servicio enchufable más, nunca el pilar que sostiene todo.
 
 ```
 Transaction (movimiento)
-  id            uuid
+  id            int             -- auto-increment primary key
   bookedAt      date            -- fecha valor del movimiento
   description   text            -- texto en bruto del banco
   amount        decimal(12,2)   -- con signo: negativo = gasto, positivo = ingreso
@@ -131,7 +131,7 @@ Transaction (movimiento)
   createdAt     timestamptz
 
 Category (categoría)
-  id      uuid
+  id      int                   -- auto-increment primary key
   name    text                  -- 'Software', 'Proveedores', 'Ingresos de cliente', ...
   kind    enum                  -- 'income' | 'expense'
   color   text

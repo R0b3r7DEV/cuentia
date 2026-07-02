@@ -18,7 +18,8 @@ to a step. This complements:
 1. [00 — Development environment](00-environment.md)
 2. [01 — Backend scaffold + first endpoint](01-backend-scaffold.md)
 3. [02 — React frontend](02-frontend-scaffold.md)
-4. *03 — Domain model, database & CSV import (next)*
+4. [03 — Database & domain model](03-database-and-entities.md)
+5. *04 — CSV import (next)*
 
 ---
 
@@ -36,4 +37,5 @@ paso. Complementa a:
 1. [00 — Entorno de desarrollo](00-environment.md)
 2. [01 — Scaffold del backend + primer endpoint](01-backend-scaffold.md)
 3. [02 — Frontend React](02-frontend-scaffold.md)
-4. *03 — Modelo de dominio, base de datos e importación CSV (siguiente)*
+4. [03 — Base de datos y modelo de dominio](03-database-and-entities.md)
+5. *04 — Importación CSV (siguiente)*

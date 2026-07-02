@@ -23,7 +23,7 @@ Goal: a running skeleton and the documentation discipline in place.
 ### Phase 1 — MVP: import → categorize → see your money ⬜
 Goal: the core loop works end to end with sample data.
 
-- ⬜ Domain model: `Transaction`, `Category` (migrations)
+- ✅ Domain model: `Transaction`, `Category` (migrations) + PostgreSQL via Doctrine
 - ⬜ **CSV import** of bank movements (date, description, amount)
 - ⬜ **AI categorization** of each transaction (Claude) with a rule-based fallback
 - ⬜ Dashboard: income vs expenses, by category and by month
@@ -74,7 +74,7 @@ Objetivo: un esqueleto que arranca y la disciplina de documentación en marcha.
 ### Fase 1 — MVP: importar → categorizar → ver tu dinero ⬜
 Objetivo: el bucle principal funciona de punta a punta con datos de ejemplo.
 
-- ⬜ Modelo de dominio: `Transaction`, `Category` (migraciones)
+- ✅ Modelo de dominio: `Transaction`, `Category` (migraciones) + PostgreSQL vía Doctrine
 - ⬜ **Importación CSV** de movimientos (fecha, descripción, importe)
 - ⬜ **Categorización con IA** de cada movimiento (Claude) con fallback por reglas
 - ⬜ Panel: ingresos vs gastos, por categoría y por mes

@@ -12,6 +12,23 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-02 — Entry 006: Database + domain model (Phase 1 begins)
+**Done**
+- Installed Doctrine (`symfony/orm-pack`) and MakerBundle.
+- Started local PostgreSQL (`pg_ctl`), configured `DATABASE_URL` in `.env.local`, created the `cuentia`
+  database.
+- Wrote the `Category` and `Transaction` entities (+ repositories); generated and ran the first
+  migration. Tables `category` and `transaction` now exist.
+- Documented it in [guide 03](guide/03-database-and-entities.md). Decided to use auto-increment
+  integer IDs for now (simpler than UUID); updated ARCHITECTURE accordingly.
+
+**Why**
+- The entities are the backbone of the app. Getting money right from day one (`decimal`, not float)
+  avoids a whole class of accounting bugs.
+
+**Next**
+- CSV import: an endpoint that parses a bank CSV and stores `Transaction` rows (guide 04).
+
 ### 2026-07-02 — Entry 005: React frontend + Phase 0 complete
 **Done**
 - Scaffolded the React app (Vite) in `frontend/`; added a dev **proxy** (`/api` → `:8000`) to avoid CORS.
@@ -80,6 +97,23 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-02 — Entrada 006: Base de datos + modelo de dominio (empieza la Fase 1)
+**Hecho**
+- Instalado Doctrine (`symfony/orm-pack`) y MakerBundle.
+- Arrancado PostgreSQL local (`pg_ctl`), configurado `DATABASE_URL` en `.env.local`, creada la base de
+  datos `cuentia`.
+- Escritas las entidades `Category` y `Transaction` (+ repositorios); generada y ejecutada la primera
+  migración. Ya existen las tablas `category` y `transaction`.
+- Documentado en la [guía 03](guide/03-database-and-entities.md). Decidido usar IDs enteros
+  autoincrementales por ahora (más simple que UUID); actualizada la ARQUITECTURA en consecuencia.
+
+**Por qué**
+- Las entidades son la columna vertebral de la app. Hacer bien el dinero desde el primer día
+  (`decimal`, no float) evita toda una familia de errores de contabilidad.
+
+**Siguiente**
+- Importación CSV: un endpoint que parsea un CSV bancario y guarda filas `Transaction` (guía 04).
 
 ### 2026-07-02 — Entrada 005: Frontend React + Fase 0 completa
 **Hecho**
