@@ -12,6 +12,22 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-02 — Entry 012: IRPF estimate (modelo 130) + deadline alert
+**Done**
+- Added `IrpfService` (reuses `VatService::baseCents()`): cumulative 20% of year-to-date net
+  (self-employment income − deductible expenses, without VAT), salary excluded, per-quarter with
+  official deadlines and a "next deadline" countdown.
+- Added `GET /api/irpf` and an IRPF panel (quarter table + a warning banner when a deadline is < 30 days).
+- Verified: Q1 net 1153.21 → payment 230.64; next deadline Q2 2026-07-20 (18 days). Documented in
+  [guide 09](guide/09-irpf.md).
+
+**Why**
+- IRPF + VAT together tell a complete tax story — the core value for a Spanish freelancer and the
+  clearest demonstration of the finance moat.
+
+**Next**
+- Norma 43 import, then the frontend redesign.
+
 ### 2026-07-02 — Entry 011: VAT panel (Phase 2 begins)
 **Done**
 - Added `VatService` (category → Spanish VAT-rate map, cents-based VAT extraction) and `GET /api/vat`.
@@ -171,6 +187,22 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-02 — Entrada 012: Estimación de IRPF (modelo 130) + aviso de vencimiento
+**Hecho**
+- Añadido `IrpfService` (reutiliza `VatService::baseCents()`): 20% acumulado del neto del año hasta la
+  fecha (ingresos de actividad − gastos deducibles, sin IVA), excluyendo la nómina, por trimestre con los
+  vencimientos oficiales y una cuenta atrás del "próximo vencimiento".
+- Añadido `GET /api/irpf` y un panel de IRPF (tabla de trimestres + banner de aviso cuando falta < 30 días).
+- Verificado: neto T1 1153,21 → pago 230,64; próximo vencimiento T2 2026-07-20 (18 días). Documentado en
+  la [guía 09](guide/09-irpf.md).
+
+**Por qué**
+- IRPF + IVA juntos cuentan una historia fiscal completa — el valor central para un autónomo español y la
+  demostración más clara del foso financiero.
+
+**Siguiente**
+- Importación Norma 43 y luego el rediseño del frontend.
 
 ### 2026-07-02 — Entrada 011: Panel de IVA (empieza la Fase 2)
 **Hecho**

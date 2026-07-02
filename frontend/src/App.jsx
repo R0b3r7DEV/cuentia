@@ -10,6 +10,7 @@ function App() {
   const [transactions, setTransactions] = useState([])
   const [stats, setStats] = useState(null)
   const [vat, setVat] = useState(null)
+  const [irpf, setIrpf] = useState(null)
   const [error, setError] = useState(null)
   const [importing, setImporting] = useState(false)
   const [categorizing, setCategorizing] = useState(false)
@@ -33,6 +34,11 @@ function App() {
     fetch('/api/vat')
       .then((res) => (res.ok ? res.json() : null))
       .then(setVat)
+      .catch(() => {})
+
+    fetch('/api/irpf')
+      .then((res) => (res.ok ? res.json() : null))
+      .then(setIrpf)
       .catch(() => {})
   }
 
@@ -111,6 +117,43 @@ function App() {
           </div>
           <p style={{ color: '#999', fontSize: 12, marginBottom: 0 }}>
             Output − input VAT. Rates inferred from each transaction's category (default Spanish rates).
+          </p>
+        </section>
+      )}
+
+      {irpf && (
+        <section style={{ border: '1px solid #eee', borderRadius: 12, padding: '1rem 1.25rem', margin: '1.5rem 0' }}>
+          <h2 style={{ fontSize: 16, margin: '0 0 0.75rem' }}>IRPF · modelo 130 (estimate, {irpf.year})</h2>
+
+          {irpf.nextDeadline && irpf.nextDeadline.daysLeft <= 30 && (
+            <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', color: '#9a3412', padding: '8px 12px', borderRadius: 8, marginBottom: 12, fontSize: 14 }}>
+              ⏰ Modelo 130 Q{irpf.nextDeadline.quarter} due on {irpf.nextDeadline.date} — {irpf.nextDeadline.daysLeft} days left
+            </div>
+          )}
+
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+            <thead>
+              <tr style={{ textAlign: 'left', borderBottom: '2px solid #eee', color: '#666' }}>
+                <th style={{ padding: '6px' }}>Quarter</th>
+                <th style={{ padding: '6px', textAlign: 'right' }}>Net (base)</th>
+                <th style={{ padding: '6px', textAlign: 'right' }}>Payment (20%)</th>
+                <th style={{ padding: '6px' }}>Deadline</th>
+              </tr>
+            </thead>
+            <tbody>
+              {irpf.quarters.map((q) => (
+                <tr key={q.quarter} style={{ borderBottom: '1px solid #f2f2f2' }}>
+                  <td style={{ padding: '6px' }}>{q.label}</td>
+                  <td style={{ padding: '6px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{eur(q.net)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>{eur(q.payment)}</td>
+                  <td style={{ padding: '6px', color: '#666' }}>{q.deadline}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p style={{ color: '#999', fontSize: 12, marginBottom: 0 }}>
+            20% of year-to-date net (income − deductible expenses, without VAT), cumulative per quarter.
+            Salary (“Nómina”) is excluded — it is not self-employment income.
           </p>
         </section>
       )}

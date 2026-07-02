@@ -33,8 +33,8 @@ Goal: the core loop works end to end with sample data.
 Goal: the features a generic dev could not build without finance knowledge.
 
 - ✅ **VAT panel**: output VAT (repercutido) vs input VAT (soportado), net due
-- ⬜ **IRPF estimate** for freelancers (modelo 130 logic)
-- ⬜ Quarterly deadline alerts (modelo 130 / 303)
+- ✅ **IRPF estimate** for freelancers (modelo 130 logic)
+- ✅ Quarterly deadline alerts (next modelo 130 deadline)
 - ⬜ **Norma 43** parser (the standard Spanish bank statement format)
 
 ### Phase 3 — Intelligence & real data ⬜
@@ -84,8 +84,8 @@ Objetivo: el bucle principal funciona de punta a punta con datos de ejemplo.
 Objetivo: las funciones que un dev genérico no podría construir sin conocer finanzas.
 
 - ✅ **Panel de IVA**: IVA repercutido vs soportado, neto a pagar
-- ⬜ **Estimación de IRPF** para autónomos (lógica del modelo 130)
-- ⬜ Avisos de trimestre (modelo 130 / 303)
+- ✅ **Estimación de IRPF** para autónomos (lógica del modelo 130)
+- ✅ Avisos de trimestre (próximo vencimiento del modelo 130)
 - ⬜ Parser de **Norma 43** (el formato estándar de extracto bancario español)
 
 ### Fase 3 — Inteligencia y datos reales ⬜

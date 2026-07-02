@@ -105,10 +105,19 @@ class VatService
         ];
     }
 
-    private function rateFor(Transaction $tx): int
+    /** The VAT rate (%) that applies to a transaction, from its category. */
+    public function rateFor(Transaction $tx): int
     {
         $name = $tx->getCategory()?->getName() ?? '';
         return self::RATES[$name] ?? 0; // unknown category → assume no VAT (don't invent)
+    }
+
+    /** The taxable base (amount without VAT) of a transaction, in cents. Reused by IRPF. */
+    public function baseCents(Transaction $tx): int
+    {
+        $grossC = (int) round(abs((float) $tx->getAmount()) * 100);
+        [$baseC] = $this->splitVat($grossC, $this->rateFor($tx));
+        return $baseC;
     }
 
     /**

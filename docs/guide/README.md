@@ -24,7 +24,8 @@ to a step. This complements:
 7. [06 — AI categorization](06-ai-categorization.md)
 8. [07 — Dashboard (charts)](07-dashboard.md)
 9. [08 — VAT panel (Phase 2)](08-vat-panel.md)
-10. *09 — IRPF estimate & quarter alerts (next)*
+10. [09 — IRPF estimate & quarter alerts](09-irpf.md)
+11. *10 — Frontend redesign (next)*
 
 ---
 
@@ -48,4 +49,5 @@ paso. Complementa a:
 7. [06 — Categorización con IA](06-ai-categorization.md)
 8. [07 — Panel (gráficos)](07-dashboard.md)
 9. [08 — Panel de IVA (Fase 2)](08-vat-panel.md)
-10. *09 — Estimación de IRPF y avisos de trimestre (siguiente)*
+10. [09 — Estimación de IRPF y avisos de trimestre](09-irpf.md)
+11. *10 — Rediseño del frontend (siguiente)*
