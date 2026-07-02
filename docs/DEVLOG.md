@@ -12,6 +12,22 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-02 — Entry 018: Norma 43 importer (Phase 2 complete)
+**Done**
+- Added `ImportService::importNorma43()` — parses the fixed-width AEB Cuaderno 43 format (record 22 =
+  movement, 23 = concept), and an `import()` dispatcher that **auto-detects** CSV vs Norma 43 by content.
+- The same upload endpoint/button now handles both; the file input accepts `.csv` and `.n43`.
+- Added `ImportServiceTest` (CSV + Norma 43, built from 80-char records). `php bin/phpunit` →
+  **OK (8 tests, 25 assertions)**. Verified end to end with a sample `.n43` (4 movements imported).
+  Documented in [guide 15](guide/15-norma43.md). **Phase 2 is complete.**
+
+**Why**
+- Norma 43 is what every Spanish bank exports; parsing it (and salaries/VAT correctly) is the domain
+  depth that differentiates the project.
+
+**Next**
+- Phase 3 (cash-flow forecast, NL chat, open banking) or preparing the live deploy.
+
 ### 2026-07-02 — Entry 017: Continuous Integration (GitHub Actions)
 **Done**
 - Added `.github/workflows/ci.yml` with two parallel jobs: **backend** (PHP 8.4 → `composer install` →
@@ -262,6 +278,23 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-02 — Entrada 018: Importador Norma 43 (Fase 2 completa)
+**Hecho**
+- Añadido `ImportService::importNorma43()` — parsea el formato de ancho fijo Cuaderno 43 de la AEB
+  (registro 22 = movimiento, 23 = concepto), y un despachador `import()` que **auto-detecta** CSV vs
+  Norma 43 por el contenido.
+- El mismo endpoint/botón de subida maneja ambos; el input acepta `.csv` y `.n43`.
+- Añadido `ImportServiceTest` (CSV + Norma 43, con registros de 80 caracteres). `php bin/phpunit` →
+  **OK (8 tests, 25 assertions)**. Verificado end-to-end con un `.n43` de ejemplo (4 movimientos).
+  Documentado en la [guía 15](guide/15-norma43.md). **La Fase 2 está completa.**
+
+**Por qué**
+- Norma 43 es lo que exporta cualquier banco español; parsearlo (y nóminas/IVA correctamente) es la
+  profundidad de dominio que diferencia el proyecto.
+
+**Siguiente**
+- Fase 3 (previsión de tesorería, chat en lenguaje natural, open banking) o preparar el deploy en vivo.
 
 ### 2026-07-02 — Entrada 017: Integración continua (GitHub Actions)
 **Hecho**

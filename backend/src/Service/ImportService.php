@@ -22,6 +22,19 @@ class ImportService
     public function __construct(private EntityManagerInterface $em) {}
 
     /**
+     * Detect the format and dispatch. Supports CSV and the Spanish Norma 43 (Cuaderno 43).
+     * ES: Detecta el formato y despacha. Soporta CSV y la Norma 43 española (Cuaderno 43).
+     *
+     * @return array{imported:int, errors:string[]}
+     */
+    public function import(string $content): array
+    {
+        return $this->looksLikeNorma43($content)
+            ? $this->importNorma43($content)
+            : $this->importCsv($content);
+    }
+
+    /**
      * @return array{imported:int, errors:string[]}
      */
     public function importCsv(string $csv): array
@@ -77,6 +90,90 @@ class ImportService
         $this->em->flush(); // one round-trip to the DB / un solo viaje a la BD
 
         return ['imported' => $imported, 'errors' => $errors];
+    }
+
+    /**
+     * Parse a Norma 43 (AEB Cuaderno 43) bank statement — a fixed-width text format.
+     * ES: Parsea un extracto Norma 43 (Cuaderno 43 de la AEB) — formato de ancho fijo.
+     *
+     * Records we use / Registros que usamos:
+     *  - "22" movement: op date (pos 7-12, YYMMDD), debit/credit flag (pos 24: 1=debit, 2=credit),
+     *    amount (pos 25-38, integer with 2 implied decimals).
+     *  - "23" concept: two 38-char free-text fields (pos 5-42, 43-80) → the description.
+     *
+     * @return array{imported:int, errors:string[]}
+     */
+    public function importNorma43(string $content): array
+    {
+        $errors = [];
+        $lines = preg_split('/\r\n|\r|\n/', $content) ?: [];
+
+        $imported = 0;
+        $current = null; // the movement being assembled / el movimiento en construcción
+
+        $flush = function () use (&$current, &$imported) {
+            if ($current !== null) {
+                $this->em->persist($current);
+                $imported++;
+                $current = null;
+            }
+        };
+
+        foreach ($lines as $i => $raw) {
+            $code = substr($raw, 0, 2);
+
+            if ($code === '22') {
+                $flush(); // a new movement closes the previous one / un nuevo movimiento cierra el anterior
+                try {
+                    $date = $this->parseNorma43Date(substr($raw, 6, 6));
+                    $isDebit = substr($raw, 23, 1) === '1';
+                    $cents = (int) ltrim(substr($raw, 24, 14), '0') ?: 0;
+                    $amount = number_format($cents / 100, 2, '.', '');
+                    if ($isDebit) {
+                        $amount = '-' . $amount;
+                    }
+
+                    $current = (new Transaction())
+                        ->setBookedAt($date)
+                        ->setDescription('')
+                        ->setAmount($amount)
+                        ->setImportedFrom('norma43');
+                } catch (\Throwable $e) {
+                    $errors[] = sprintf('Line %d: %s', $i + 1, $e->getMessage());
+                    $current = null;
+                }
+            } elseif ($code === '23' && $current !== null) {
+                // Append the two concept fields to the description.
+                $part = trim(substr($raw, 4, 38) . ' ' . substr($raw, 42, 38));
+                $desc = trim($current->getDescription() . ' ' . $part);
+                $current->setDescription($desc);
+            } elseif (in_array($code, ['33', '88'], true)) {
+                $flush(); // account footer / end of file
+            }
+        }
+        $flush();
+
+        $this->em->flush();
+
+        return ['imported' => $imported, 'errors' => $errors];
+    }
+
+    /** Heuristic: Norma 43 lines are fixed-width records that start with a 2-digit code. */
+    private function looksLikeNorma43(string $content): bool
+    {
+        $first = strtok(ltrim($content), "\r\n") ?: '';
+        // Norma 43 files start with an "11" (account header) or "22" (movement) record,
+        // and records are fixed-width (>= 80 chars). CSV starts with a text header.
+        return (bool) preg_match('/^(11|22)/', $first) && strlen($first) >= 80;
+    }
+
+    private function parseNorma43Date(string $yymmdd): \DateTimeImmutable
+    {
+        $d = \DateTimeImmutable::createFromFormat('ymd', $yymmdd);
+        if ($d === false) {
+            throw new \InvalidArgumentException("invalid Norma 43 date '$yymmdd'");
+        }
+        return $d->setTime(0, 0);
     }
 
     /** Pick ',' or ';' by whichever appears more in the header. */

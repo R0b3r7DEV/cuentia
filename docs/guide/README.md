@@ -30,7 +30,8 @@ to a step. This complements:
 13. [12 — Internationalization (ES/EN toggle)](12-i18n.md)
 14. [13 — Testing the finance logic](13-testing.md)
 15. [14 — Continuous Integration (GitHub Actions)](14-ci.md)
-16. *15 — Live deploy / Norma 43 (next)*
+16. [15 — Norma 43 import](15-norma43.md)
+17. *16 — Live deploy / Phase 3 (next)*
 
 ---
 
@@ -60,4 +61,5 @@ paso. Complementa a:
 13. [12 — Internacionalización (botón ES/EN)](12-i18n.md)
 14. [13 — Tests de la lógica fiscal](13-testing.md)
 15. [14 — Integración continua (GitHub Actions)](14-ci.md)
-16. *15 — Deploy en vivo / Norma 43 (siguiente)*
+16. [15 — Importación Norma 43](15-norma43.md)
+17. *16 — Deploy en vivo / Fase 3 (siguiente)*

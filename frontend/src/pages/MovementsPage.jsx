@@ -54,7 +54,7 @@ export default function MovementsPage() {
         <div className="file-field">
           <label className="file-field">
             <span style={{ fontWeight: 600, fontSize: 14 }}>{t('mov.import')}</span>
-            <input type="file" accept=".csv,text/csv" onChange={handleImport} disabled={importing} />
+            <input type="file" accept=".csv,.n43,.txt,text/csv,text/plain" onChange={handleImport} disabled={importing} />
           </label>
           <button
             className="btn btn-primary"

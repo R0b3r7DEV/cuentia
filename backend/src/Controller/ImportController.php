@@ -28,7 +28,8 @@ class ImportController extends AbstractController
             return $this->json(['error' => 'No CSV provided'], 400);
         }
 
-        $result = $import->importCsv($csv);
+        // Auto-detects CSV vs Norma 43 by content. / Auto-detecta CSV vs Norma 43 por el contenido.
+        $result = $import->import($csv);
 
         return $this->json($result);
     }

@@ -8,7 +8,7 @@ export const translations = {
 
     'mov.title': 'Movements',
     'mov.subtitle': 'Import a bank CSV and categorize your transactions.',
-    'mov.import': 'Import bank CSV',
+    'mov.import': 'Import bank file (CSV or Norma 43)',
     'mov.categorize': '🧠 Categorize',
     'mov.categorizing': 'Categorizing…',
     'mov.empty': 'No transactions yet — import a CSV to get started.',
@@ -54,7 +54,7 @@ export const translations = {
 
     'mov.title': 'Movimientos',
     'mov.subtitle': 'Importa un CSV del banco y categoriza tus movimientos.',
-    'mov.import': 'Importar CSV del banco',
+    'mov.import': 'Importar fichero del banco (CSV o Norma 43)',
     'mov.categorize': '🧠 Categorizar',
     'mov.categorizing': 'Categorizando…',
     'mov.empty': 'Aún no hay movimientos — importa un CSV para empezar.',
