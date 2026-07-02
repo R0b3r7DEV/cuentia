@@ -10,10 +10,10 @@
 /frontend/dist/
 /frontend/.env.local
 
-# ── Env & secrets ──
-.env
+# ── Env secrets (only *.local; committed .env holds non-secret defaults) ──
+# ES: solo *.local; el .env commiteado tiene valores por defecto no secretos
 .env.local
-*.local
+.env.*.local
 
 # ── Editor / OS ──
 .idea/
