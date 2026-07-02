@@ -12,6 +12,21 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-02 — Entry 009: AI categorization (with rule fallback)
+**Done**
+- Added `CategorizerService`: a fixed category list, a deterministic Spanish keyword rule engine, and an
+  optional Claude call (via HttpClient) that is validated against the allowed list.
+- Added `POST /api/transactions/categorize` and a "🧠 Categorize" button + Category column in React.
+- Verified with no API key: 8/8 categorized correctly by rules (Mercadona→Supermercado,
+  Repsol→Combustible, Nómina→Nómina, etc.). Documented in [guide 06](guide/06-ai-categorization.md).
+
+**Why**
+- Categorization is what turns a raw list into insight. Keeping AI optional (rule fallback) means the app
+  always works and stays honest — a deliberate architecture principle.
+
+**Next**
+- Dashboard: spending by category and by month (Recharts), then the VAT panel (Phase 2).
+
 ### 2026-07-02 — Entry 008: List transactions (visible end-to-end loop)
 **Done**
 - Added `GET /api/transactions` (maps entities to a plain DTO array, ordered by date).
@@ -127,6 +142,21 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-02 — Entrada 009: Categorización con IA (con fallback por reglas)
+**Hecho**
+- Añadido `CategorizerService`: lista fija de categorías, motor de reglas por palabras clave en español, y
+  una llamada opcional a Claude (vía HttpClient) validada contra la lista permitida.
+- Añadido `POST /api/transactions/categorize` y un botón "🧠 Categorize" + columna Categoría en React.
+- Verificado sin API key: 8/8 categorizadas correctamente por reglas (Mercadona→Supermercado,
+  Repsol→Combustible, Nómina→Nómina, etc.). Documentado en la [guía 06](guide/06-ai-categorization.md).
+
+**Por qué**
+- La categorización convierte una lista en información útil. Mantener la IA opcional (fallback por reglas)
+  hace que la app siempre funcione y sea honesta — un principio de arquitectura deliberado.
+
+**Siguiente**
+- Panel: gasto por categoría y por mes (Recharts), y luego el panel de IVA (Fase 2).
 
 ### 2026-07-02 — Entrada 008: Listar movimientos (bucle visible de punta a punta)
 **Hecho**

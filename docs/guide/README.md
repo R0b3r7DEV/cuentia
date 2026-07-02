@@ -21,7 +21,8 @@ to a step. This complements:
 4. [03 — Database & domain model](03-database-and-entities.md)
 5. [04 — CSV import](04-csv-import.md)
 6. [05 — List transactions (API + React)](05-list-transactions.md)
-7. *06 — AI categorization (next)*
+7. [06 — AI categorization](06-ai-categorization.md)
+8. *07 — Dashboard by category & month (next)*
 
 ---
 
@@ -42,4 +43,5 @@ paso. Complementa a:
 4. [03 — Base de datos y modelo de dominio](03-database-and-entities.md)
 5. [04 — Importación CSV](04-csv-import.md)
 6. [05 — Listar movimientos (API + React)](05-list-transactions.md)
-7. *06 — Categorización con IA (siguiente)*
+7. [06 — Categorización con IA](06-ai-categorization.md)
+8. *07 — Panel por categoría y mes (siguiente)*

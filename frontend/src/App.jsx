@@ -9,6 +9,7 @@ function App() {
   const [transactions, setTransactions] = useState([])
   const [error, setError] = useState(null)
   const [importing, setImporting] = useState(false)
+  const [categorizing, setCategorizing] = useState(false)
   const [message, setMessage] = useState(null)
 
   // Load the transactions from the API. / Carga los movimientos desde la API.
@@ -47,6 +48,24 @@ function App() {
     }
   }
 
+  // Ask the backend to categorize uncategorized transactions, then refresh.
+  // ES: Pide al backend categorizar los movimientos sin categoría y refresca.
+  const handleCategorize = async () => {
+    setCategorizing(true)
+    setMessage(null)
+    try {
+      const res = await fetch('/api/transactions/categorize', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
+      setMessage(`Categorized ${data.categorized} (AI: ${data.byAi}, rules: ${data.byRule})`)
+      load()
+    } catch (err) {
+      setMessage(`Error: ${err.message}`)
+    } finally {
+      setCategorizing(false)
+    }
+  }
+
   // Totals for the little summary. / Totales para el pequeño resumen.
   const income = transactions.filter((t) => Number(t.amount) > 0).reduce((s, t) => s + Number(t.amount), 0)
   const expenses = transactions.filter((t) => Number(t.amount) < 0).reduce((s, t) => s + Number(t.amount), 0)
@@ -67,6 +86,13 @@ function App() {
         <span style={{ fontWeight: 600 }}>Import bank CSV: </span>
         <input type="file" accept=".csv,text/csv" onChange={handleImport} disabled={importing} />
       </label>
+      <button
+        onClick={handleCategorize}
+        disabled={categorizing || transactions.length === 0}
+        style={{ marginLeft: 12, padding: '6px 12px', cursor: 'pointer' }}
+      >
+        {categorizing ? 'Categorizing…' : '🧠 Categorize'}
+      </button>
       {message && <p style={{ color: '#555' }}>{message}</p>}
       {error && <p style={{ color: '#dc2626' }}>API error: {error}</p>}
 
@@ -75,6 +101,7 @@ function App() {
           <tr style={{ textAlign: 'left', borderBottom: '2px solid #eee' }}>
             <th style={{ padding: '8px 6px' }}>Date</th>
             <th style={{ padding: '8px 6px' }}>Description</th>
+            <th style={{ padding: '8px 6px' }}>Category</th>
             <th style={{ padding: '8px 6px', textAlign: 'right' }}>Amount</th>
           </tr>
         </thead>
@@ -83,6 +110,11 @@ function App() {
             <tr key={t.id} style={{ borderBottom: '1px solid #f2f2f2' }}>
               <td style={{ padding: '8px 6px', color: '#666', whiteSpace: 'nowrap' }}>{t.bookedAt}</td>
               <td style={{ padding: '8px 6px' }}>{t.description}</td>
+              <td style={{ padding: '8px 6px' }}>
+                {t.category
+                  ? <span style={{ background: '#eef2ff', color: '#3730a3', padding: '2px 8px', borderRadius: 999, fontSize: 12 }}>{t.category}</span>
+                  : <span style={{ color: '#ccc' }}>—</span>}
+              </td>
               <td style={{
                 padding: '8px 6px',
                 textAlign: 'right',
@@ -94,7 +126,7 @@ function App() {
             </tr>
           ))}
           {transactions.length === 0 && !error && (
-            <tr><td colSpan={3} style={{ padding: '1.5rem', color: '#999', textAlign: 'center' }}>
+            <tr><td colSpan={4} style={{ padding: '1.5rem', color: '#999', textAlign: 'center' }}>
               No transactions yet — import a CSV to get started.
             </td></tr>
           )}

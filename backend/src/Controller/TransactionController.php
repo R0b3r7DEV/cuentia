@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Transaction;
 use App\Repository\TransactionRepository;
+use App\Service\CategorizerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -33,5 +34,13 @@ class TransactionController extends AbstractController
         );
 
         return $this->json($rows);
+    }
+
+    #[Route('/api/transactions/categorize', name: 'api_transactions_categorize', methods: ['POST'])]
+    public function categorize(CategorizerService $categorizer): JsonResponse
+    {
+        // Categorize every uncategorized transaction (AI if configured, rules otherwise).
+        // ES: Categoriza cada movimiento sin categoría (IA si está configurada, reglas si no).
+        return $this->json($categorizer->categorizeUncategorized());
     }
 }
