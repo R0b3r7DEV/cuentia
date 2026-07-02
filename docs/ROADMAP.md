@@ -37,8 +37,8 @@ Goal: the features a generic dev could not build without finance knowledge.
 - ✅ Quarterly deadline alerts (next modelo 130 deadline)
 - ✅ **Norma 43** parser (the standard Spanish bank statement format) — auto-detected
 
-### Phase 3 — Intelligence & real data ⬜
-- ⬜ **Cash-flow forecast** (30 / 60 / 90 days) from recurring movements
+### Phase 3 — Intelligence & real data 🟨
+- ✅ **Cash-flow forecast** (30 / 60 / 90 days) — linear projection from the average daily net
 - ⬜ **Natural-language chat** over your transactions ("how much on X this quarter?")
 - ⬜ **Real open banking** via GoCardless Bank Account Data (free sandbox → real banks)
 
@@ -88,8 +88,8 @@ Objetivo: las funciones que un dev genérico no podría construir sin conocer fi
 - ✅ Avisos de trimestre (próximo vencimiento del modelo 130)
 - ✅ Parser de **Norma 43** (el formato estándar de extracto bancario español) — auto-detectado
 
-### Fase 3 — Inteligencia y datos reales ⬜
-- ⬜ **Previsión de tesorería** (30 / 60 / 90 días) a partir de movimientos recurrentes
+### Fase 3 — Inteligencia y datos reales 🟨
+- ✅ **Previsión de tesorería** (30 / 60 / 90 días) — proyección lineal del neto diario medio
 - ⬜ **Chat en lenguaje natural** sobre tus movimientos ("¿cuánto en X este trimestre?")
 - ⬜ **Open banking real** vía GoCardless Bank Account Data (sandbox gratis → bancos reales)
 

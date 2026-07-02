@@ -31,7 +31,8 @@ to a step. This complements:
 14. [13 — Testing the finance logic](13-testing.md)
 15. [14 — Continuous Integration (GitHub Actions)](14-ci.md)
 16. [15 — Norma 43 import](15-norma43.md)
-17. *16 — Live deploy / Phase 3 (next)*
+17. [16 — Cash-flow forecast (Phase 3)](16-forecast.md)
+18. *17 — Natural-language chat (next)*
 
 ---
 
@@ -62,4 +63,5 @@ paso. Complementa a:
 14. [13 — Tests de la lógica fiscal](13-testing.md)
 15. [14 — Integración continua (GitHub Actions)](14-ci.md)
 16. [15 — Importación Norma 43](15-norma43.md)
-17. *16 — Deploy en vivo / Fase 3 (siguiente)*
+17. [16 — Previsión de tesorería (Fase 3)](16-forecast.md)
+18. *17 — Chat en lenguaje natural (siguiente)*

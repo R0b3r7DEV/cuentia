@@ -33,6 +33,10 @@ export const translations = {
     'stat.balance': 'Balance',
     'chart.byCategory': 'Spending by category',
     'chart.byMonth': 'Income vs expenses by month',
+    'forecast.title': 'Cash-flow forecast',
+    'forecast.now': 'Now',
+    'forecast.avgMonthly': 'Avg. monthly net',
+    'forecast.note': 'Simple linear projection from the average daily net of the imported period — an estimate, not a guarantee.',
 
     'tax.title': 'Taxes',
     'tax.subtitle': 'VAT (IVA) and income tax (IRPF · modelo 130) estimates.',
@@ -79,6 +83,10 @@ export const translations = {
     'stat.balance': 'Balance',
     'chart.byCategory': 'Gasto por categoría',
     'chart.byMonth': 'Ingresos vs gastos por mes',
+    'forecast.title': 'Previsión de tesorería',
+    'forecast.now': 'Hoy',
+    'forecast.avgMonthly': 'Neto mensual medio',
+    'forecast.note': 'Proyección lineal simple a partir del neto diario medio del periodo importado — una estimación, no una garantía.',
 
     'tax.title': 'Impuestos',
     'tax.subtitle': 'Estimaciones de IVA e IRPF (modelo 130).',

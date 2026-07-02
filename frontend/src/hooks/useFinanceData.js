@@ -11,6 +11,7 @@ export function useFinanceData() {
   const [stats, setStats] = useState(null)
   const [vat, setVat] = useState(null)
   const [irpf, setIrpf] = useState(null)
+  const [forecast, setForecast] = useState(null)
   const [error, setError] = useState(null)
 
   const reload = useCallback(() => {
@@ -22,9 +23,10 @@ export function useFinanceData() {
     fetch('/api/stats').then((r) => (r.ok ? r.json() : null)).then(setStats).catch(() => {})
     fetch('/api/vat').then((r) => (r.ok ? r.json() : null)).then(setVat).catch(() => {})
     fetch('/api/irpf').then((r) => (r.ok ? r.json() : null)).then(setIrpf).catch(() => {})
+    fetch('/api/forecast').then((r) => (r.ok ? r.json() : null)).then(setForecast).catch(() => {})
   }, [])
 
   useEffect(() => { reload() }, [reload])
 
-  return { transactions, stats, vat, irpf, error, reload }
+  return { transactions, stats, vat, irpf, forecast, error, reload }
 }

@@ -12,6 +12,22 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-02 — Entry 019: Cash-flow forecast (Phase 3 begins)
+**Done**
+- Added `ForecastService` (linear projection of the balance at +30/60/90 days from the average daily net)
+  and `GET /api/forecast`.
+- Added a `Forecast` line chart on the Dashboard (current balance + avg. monthly net tiles + an
+  "estimate" note). Wired `/api/forecast` into `useFinanceData`.
+- Added `ForecastServiceTest`. `php bin/phpunit` → **OK (10 tests, 33 assertions)**. Documented in
+  [guide 16](guide/16-forecast.md).
+
+**Why**
+- A forward-looking number is what a freelancer actually worries about ("will I make it?"), and a
+  transparent, clearly-labeled model keeps it honest.
+
+**Next**
+- Natural-language questions over the transactions (AI), then auth + deploy.
+
 ### 2026-07-02 — Entry 018: Norma 43 importer (Phase 2 complete)
 **Done**
 - Added `ImportService::importNorma43()` — parses the fixed-width AEB Cuaderno 43 format (record 22 =
@@ -278,6 +294,22 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-02 — Entrada 019: Previsión de tesorería (empieza la Fase 3)
+**Hecho**
+- Añadido `ForecastService` (proyección lineal del saldo a +30/60/90 días según el neto diario medio) y
+  `GET /api/forecast`.
+- Añadido un gráfico de líneas `Forecast` en el Dashboard (saldo actual + neto mensual medio + nota de
+  "estimación"). Conectado `/api/forecast` a `useFinanceData`.
+- Añadido `ForecastServiceTest`. `php bin/phpunit` → **OK (10 tests, 33 assertions)**. Documentado en la
+  [guía 16](guide/16-forecast.md).
+
+**Por qué**
+- Una cifra a futuro es lo que de verdad preocupa a un autónomo ("¿llegaré?"), y un modelo transparente y
+  claramente etiquetado lo mantiene honesto.
+
+**Siguiente**
+- Preguntas en lenguaje natural sobre los movimientos (IA), y luego auth + deploy.
 
 ### 2026-07-02 — Entrada 018: Importador Norma 43 (Fase 2 completa)
 **Hecho**

@@ -2,10 +2,11 @@ import { useOutletContext } from 'react-router-dom'
 import { eur } from '../lib/format'
 import Stat from '../components/Stat'
 import Dashboard from '../components/Dashboard'
+import Forecast from '../components/Forecast'
 import { useTranslation } from '../i18n/LanguageContext'
 
 export default function DashboardPage() {
-  const { transactions, stats } = useOutletContext()
+  const { transactions, stats, forecast } = useOutletContext()
   const { t } = useTranslation()
 
   const income = transactions.filter((tx) => Number(tx.amount) > 0).reduce((s, tx) => s + Number(tx.amount), 0)
@@ -28,6 +29,19 @@ export default function DashboardPage() {
       <div className="card">
         <Dashboard stats={stats} />
       </div>
+
+      {forecast && (
+        <div className="card">
+          <h2>{t('forecast.title')}</h2>
+          <div className="stat-row" style={{ marginBottom: 12 }}>
+            <Stat label={t('forecast.now')} value={eur(forecast.currentBalance)} />
+            <Stat label={t('forecast.avgMonthly')} value={eur(forecast.avgMonthlyNet)}
+              color={Number(forecast.avgMonthlyNet) >= 0 ? 'var(--pos)' : 'var(--neg)'} />
+          </div>
+          <Forecast forecast={forecast} />
+          <p className="msg" style={{ marginTop: 8 }}>{t('forecast.note')}</p>
+        </div>
+      )}
     </>
   )
 }
