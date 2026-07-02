@@ -26,7 +26,7 @@ Goal: the core loop works end to end with sample data.
 - ✅ Domain model: `Transaction`, `Category` (migrations) + PostgreSQL via Doctrine
 - ✅ **CSV import** of bank movements (date, description, amount) — handles Spanish number format
 - ✅ **AI categorization** of each transaction (Claude) with a rule-based fallback
-- ⬜ Dashboard: income vs expenses, by category and by month
+- ✅ Dashboard: income vs expenses, by category and by month (Recharts)
 - ⬜ Manual re-categorization (correct the AI) — corrections feed future accuracy
 
 ### Phase 2 — The finance moat ⬜
@@ -77,7 +77,7 @@ Objetivo: el bucle principal funciona de punta a punta con datos de ejemplo.
 - ✅ Modelo de dominio: `Transaction`, `Category` (migraciones) + PostgreSQL vía Doctrine
 - ✅ **Importación CSV** de movimientos (fecha, descripción, importe) — soporta el formato numérico español
 - ✅ **Categorización con IA** de cada movimiento (Claude) con fallback por reglas
-- ⬜ Panel: ingresos vs gastos, por categoría y por mes
+- ✅ Panel: ingresos vs gastos, por categoría y por mes (Recharts)
 - ⬜ Recategorización manual (corregir a la IA) — las correcciones mejoran la precisión futura
 
 ### Fase 2 — El foso financiero ⬜

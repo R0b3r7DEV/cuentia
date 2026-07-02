@@ -12,6 +12,21 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-02 — Entry 010: Dashboard with charts
+**Done**
+- Added `GET /api/stats` (raw SQL aggregation: totals, spending by category, income/expenses by month).
+- Added a `Dashboard` React component (Recharts): a single-hue horizontal bar for category spending and a
+  two-series bar for monthly income vs expenses. Colors chosen by the data-viz method and **validated**
+  with the skill's script (CVD ΔE 74.6). Charts refresh on import/categorize.
+- Documented in [guide 07](guide/07-dashboard.md).
+
+**Why**
+- This is the most "sellable" screen: at a glance you see where the money goes — the payoff of the
+  import + categorization work.
+
+**Next**
+- Phase 2: the VAT panel (output vs input VAT, net due) — the finance moat.
+
 ### 2026-07-02 — Entry 009: AI categorization (with rule fallback)
 **Done**
 - Added `CategorizerService`: a fixed category list, a deterministic Spanish keyword rule engine, and an
@@ -142,6 +157,22 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-02 — Entrada 010: Panel con gráficos
+**Hecho**
+- Añadido `GET /api/stats` (agregación en SQL: totales, gasto por categoría, ingresos/gastos por mes).
+- Añadido un componente `Dashboard` en React (Recharts): barra horizontal de un tono para el gasto por
+  categoría y barras de dos series para ingresos vs gastos por mes. Colores elegidos con el método de
+  data-viz y **validados** con el script de la skill (CVD ΔE 74.6). Los gráficos se refrescan al
+  importar/categorizar.
+- Documentado en la [guía 07](guide/07-dashboard.md).
+
+**Por qué**
+- Es la pantalla más "vendible": de un vistazo ves a dónde va el dinero — la recompensa del trabajo de
+  importación + categorización.
+
+**Siguiente**
+- Fase 2: el panel de IVA (repercutido vs soportado, neto a pagar) — el foso financiero.
 
 ### 2026-07-02 — Entrada 009: Categorización con IA (con fallback por reglas)
 **Hecho**

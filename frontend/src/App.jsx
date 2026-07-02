@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Dashboard from './components/Dashboard'
 
 // Format a decimal string as euros using Spanish locale.
 // ES: Formatea un string decimal como euros con la configuración española.
@@ -7,6 +8,7 @@ const eur = (value) =>
 
 function App() {
   const [transactions, setTransactions] = useState([])
+  const [stats, setStats] = useState(null)
   const [error, setError] = useState(null)
   const [importing, setImporting] = useState(false)
   const [categorizing, setCategorizing] = useState(false)
@@ -21,6 +23,11 @@ function App() {
       })
       .then(setTransactions)
       .catch((err) => setError(err.message))
+
+    fetch('/api/stats')
+      .then((res) => (res.ok ? res.json() : null))
+      .then(setStats)
+      .catch(() => {})
   }
 
   useEffect(load, [])
@@ -72,7 +79,7 @@ function App() {
   const balance = income + expenses
 
   return (
-    <main style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 820, margin: '0 auto', padding: '2rem' }}>
+    <main style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 1000, margin: '0 auto', padding: '2rem' }}>
       <h1 style={{ marginBottom: 0 }}>Cuentia</h1>
       <p style={{ color: '#666', marginTop: 4 }}>AI cash-flow &amp; tax copilot — work in progress</p>
 
@@ -81,6 +88,8 @@ function App() {
         <Stat label="Expenses" value={eur(expenses)} color="#dc2626" />
         <Stat label="Balance" value={eur(balance)} color="#111" />
       </div>
+
+      <Dashboard stats={stats} />
 
       <label style={{ display: 'inline-block', marginBottom: '1rem' }}>
         <span style={{ fontWeight: 600 }}>Import bank CSV: </span>

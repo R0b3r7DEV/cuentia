@@ -22,7 +22,8 @@ to a step. This complements:
 5. [04 — CSV import](04-csv-import.md)
 6. [05 — List transactions (API + React)](05-list-transactions.md)
 7. [06 — AI categorization](06-ai-categorization.md)
-8. *07 — Dashboard by category & month (next)*
+8. [07 — Dashboard (charts)](07-dashboard.md)
+9. *08 — VAT panel (Phase 2, next)*
 
 ---
 
@@ -44,4 +45,5 @@ paso. Complementa a:
 5. [04 — Importación CSV](04-csv-import.md)
 6. [05 — Listar movimientos (API + React)](05-list-transactions.md)
 7. [06 — Categorización con IA](06-ai-categorization.md)
-8. *07 — Panel por categoría y mes (siguiente)*
+8. [07 — Panel (gráficos)](07-dashboard.md)
+9. *08 — Panel de IVA (Fase 2, siguiente)*
