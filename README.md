@@ -43,6 +43,21 @@ knowledge is the core of the product.
 - **Frontend:** React
 - **AI:** Anthropic Claude (categorization + natural-language queries)
 
+### Run it locally
+
+Requirements: PHP, Composer, Symfony CLI, PostgreSQL and Node.js (see
+[guide 00](docs/guide/00-environment.md)). Then:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\start-dev.ps1
+```
+
+This starts PostgreSQL, the Symfony API (`:8000`) and the Vite dev server, then open
+**http://localhost:5173**. The first time, install dependencies (`cd backend; composer install`
+and `cd frontend; npm install`) and create the database (see [guide 03](docs/guide/03-database-and-entities.md)).
+
+> The servers only respond while they are running — if the page says *connection refused*, start them.
+
 ### Documentation
 
 | Doc | What it is |
@@ -85,6 +100,22 @@ dominio es el núcleo del producto.
 - **Backend:** PHP · Symfony · PostgreSQL
 - **Frontend:** React
 - **IA:** Anthropic Claude (categorización + consultas en lenguaje natural)
+
+### Ejecutar en local
+
+Requisitos: PHP, Composer, Symfony CLI, PostgreSQL y Node.js (ver
+[guía 00](docs/guide/00-environment.md)). Después:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\start-dev.ps1
+```
+
+Esto arranca PostgreSQL, la API Symfony (`:8000`) y el servidor de Vite; luego abre
+**http://localhost:5173**. La primera vez, instala dependencias (`cd backend; composer install`
+y `cd frontend; npm install`) y crea la base de datos (ver [guía 03](docs/guide/03-database-and-entities.md)).
+
+> Los servidores solo responden mientras están en marcha — si la página dice *connection refused*,
+> arráncalos.
 
 ### Documentación
 
