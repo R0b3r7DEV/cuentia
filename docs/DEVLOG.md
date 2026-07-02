@@ -12,6 +12,21 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-02 — Entry 007: CSV import
+**Done**
+- Added `ImportService` (parses a bank CSV) and `POST /api/import/csv` (thin controller).
+- The parser auto-detects the `,`/`;` separator, maps bilingual columns, and handles the Spanish
+  number format (`1.234,56`) — keeping money as an exact decimal string.
+- Added a sample file and verified end to end: imported 8 rows (balance 3316.21), 0 errors, accents
+  preserved. Documented in [guide 04](guide/04-csv-import.md).
+
+**Why**
+- This is the first tangible value: a real bank export becomes structured data. Keeping the finance
+  parsing correct (Spanish decimals, no float) is the differentiator.
+
+**Next**
+- Expose the transactions via an API endpoint and render them in the React frontend.
+
 ### 2026-07-02 — Entry 006: Database + domain model (Phase 1 begins)
 **Done**
 - Installed Doctrine (`symfony/orm-pack`) and MakerBundle.
@@ -97,6 +112,21 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-02 — Entrada 007: Importación CSV
+**Hecho**
+- Añadido `ImportService` (parsea un CSV bancario) y `POST /api/import/csv` (controlador fino).
+- El parser autodetecta el separador `,`/`;`, mapea columnas bilingües y maneja el formato numérico
+  español (`1.234,56`) — manteniendo el dinero como string decimal exacto.
+- Añadido un fichero de ejemplo y verificado de punta a punta: importadas 8 filas (balance 3316.21),
+  0 errores, acentos preservados. Documentado en la [guía 04](guide/04-csv-import.md).
+
+**Por qué**
+- Es el primer valor tangible: un extracto real del banco se convierte en datos estructurados. Mantener
+  correcto el parseo financiero (decimales españoles, sin float) es el diferenciador.
+
+**Siguiente**
+- Exponer los movimientos vía un endpoint de API y mostrarlos en el frontend React.
 
 ### 2026-07-02 — Entrada 006: Base de datos + modelo de dominio (empieza la Fase 1)
 **Hecho**

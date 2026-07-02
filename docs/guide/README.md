@@ -19,7 +19,8 @@ to a step. This complements:
 2. [01 — Backend scaffold + first endpoint](01-backend-scaffold.md)
 3. [02 — React frontend](02-frontend-scaffold.md)
 4. [03 — Database & domain model](03-database-and-entities.md)
-5. *04 — CSV import (next)*
+5. [04 — CSV import](04-csv-import.md)
+6. *05 — List transactions (API + React) (next)*
 
 ---
 
@@ -38,4 +39,5 @@ paso. Complementa a:
 2. [01 — Scaffold del backend + primer endpoint](01-backend-scaffold.md)
 3. [02 — Frontend React](02-frontend-scaffold.md)
 4. [03 — Base de datos y modelo de dominio](03-database-and-entities.md)
-5. *04 — Importación CSV (siguiente)*
+5. [04 — Importación CSV](04-csv-import.md)
+6. *05 — Listar movimientos (API + React) (siguiente)*
