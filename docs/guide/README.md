@@ -23,7 +23,8 @@ to a step. This complements:
 6. [05 — List transactions (API + React)](05-list-transactions.md)
 7. [06 — AI categorization](06-ai-categorization.md)
 8. [07 — Dashboard (charts)](07-dashboard.md)
-9. *08 — VAT panel (Phase 2, next)*
+9. [08 — VAT panel (Phase 2)](08-vat-panel.md)
+10. *09 — IRPF estimate & quarter alerts (next)*
 
 ---
 
@@ -46,4 +47,5 @@ paso. Complementa a:
 6. [05 — Listar movimientos (API + React)](05-list-transactions.md)
 7. [06 — Categorización con IA](06-ai-categorization.md)
 8. [07 — Panel (gráficos)](07-dashboard.md)
-9. *08 — Panel de IVA (Fase 2, siguiente)*
+9. [08 — Panel de IVA (Fase 2)](08-vat-panel.md)
+10. *09 — Estimación de IRPF y avisos de trimestre (siguiente)*

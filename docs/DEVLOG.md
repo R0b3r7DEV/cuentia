@@ -12,6 +12,20 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-02 — Entry 011: VAT panel (Phase 2 begins)
+**Done**
+- Added `VatService` (category → Spanish VAT-rate map, cents-based VAT extraction) and `GET /api/vat`.
+- Added a VAT summary panel in React: output VAT, input VAT and net (to pay / to reclaim).
+- Verified on the sample data: output 336.00, input 23.00, net 313.00 to pay — salary and autónomo fee
+  correctly carry no VAT. Documented in [guide 08](guide/08-vat-panel.md).
+
+**Why**
+- This is the finance moat: computing VAT correctly (right rates per category, salaries exempt, exact
+  cents) is exactly the domain knowledge that differentiates this project.
+
+**Next**
+- IRPF estimate (modelo 130) and quarterly deadline alerts.
+
 ### 2026-07-02 — Entry 010: Dashboard with charts
 **Done**
 - Added `GET /api/stats` (raw SQL aggregation: totals, spending by category, income/expenses by month).
@@ -157,6 +171,20 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-02 — Entrada 011: Panel de IVA (empieza la Fase 2)
+**Hecho**
+- Añadido `VatService` (mapa categoría → tipo de IVA español, cálculo de IVA en céntimos) y `GET /api/vat`.
+- Añadido un panel de IVA en React: IVA repercutido, soportado y neto (a pagar / a compensar).
+- Verificado con los datos de ejemplo: repercutido 336,00, soportado 23,00, neto 313,00 a pagar — la
+  nómina y la cuota de autónomo correctamente sin IVA. Documentado en la [guía 08](guide/08-vat-panel.md).
+
+**Por qué**
+- Este es el foso financiero: calcular el IVA bien (tipos correctos por categoría, nóminas exentas,
+  céntimos exactos) es justo el conocimiento del dominio que diferencia este proyecto.
+
+**Siguiente**
+- Estimación de IRPF (modelo 130) y avisos de trimestre.
 
 ### 2026-07-02 — Entrada 010: Panel con gráficos
 **Hecho**

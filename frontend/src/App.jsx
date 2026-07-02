@@ -9,6 +9,7 @@ const eur = (value) =>
 function App() {
   const [transactions, setTransactions] = useState([])
   const [stats, setStats] = useState(null)
+  const [vat, setVat] = useState(null)
   const [error, setError] = useState(null)
   const [importing, setImporting] = useState(false)
   const [categorizing, setCategorizing] = useState(false)
@@ -27,6 +28,11 @@ function App() {
     fetch('/api/stats')
       .then((res) => (res.ok ? res.json() : null))
       .then(setStats)
+      .catch(() => {})
+
+    fetch('/api/vat')
+      .then((res) => (res.ok ? res.json() : null))
+      .then(setVat)
       .catch(() => {})
   }
 
@@ -90,6 +96,24 @@ function App() {
       </div>
 
       <Dashboard stats={stats} />
+
+      {vat && (
+        <section style={{ border: '1px solid #eee', borderRadius: 12, padding: '1rem 1.25rem', margin: '1.5rem 0' }}>
+          <h2 style={{ fontSize: 16, margin: '0 0 0.75rem' }}>VAT summary (IVA)</h2>
+          <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
+            <Stat label="Output VAT (repercutido)" value={eur(vat.outputVat)} color="#2a78d6" />
+            <Stat label="Input VAT (soportado)" value={eur(vat.inputVat)} color="#e34948" />
+            <Stat
+              label={Number(vat.net) >= 0 ? 'Net VAT to pay' : 'Net VAT to reclaim'}
+              value={eur(Math.abs(Number(vat.net)))}
+              color="#111"
+            />
+          </div>
+          <p style={{ color: '#999', fontSize: 12, marginBottom: 0 }}>
+            Output − input VAT. Rates inferred from each transaction's category (default Spanish rates).
+          </p>
+        </section>
+      )}
 
       <label style={{ display: 'inline-block', marginBottom: '1rem' }}>
         <span style={{ fontWeight: 600 }}>Import bank CSV: </span>
