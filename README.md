@@ -9,6 +9,12 @@
 > ⚠️ **Work in progress.** This project is being built in public, step by step, with every
 > decision documented in [`docs/`](docs/). Follow the build in [`docs/DEVLOG.md`](docs/DEVLOG.md).
 
+[![CI](https://github.com/R0b3r7DEV/cuentia/actions/workflows/ci.yml/badge.svg)](https://github.com/R0b3r7DEV/cuentia/actions/workflows/ci.yml)
+![PHP](https://img.shields.io/badge/PHP_8.4-777BB4?logo=php&logoColor=white)
+![Symfony](https://img.shields.io/badge/Symfony_8-000000?logo=symfony&logoColor=white)
+![React](https://img.shields.io/badge/React_19-20232A?logo=react&logoColor=61DAFB)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+
 ---
 
 ## English

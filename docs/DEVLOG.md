@@ -12,6 +12,19 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-02 — Entry 017: Continuous Integration (GitHub Actions)
+**Done**
+- Added `.github/workflows/ci.yml` with two parallel jobs: **backend** (PHP 8.4 → `composer install` →
+  `php bin/phpunit`) and **frontend** (Node 24 → `npm ci` → `npm run build`).
+- Added a CI status badge (+ stack badges) to the README.
+
+**Why**
+- Running the tests and build on every push prevents regressions from being merged, and the green badge
+  is instant credibility for anyone browsing the repo.
+
+**Next**
+- A live deployment with a link and screenshots in the README.
+
 ### 2026-07-02 — Entry 016: Unit tests for the finance logic (PHPUnit)
 **Done**
 - Installed PHPUnit (`symfony/test-pack`).
@@ -249,6 +262,19 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-02 — Entrada 017: Integración continua (GitHub Actions)
+**Hecho**
+- Añadido `.github/workflows/ci.yml` con dos jobs en paralelo: **backend** (PHP 8.4 → `composer install`
+  → `php bin/phpunit`) y **frontend** (Node 24 → `npm ci` → `npm run build`).
+- Añadida una insignia de estado de CI (+ badges de stack) al README.
+
+**Por qué**
+- Ejecutar los tests y el build en cada push evita que se fusionen regresiones, y la insignia verde da
+  credibilidad instantánea a quien navegue el repo.
+
+**Siguiente**
+- Un despliegue en vivo con enlace y capturas en el README.
 
 ### 2026-07-02 — Entrada 016: Tests unitarios de la lógica fiscal (PHPUnit)
 **Hecho**

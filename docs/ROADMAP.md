@@ -45,7 +45,7 @@ Goal: the features a generic dev could not build without finance knowledge.
 ### Phase 4 — Production quality ⬜
 - ⬜ Authentication + multi-user (each user sees only their data)
 - 🟨 Tests (✅ unit for the finance logic — VAT/IRPF; integration for the API pending)
-- ⬜ CI (GitHub Actions) + live deploy + screenshots in the README
+- 🟨 CI (GitHub Actions) ✅ + live deploy + screenshots in the README (pending)
 - ⬜ GDPR basics (privacy policy, data export/delete)
 
 ### Scope guardrails (so it stays finishable)
@@ -96,7 +96,7 @@ Objetivo: las funciones que un dev genérico no podría construir sin conocer fi
 ### Fase 4 — Calidad de producción ⬜
 - ⬜ Autenticación + multiusuario (cada usuario ve solo sus datos)
 - 🟨 Tests (✅ unitarios de la lógica financiera — IVA/IRPF; integración de la API pendiente)
-- ⬜ CI (GitHub Actions) + deploy en vivo + capturas en el README
+- 🟨 CI (GitHub Actions) ✅ + deploy en vivo + capturas en el README (pendiente)
 - ⬜ Básicos de RGPD (política de privacidad, exportar/borrar datos)
 
 ### Límites de alcance (para que sea terminable)
