@@ -12,6 +12,21 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-02 — Entry 015: Internationalization (ES/EN toggle)
+**Done**
+- Added a dependency-free i18n: a translations dictionary (en/es), a `LanguageContext` with `useTranslation()`
+  (`{ lang, setLang, t }`), and an EN/ES toggle button in the navbar. Choice persists in localStorage.
+- Replaced hardcoded UI strings across navbar, pages, charts and tax panels with `t('key')`; `t()`
+  supports `{param}` placeholders (e.g. the IRPF deadline alert, quarter prefix Q/T).
+- Default language Spanish; switches instantly. Documented in [guide 12](guide/12-i18n.md).
+
+**Why**
+- A bilingual UI signals international product thinking and showcases the author's ES/EN profile — a
+  strong fit for remote/EU roles.
+
+**Next**
+- Norma 43 importer (finish Phase 2), then production concerns (tests, auth, deploy).
+
 ### 2026-07-02 — Entry 014: Visual redesign (design tokens, no "AI look")
 **Done**
 - Replaced the template CSS (purple accent) with a **design-token system** in `index.css`: surfaces, ink,
@@ -218,6 +233,22 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-02 — Entrada 015: Internacionalización (botón ES/EN)
+**Hecho**
+- Añadido un i18n sin dependencias: diccionario de traducciones (en/es), un `LanguageContext` con
+  `useTranslation()` (`{ lang, setLang, t }`), y un botón EN/ES en la navbar. La elección persiste en
+  localStorage.
+- Sustituidos los textos fijos de la interfaz (navbar, páginas, gráficos, paneles fiscales) por
+  `t('clave')`; `t()` admite marcadores `{param}` (p.ej. el aviso de vencimiento del IRPF, prefijo T/Q).
+- Idioma por defecto español; cambia al instante. Documentado en la [guía 12](guide/12-i18n.md).
+
+**Por qué**
+- Una interfaz bilingüe demuestra pensamiento de producto internacional y muestra el perfil ES/EN del
+  autor — encaja con puestos remotos/UE.
+
+**Siguiente**
+- Importador Norma 43 (cerrar la Fase 2) y luego temas de producción (tests, auth, deploy).
 
 ### 2026-07-02 — Entrada 014: Rediseño visual (tokens de diseño, sin "look de IA")
 **Hecho**

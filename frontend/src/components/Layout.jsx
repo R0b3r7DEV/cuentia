@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import Navbar from './Navbar'
 import { useFinanceData } from '../hooks/useFinanceData'
+import { useTranslation } from '../i18n/LanguageContext'
 
 /**
  * App shell: the navbar plus the current page (<Outlet/>). Loads data once and shares
@@ -10,12 +11,13 @@ import { useFinanceData } from '../hooks/useFinanceData'
  */
 export default function Layout() {
   const data = useFinanceData()
+  const { t } = useTranslation()
 
   return (
     <>
       <Navbar />
       <main className="app-main">
-        {data.error && <p className="msg error">API error: {data.error}</p>}
+        {data.error && <p className="msg error">{t('common.apiError', { msg: data.error })}</p>}
         <Outlet context={data} />
       </main>
     </>

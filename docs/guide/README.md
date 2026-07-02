@@ -27,7 +27,8 @@ to a step. This complements:
 10. [09 — IRPF estimate & quarter alerts](09-irpf.md)
 11. [10 — Frontend structure: pages & routing](10-frontend-routing.md)
 12. [11 — Visual redesign](11-visual-redesign.md)
-13. *12 — Internationalization (ES/EN toggle) (next)*
+13. [12 — Internationalization (ES/EN toggle)](12-i18n.md)
+14. *13 — Norma 43 import / production (next)*
 
 ---
 
@@ -54,4 +55,5 @@ paso. Complementa a:
 10. [09 — Estimación de IRPF y avisos de trimestre](09-irpf.md)
 11. [10 — Estructura del frontend: páginas y enrutado](10-frontend-routing.md)
 12. [11 — Rediseño visual](11-visual-redesign.md)
-13. *12 — Internacionalización (botón ES/EN) (siguiente)*
+13. [12 — Internacionalización (botón ES/EN)](12-i18n.md)
+14. *13 — Importación Norma 43 / producción (siguiente)*

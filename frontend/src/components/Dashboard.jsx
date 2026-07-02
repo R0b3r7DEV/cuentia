@@ -3,6 +3,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid, LabelList,
 } from 'recharts'
 import { eur } from '../lib/format'
+import { useTranslation } from '../i18n/LanguageContext'
 
 // Read chart colors from the CSS design tokens so the charts follow the theme
 // (including dark mode). / Lee los colores de los tokens CSS para que los gráficos
@@ -24,6 +25,7 @@ function useChartColors() {
 
 export default function Dashboard({ stats }) {
   const { blue, red, grid, muted } = useChartColors()
+  const { t } = useTranslation()
   if (!stats) return null
 
   const expensesByCategory = (stats.byCategory || [])
@@ -40,7 +42,7 @@ export default function Dashboard({ stats }) {
   return (
     <div className="chart-grid">
       <figure className="figure">
-        <figcaption>Spending by category</figcaption>
+        <figcaption>{t('chart.byCategory')}</figcaption>
         <ResponsiveContainer width="100%" height={height}>
           <BarChart data={expensesByCategory} layout="vertical" margin={{ left: 8, right: 56 }}>
             <CartesianGrid horizontal={false} stroke={grid} />
@@ -55,7 +57,7 @@ export default function Dashboard({ stats }) {
       </figure>
 
       <figure className="figure">
-        <figcaption>Income vs expenses by month</figcaption>
+        <figcaption>{t('chart.byMonth')}</figcaption>
         <ResponsiveContainer width="100%" height={height}>
           <BarChart data={byMonth} margin={{ left: 8, right: 8 }}>
             <CartesianGrid vertical={false} stroke={grid} />
@@ -63,8 +65,8 @@ export default function Dashboard({ stats }) {
             <YAxis tickFormatter={eur} stroke={muted} fontSize={12} width={70} />
             <Tooltip formatter={(v) => eur(v)} cursor={{ fill: 'rgba(128,128,128,0.08)' }} />
             <Legend />
-            <Bar dataKey="income" name="Income" fill={blue} radius={[4, 4, 0, 0]} />
-            <Bar dataKey="expenses" name="Expenses" fill={red} radius={[4, 4, 0, 0]} />
+            <Bar dataKey="income" name={t('stat.income')} fill={blue} radius={[4, 4, 0, 0]} />
+            <Bar dataKey="expenses" name={t('stat.expenses')} fill={red} radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </figure>

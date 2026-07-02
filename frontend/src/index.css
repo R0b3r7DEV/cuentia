@@ -95,6 +95,8 @@ a { color: inherit; }
 .navlink { padding: 6px 12px; border-radius: var(--radius-sm); text-decoration: none; font-size: 14px; font-weight: 600; color: var(--text-muted); }
 .navlink:hover { background: var(--surface-2); color: var(--text); }
 .navlink.active { color: var(--accent); background: var(--accent-weak); }
+.lang-btn { margin-left: auto; font: inherit; font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: var(--radius-pill); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-muted); cursor: pointer; }
+.lang-btn:hover { background: var(--surface-2); color: var(--text); border-color: var(--text-muted); }
 
 /* ── Cards ──────────────────────────────────────────────────────────────── */
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
