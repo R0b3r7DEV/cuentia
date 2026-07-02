@@ -12,6 +12,22 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-02 — Entry 005: React frontend + Phase 0 complete
+**Done**
+- Scaffolded the React app (Vite) in `frontend/`; added a dev **proxy** (`/api` → `:8000`) to avoid CORS.
+- `App.jsx` calls `GET /api/health` on mount and shows "✅ API OK".
+- Verified end to end: with both servers running, `http://localhost:5173/api/health` is proxied to the
+  backend and returns the JSON. **Phase 0 is complete.**
+- Documented it in [guide 02](guide/02-frontend-scaffold.md), including the real `localhost` vs
+  `127.0.0.1` (IPv6) gotcha we hit.
+
+**Why**
+- Proving the frontend↔backend link now, on the simplest possible feature, means every later feature
+  is built on a foundation we know works.
+
+**Next**
+- Phase 1: domain model (`Transaction`, `Category`), PostgreSQL via Doctrine, and CSV import (guide 03).
+
 ### 2026-07-01 — Entry 004: Backend scaffold + first green
 **Done**
 - Scaffolded the Symfony 8.1 API in `backend/` (`symfony new backend`); removed its nested `.git`
@@ -64,6 +80,24 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-02 — Entrada 005: Frontend React + Fase 0 completa
+**Hecho**
+- Generada la app React (Vite) en `frontend/`; añadido un **proxy** de desarrollo (`/api` → `:8000`)
+  para evitar CORS.
+- `App.jsx` llama a `GET /api/health` al montarse y muestra "✅ API OK".
+- Verificado de punta a punta: con ambos servidores en marcha, `http://localhost:5173/api/health` se
+  reenvía por proxy al backend y devuelve el JSON. **La Fase 0 está completa.**
+- Documentado en la [guía 02](guide/02-frontend-scaffold.md), incluyendo el detalle real de
+  `localhost` vs `127.0.0.1` (IPv6) que nos pasó.
+
+**Por qué**
+- Demostrar ya el enlace frontend↔backend, con la función más simple posible, hace que cada función
+  posterior se construya sobre una base que sabemos que funciona.
+
+**Siguiente**
+- Fase 1: modelo de dominio (`Transaction`, `Category`), PostgreSQL vía Doctrine e importación CSV
+  (guía 03).
 
 ### 2026-07-01 — Entrada 004: Scaffold del backend + primer verde
 **Hecho**

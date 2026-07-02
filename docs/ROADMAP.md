@@ -11,14 +11,14 @@ Legend: ⬜ not started · 🟨 in progress · ✅ done
 
 ## English
 
-### Phase 0 — Foundations 🟨
+### Phase 0 — Foundations ✅
 Goal: a running skeleton and the documentation discipline in place.
 
 - ✅ Decide project + stack (see [ADR 0002](decisions/0002-project-and-stack.md))
 - ✅ Documentation skeleton (README, ROADMAP, ARCHITECTURE, DEVLOG, ADRs)
 - ✅ Install tooling (PHP, Composer, Symfony CLI, PostgreSQL)
-- 🟨 Scaffold Symfony API + React app, connected to PostgreSQL (Symfony API done; React + DB next)
-- 🟨 First green: `GET /api/health` returns 200 (✅ API) and the React app calls it (pending)
+- ✅ Scaffold Symfony API + React app (PostgreSQL connection lands in Phase 1 with the first entity)
+- ✅ First green: `GET /api/health` returns 200 and the React app calls it through the Vite proxy
 
 ### Phase 1 — MVP: import → categorize → see your money ⬜
 Goal: the core loop works end to end with sample data.
@@ -62,14 +62,14 @@ ninguna fase deja la app rota. Priorizamos profundidad y comprensión sobre núm
 
 Leyenda: ⬜ sin empezar · 🟨 en progreso · ✅ hecho
 
-### Fase 0 — Cimientos 🟨
+### Fase 0 — Cimientos ✅
 Objetivo: un esqueleto que arranca y la disciplina de documentación en marcha.
 
 - ✅ Decidir proyecto + stack (ver [ADR 0002](decisions/0002-project-and-stack.md))
 - ✅ Esqueleto de documentación (README, ROADMAP, ARCHITECTURE, DEVLOG, ADRs)
 - ✅ Instalar herramientas (PHP, Composer, Symfony CLI, PostgreSQL)
-- 🟨 Generar el backend Symfony (API) + la app React (API Symfony hecha; React + BD siguiente)
-- 🟨 Primer "verde": `GET /api/health` devuelve 200 (✅ API) y la app React lo llama (pendiente)
+- ✅ Generar el backend Symfony (API) + la app React (la conexión a PostgreSQL llega en la Fase 1 con la primera entidad)
+- ✅ Primer "verde": `GET /api/health` devuelve 200 y la app React lo llama a través del proxy de Vite
 
 ### Fase 1 — MVP: importar → categorizar → ver tu dinero ⬜
 Objetivo: el bucle principal funciona de punta a punta con datos de ejemplo.
