@@ -42,8 +42,8 @@ Goal: the features a generic dev could not build without finance knowledge.
 - ✅ **Natural-language chat** over your transactions (AI, with a data-summary fallback)
 - ⬜ **Real open banking** via GoCardless Bank Account Data (free sandbox → real banks)
 
-### Phase 4 — Production quality ⬜
-- ⬜ Authentication + multi-user (each user sees only their data)
+### Phase 4 — Production quality 🟨
+- ✅ Authentication + multi-user (each user sees only their data)
 - 🟨 Tests (✅ unit for the finance logic — VAT/IRPF; integration for the API pending)
 - 🟨 CI (GitHub Actions) ✅ + live deploy + screenshots in the README (pending)
 - ⬜ GDPR basics (privacy policy, data export/delete)
@@ -93,8 +93,8 @@ Objetivo: las funciones que un dev genérico no podría construir sin conocer fi
 - ✅ **Chat en lenguaje natural** sobre tus movimientos (IA, con fallback de resumen de datos)
 - ⬜ **Open banking real** vía GoCardless Bank Account Data (sandbox gratis → bancos reales)
 
-### Fase 4 — Calidad de producción ⬜
-- ⬜ Autenticación + multiusuario (cada usuario ve solo sus datos)
+### Fase 4 — Calidad de producción 🟨
+- ✅ Autenticación + multiusuario (cada usuario ve solo sus datos)
 - 🟨 Tests (✅ unitarios de la lógica financiera — IVA/IRPF; integración de la API pendiente)
 - 🟨 CI (GitHub Actions) ✅ + deploy en vivo + capturas en el README (pendiente)
 - ⬜ Básicos de RGPD (política de privacidad, exportar/borrar datos)

@@ -2,11 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Service\ImportService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 /**
  * Import endpoint. Thin on purpose: it only reads the request and delegates the
@@ -17,7 +19,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class ImportController extends AbstractController
 {
     #[Route('/api/import/csv', name: 'api_import_csv', methods: ['POST'])]
-    public function importCsv(Request $request, ImportService $import): JsonResponse
+    public function importCsv(Request $request, ImportService $import, #[CurrentUser] User $user): JsonResponse
     {
         // Accept either an uploaded file (field "file") or the raw request body.
         // ES: Acepta un fichero subido (campo "file") o el cuerpo crudo de la petición.
@@ -29,7 +31,7 @@ class ImportController extends AbstractController
         }
 
         // Auto-detects CSV vs Norma 43 by content. / Auto-detecta CSV vs Norma 43 por el contenido.
-        $result = $import->import($csv);
+        $result = $import->import($csv, $user);
 
         return $this->json($result);
     }

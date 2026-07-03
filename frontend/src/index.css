@@ -95,8 +95,18 @@ a { color: inherit; }
 .navlink { padding: 6px 12px; border-radius: var(--radius-sm); text-decoration: none; font-size: 14px; font-weight: 600; color: var(--text-muted); }
 .navlink:hover { background: var(--surface-2); color: var(--text); }
 .navlink.active { color: var(--accent); background: var(--accent-weak); }
-.lang-btn { margin-left: auto; font: inherit; font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: var(--radius-pill); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-muted); cursor: pointer; }
+.lang-btn { font: inherit; font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: var(--radius-pill); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-muted); cursor: pointer; }
 .lang-btn:hover { background: var(--surface-2); color: var(--text); border-color: var(--text-muted); }
+.nav-user { margin-left: auto; font-size: 13px; color: var(--text-muted); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-logout { font-size: 13px; padding: 5px 12px; }
+
+/* ── Auth screen ────────────────────────────────────────────────────────── */
+.auth-wrap { min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; background: var(--bg); }
+.auth-card { width: 100%; max-width: 380px; margin: 0; }
+.auth-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.auth-form { display: flex; flex-direction: column; gap: 10px; margin: 12px 0; }
+.link-btn { background: none; border: none; padding: 0; color: var(--accent); font: inherit; font-weight: 600; cursor: pointer; }
+.link-btn:hover { text-decoration: underline; }
 
 /* ── Cards ──────────────────────────────────────────────────────────────── */
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }

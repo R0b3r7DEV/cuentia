@@ -1,10 +1,12 @@
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from '../i18n/LanguageContext'
+import { useAuth } from '../auth/AuthContext'
 
 const cls = ({ isActive }) => (isActive ? 'navlink active' : 'navlink')
 
 export default function Navbar() {
   const { t, lang, setLang } = useTranslation()
+  const { user, logout } = useAuth()
 
   return (
     <header className="navbar">
@@ -14,11 +16,10 @@ export default function Navbar() {
         <NavLink to="/dashboard" className={cls}>{t('nav.dashboard')}</NavLink>
         <NavLink to="/taxes" className={cls}>{t('nav.taxes')}</NavLink>
         <NavLink to="/chat" className={cls}>{t('nav.assistant')}</NavLink>
-        <button
-          className="lang-btn"
-          onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
-          title="Change language / Cambiar idioma"
-        >
+
+        <span className="nav-user">{user?.email}</span>
+        <button className="btn nav-logout" onClick={logout}>{t('auth.logout')}</button>
+        <button className="lang-btn" onClick={() => setLang(lang === 'es' ? 'en' : 'es')} title="Change language / Cambiar idioma">
           {lang === 'es' ? 'EN' : 'ES'}
         </button>
       </nav>

@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\User;
 use App\Repository\TransactionRepository;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -28,9 +29,9 @@ class ChatService
     /**
      * @return array{answer:string, source:string}
      */
-    public function answer(string $question): array
+    public function answer(string $question, User $user): array
     {
-        $context = $this->buildContext();
+        $context = $this->buildContext($user);
 
         if ($this->apiKey !== '') {
             try {
@@ -44,13 +45,13 @@ class ChatService
     }
 
     /** A compact, factual snapshot of the finances used to ground the answer. */
-    private function buildContext(): string
+    private function buildContext(User $user): string
     {
         $incomeC = 0;
         $expenseC = 0;
         $byCategory = []; // name => expense cents (positive)
 
-        foreach ($this->transactions->findAll() as $tx) {
+        foreach ($this->transactions->findForUser($user) as $tx) {
             $cents = (int) round((float) $tx->getAmount() * 100);
             if ($cents >= 0) {
                 $incomeC += $cents;
@@ -76,10 +77,10 @@ class ChatService
             $lines[] = 'Expenses by category: ' . implode(', ', $cats);
         }
 
-        $vat = $this->vat->summary();
+        $vat = $this->vat->summary($user);
         $lines[] = "VAT: output {$vat['outputVat']}, input {$vat['inputVat']}, net {$vat['net']} EUR";
 
-        $irpf = $this->irpf->summary();
+        $irpf = $this->irpf->summary($user);
         if ($irpf['nextDeadline'] !== null) {
             $q = $irpf['nextDeadline']['quarter'];
             $payment = $irpf['quarters'][$q - 1]['payment'] ?? '0.00';

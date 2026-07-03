@@ -12,6 +12,26 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-03 — Entry 021: Authentication & multi-user (Phase 4)
+**Done**
+- Added a `User` entity + Symfony security-bundle: entity provider, session `json_login`, logout, access
+  control. Endpoints: `POST /api/register`, `/api/login`, `/api/logout`, `GET /api/me`.
+- Scoped everything to the current user: `Transaction` now belongs to a `User`; imports set it;
+  `TransactionRepository::findForUser()`; every service and the stats SQL filter by user (passed via
+  `#[CurrentUser]`).
+- Frontend: `AuthContext` + a login/register `AuthPage`; `App` gates the whole app; navbar shows the email
+  + logout.
+- Updated all unit tests to the new signatures. `php bin/phpunit` → **OK (11 tests, 37 assertions)**.
+  Verified end to end with session cookies (register → login → scoped data → 401 when logged out).
+  Documented in [guide 18](guide/18-auth.md).
+
+**Why**
+- Multi-user data isolation is what turns this from a demo into a real SaaS — and enforcing it at the query
+  layer is the correct, secure way.
+
+**Next**
+- Production hardening + the live deploy.
+
 ### 2026-07-02 — Entry 020: Natural-language assistant (AI + fallback)
 **Done**
 - Added `ChatService`: builds a factual context (balance, income/expenses, top categories, VAT, next IRPF
@@ -310,6 +330,26 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-03 — Entrada 021: Autenticación y multiusuario (Fase 4)
+**Hecho**
+- Añadida entidad `User` + security-bundle de Symfony: proveedor de entidad, `json_login` con sesión,
+  logout, control de acceso. Endpoints: `POST /api/register`, `/api/login`, `/api/logout`, `GET /api/me`.
+- Todo acotado al usuario actual: `Transaction` pertenece a un `User`; las importaciones lo asignan;
+  `TransactionRepository::findForUser()`; cada servicio y el SQL de stats filtran por usuario (vía
+  `#[CurrentUser]`).
+- Frontend: `AuthContext` + `AuthPage` de login/registro; `App` protege toda la app; la navbar muestra el
+  email + salir.
+- Actualizados todos los tests unitarios a las nuevas firmas. `php bin/phpunit` → **OK (11 tests, 37
+  assertions)**. Verificado end-to-end con cookies de sesión (registro → login → datos acotados → 401 sin
+  sesión). Documentado en la [guía 18](guide/18-auth.md).
+
+**Por qué**
+- El aislamiento de datos multiusuario es lo que convierte esto de una demo en un SaaS real — e imponerlo
+  en la capa de consulta es la forma correcta y segura.
+
+**Siguiente**
+- Endurecimiento de producción y el deploy en vivo.
 
 ### 2026-07-02 — Entrada 020: Asistente en lenguaje natural (IA + fallback)
 **Hecho**

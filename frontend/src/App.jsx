@@ -4,10 +4,17 @@ import MovementsPage from './pages/MovementsPage'
 import DashboardPage from './pages/DashboardPage'
 import TaxesPage from './pages/TaxesPage'
 import ChatPage from './pages/ChatPage'
+import AuthPage from './pages/AuthPage'
+import { useAuth } from './auth/AuthContext'
 
-// Routing: the Layout (navbar + shared data) wraps the three pages.
-// ES: Enrutado: el Layout (navbar + datos compartidos) envuelve las tres páginas.
+// Gate the app behind authentication: logged-out users see the login/register screen.
+// ES: Protege la app tras la autenticación: los no logueados ven la pantalla de login/registro.
 export default function App() {
+  const { user, loading } = useAuth()
+
+  if (loading) return null
+  if (!user) return <AuthPage />
+
   return (
     <BrowserRouter>
       <Routes>

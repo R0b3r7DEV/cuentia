@@ -33,7 +33,8 @@ to a step. This complements:
 16. [15 — Norma 43 import](15-norma43.md)
 17. [16 — Cash-flow forecast (Phase 3)](16-forecast.md)
 18. [17 — Natural-language assistant](17-chat.md)
-19. *18 — Auth & deploy (next)*
+19. [18 — Authentication & multi-user (Phase 4)](18-auth.md)
+20. *19 — Production & deploy (next)*
 
 ---
 
@@ -66,4 +67,5 @@ paso. Complementa a:
 16. [15 — Importación Norma 43](15-norma43.md)
 17. [16 — Previsión de tesorería (Fase 3)](16-forecast.md)
 18. [17 — Asistente en lenguaje natural](17-chat.md)
-19. *18 — Auth y deploy (siguiente)*
+19. [18 — Autenticación y multiusuario (Fase 4)](18-auth.md)
+20. *19 — Producción y deploy (siguiente)*

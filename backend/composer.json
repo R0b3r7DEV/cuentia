@@ -16,6 +16,7 @@
         "symfony/framework-bundle": "8.1.*",
         "symfony/http-client": "8.1.*",
         "symfony/runtime": "8.1.*",
+        "symfony/security-bundle": "8.1.*",
         "symfony/yaml": "8.1.*"
     },
     "config": {

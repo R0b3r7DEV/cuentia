@@ -4,6 +4,7 @@ namespace App\Tests\Service;
 
 use App\Entity\Category;
 use App\Entity\Transaction;
+use App\Entity\User;
 use App\Repository\TransactionRepository;
 use App\Service\VatService;
 use PHPUnit\Framework\TestCase;
@@ -30,7 +31,7 @@ class VatServiceTest extends TestCase
     private function service(array $transactions): VatService
     {
         $repo = $this->createStub(TransactionRepository::class);
-        $repo->method('findAll')->willReturn($transactions);
+        $repo->method('findForUser')->willReturn($transactions);
 
         return new VatService($repo);
     }
@@ -67,7 +68,7 @@ class VatServiceTest extends TestCase
             $this->tx('-38.50', 'Restauración'),          // 10%
         ]);
 
-        $s = $svc->summary();
+        $s = $svc->summary(new User());
 
         self::assertSame('336.00', $s['outputVat']); // VAT within 1.600 base of client income
         self::assertSame('23.00', $s['inputVat']);

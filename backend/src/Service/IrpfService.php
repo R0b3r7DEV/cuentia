@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\User;
 use App\Repository\TransactionRepository;
 
 /**
@@ -30,7 +31,7 @@ class IrpfService
         private VatService $vat,
     ) {}
 
-    public function summary(?\DateTimeImmutable $today = null): array
+    public function summary(User $user, ?\DateTimeImmutable $today = null): array
     {
         $today ??= new \DateTimeImmutable('today');
 
@@ -38,7 +39,7 @@ class IrpfService
         $expenseC = [1 => 0, 2 => 0, 3 => 0, 4 => 0];
         $year = null;
 
-        foreach ($this->transactions->findAll() as $tx) {
+        foreach ($this->transactions->findForUser($user) as $tx) {
             $month = (int) $tx->getBookedAt()->format('n');
             $q = intdiv($month - 1, 3) + 1;
             $year ??= (int) $tx->getBookedAt()->format('Y');

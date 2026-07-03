@@ -1,0 +1,43 @@
+security:
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+    # Load users from the database by their email. / Carga usuarios de la BD por su email.
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+
+    firewalls:
+        dev:
+            pattern: ^/(_profiler|_wdt|assets|build)/
+            security: false
+        main:
+            lazy: true
+            provider: app_user_provider
+
+            # Session-based JSON login: POST /api/login with {email, password}.
+            # ES: Login JSON con sesión: POST /api/login con {email, password}.
+            json_login:
+                check_path: api_login
+                username_path: email
+                password_path: password
+
+            logout:
+                path: api_logout
+
+    # Only the first matching rule applies (order matters).
+    # ES: Solo se aplica la primera regla que coincide (el orden importa).
+    access_control:
+        - { path: ^/api/(login|register|me|health), roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: ROLE_USER }
+
+when@test:
+    security:
+        password_hashers:
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4
+                time_cost: 3
+                memory_cost: 10

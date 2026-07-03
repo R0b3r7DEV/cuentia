@@ -4,6 +4,7 @@ namespace App\Tests\Service;
 
 use App\Entity\Category;
 use App\Entity\Transaction;
+use App\Entity\User;
 use App\Repository\TransactionRepository;
 use App\Service\ChatService;
 use App\Service\IrpfService;
@@ -27,7 +28,7 @@ class ChatServiceTest extends TestCase
     private function repo(array $transactions): TransactionRepository
     {
         $repo = $this->createStub(TransactionRepository::class);
-        $repo->method('findAll')->willReturn($transactions);
+        $repo->method('findForUser')->willReturn($transactions);
         return $repo;
     }
 
@@ -45,7 +46,7 @@ class ChatServiceTest extends TestCase
         // Empty API key → deterministic fallback (no HTTP call).
         $chat = new ChatService($this->repo($txs), $vat, $irpf, $http, '');
 
-        $result = $chat->answer('How much did I spend on fuel?');
+        $result = $chat->answer('How much did I spend on fuel?', new User());
 
         self::assertSame('fallback', $result['source']);
         self::assertStringContainsString('Current balance', $result['answer']);

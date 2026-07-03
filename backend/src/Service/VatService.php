@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Transaction;
+use App\Entity\User;
 use App\Repository\TransactionRepository;
 
 /**
@@ -54,7 +55,7 @@ class VatService
      *   byRate: array<int, array{rate:int, baseIncome:string, vatIncome:string, baseExpense:string, vatExpense:string}>
      * }
      */
-    public function summary(): array
+    public function summary(User $user): array
     {
         $outputVatC = 0;   // IVA repercutido (from income)
         $inputVatC  = 0;   // IVA soportado (from expenses)
@@ -62,7 +63,7 @@ class VatService
         $expenseBaseC = 0;
         $byRate = [];      // rate => [baseIncomeC, vatIncomeC, baseExpenseC, vatExpenseC]
 
-        foreach ($this->transactions->findAll() as $tx) {
+        foreach ($this->transactions->findForUser($user) as $tx) {
             $rate = $this->rateFor($tx);
             $isIncome = !str_starts_with(trim($tx->getAmount()), '-');
             $grossC = (int) round(abs((float) $tx->getAmount()) * 100);

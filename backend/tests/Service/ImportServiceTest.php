@@ -3,6 +3,7 @@
 namespace App\Tests\Service;
 
 use App\Entity\Transaction;
+use App\Entity\User;
 use App\Service\ImportService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -34,7 +35,7 @@ class ImportServiceTest extends TestCase
     public function testCsvParsesSpanishNumbersAndSemicolons(): void
     {
         $csv = "fecha;concepto;importe\n2026-01-05;Compra Mercadona;-52,30\n2026-01-10;Cliente ACME;1.210,00\n";
-        $result = $this->service()->import($csv);
+        $result = $this->service()->import($csv, new User());
 
         self::assertSame(2, $result['imported']);
         self::assertSame('-52.30', $this->persisted[0]->getAmount());
@@ -74,7 +75,7 @@ class ImportServiceTest extends TestCase
             str_pad('88', 80),                     // end of file
         ]) . "\n";
 
-        $result = $this->service()->import($content);
+        $result = $this->service()->import($content, new User());
 
         self::assertSame(2, $result['imported']);
         self::assertSame('1234.56', $this->persisted[0]->getAmount());

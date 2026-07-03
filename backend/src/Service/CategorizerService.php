@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Category;
 use App\Entity\Transaction;
+use App\Entity\User;
 use App\Repository\CategoryRepository;
 use App\Repository\TransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -53,9 +54,9 @@ class CategorizerService
      *
      * @return array{categorized:int, byAi:int, byRule:int}
      */
-    public function categorizeUncategorized(): array
+    public function categorizeUncategorized(User $user): array
     {
-        $pending = $this->transactions->findBy(['category' => null]);
+        $pending = $this->transactions->findBy(['user' => $user, 'category' => null]);
         $byAi = 0;
         $byRule = 0;
 

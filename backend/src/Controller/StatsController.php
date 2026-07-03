@@ -2,10 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 /**
  * Aggregated stats for the dashboard.
@@ -19,14 +21,17 @@ use Symfony\Component\Routing\Attribute\Route;
 class StatsController extends AbstractController
 {
     #[Route('/api/stats', name: 'api_stats', methods: ['GET'])]
-    public function stats(Connection $db): JsonResponse
+    public function stats(Connection $db, #[CurrentUser] User $user): JsonResponse
     {
+        $p = ['uid' => $user->getId()];
+
         // Totals / Totales
         $totals = $db->fetchAssociative(
             "SELECT
                 COALESCE(SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END), 0) AS income,
                 COALESCE(SUM(CASE WHEN amount < 0 THEN amount ELSE 0 END), 0) AS expenses
-             FROM transaction"
+             FROM transaction WHERE user_id = :uid",
+            $p
         ) ?: ['income' => '0', 'expenses' => '0'];
 
         // Spending by category / Gasto por categoría
@@ -37,8 +42,10 @@ class StatsController extends AbstractController
                     COUNT(*) AS count
              FROM transaction t
              LEFT JOIN category c ON c.id = t.category_id
+             WHERE t.user_id = :uid
              GROUP BY c.name, c.kind
-             ORDER BY total ASC"
+             ORDER BY total ASC",
+            $p
         );
 
         // Income vs expenses by month / Ingresos vs gastos por mes
@@ -46,9 +53,10 @@ class StatsController extends AbstractController
             "SELECT to_char(booked_at, 'YYYY-MM') AS month,
                     COALESCE(SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END), 0) AS income,
                     COALESCE(SUM(CASE WHEN amount < 0 THEN -amount ELSE 0 END), 0) AS expenses
-             FROM transaction
+             FROM transaction WHERE user_id = :uid
              GROUP BY month
-             ORDER BY month ASC"
+             ORDER BY month ASC",
+            $p
         );
 
         return $this->json([

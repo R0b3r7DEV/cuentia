@@ -59,6 +59,11 @@ class Transaction
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
+    /** The owner of this transaction. / El dueño de este movimiento. */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $user = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -91,4 +96,7 @@ class Transaction
     public function setImportedFrom(string $importedFrom): self { $this->importedFrom = $importedFrom; return $this; }
 
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+
+    public function getUser(): ?User { return $this->user; }
+    public function setUser(?User $user): self { $this->user = $user; return $this; }
 }

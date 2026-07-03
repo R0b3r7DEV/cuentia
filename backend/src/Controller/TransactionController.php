@@ -3,16 +3,18 @@
 namespace App\Controller;
 
 use App\Entity\Transaction;
+use App\Entity\User;
 use App\Repository\TransactionRepository;
 use App\Service\CategorizerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 class TransactionController extends AbstractController
 {
     #[Route('/api/transactions', name: 'api_transactions_list', methods: ['GET'])]
-    public function list(TransactionRepository $repo): JsonResponse
+    public function list(TransactionRepository $repo, #[CurrentUser] User $user): JsonResponse
     {
         // We map each entity to a plain array (a small DTO shape) instead of returning
         // the entity directly. This gives us full control over the API contract and
@@ -30,17 +32,17 @@ class TransactionController extends AbstractController
                 'category'       => $t->getCategory()?->getName(),
                 'categorySource' => $t->getCategorySource(),
             ],
-            $repo->findBy([], ['bookedAt' => 'DESC', 'id' => 'DESC']),
+            $repo->findForUser($user),
         );
 
         return $this->json($rows);
     }
 
     #[Route('/api/transactions/categorize', name: 'api_transactions_categorize', methods: ['POST'])]
-    public function categorize(CategorizerService $categorizer): JsonResponse
+    public function categorize(CategorizerService $categorizer, #[CurrentUser] User $user): JsonResponse
     {
         // Categorize every uncategorized transaction (AI if configured, rules otherwise).
         // ES: Categoriza cada movimiento sin categoría (IA si está configurada, reglas si no).
-        return $this->json($categorizer->categorizeUncategorized());
+        return $this->json($categorizer->categorizeUncategorized($user));
     }
 }

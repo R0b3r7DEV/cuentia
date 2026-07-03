@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\User;
 use App\Repository\TransactionRepository;
 
 /**
@@ -19,9 +20,9 @@ class ForecastService
 
     public function __construct(private TransactionRepository $transactions) {}
 
-    public function summary(): array
+    public function summary(User $user): array
     {
-        $txs = $this->transactions->findAll();
+        $txs = $this->transactions->findForUser($user);
 
         if ($txs === []) {
             return [

@@ -3,6 +3,7 @@
 namespace App\Tests\Service;
 
 use App\Entity\Transaction;
+use App\Entity\User;
 use App\Repository\TransactionRepository;
 use App\Service\ForecastService;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +21,7 @@ class ForecastServiceTest extends TestCase
     private function service(array $transactions): ForecastService
     {
         $repo = $this->createStub(TransactionRepository::class);
-        $repo->method('findAll')->willReturn($transactions);
+        $repo->method('findForUser')->willReturn($transactions);
         return new ForecastService($repo);
     }
 
@@ -32,7 +33,7 @@ class ForecastServiceTest extends TestCase
             $this->tx('-400.00', '2026-01-11'),
         ]);
 
-        $s = $svc->summary();
+        $s = $svc->summary(new User());
 
         self::assertSame('600.00', $s['currentBalance']);
         // avg daily = 60000/11 cents; * 30 → 1636.36
@@ -46,7 +47,7 @@ class ForecastServiceTest extends TestCase
 
     public function testEmptyIsZero(): void
     {
-        $s = $this->service([])->summary();
+        $s = $this->service([])->summary(new User());
         self::assertSame('0.00', $s['currentBalance']);
         self::assertSame('0.00', $s['points'][3]['balance']);
     }

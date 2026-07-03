@@ -4,6 +4,7 @@ namespace App\Tests\Service;
 
 use App\Entity\Category;
 use App\Entity\Transaction;
+use App\Entity\User;
 use App\Repository\TransactionRepository;
 use App\Service\IrpfService;
 use App\Service\VatService;
@@ -33,7 +34,7 @@ class IrpfServiceTest extends TestCase
         $vat = new VatService($this->createStub(TransactionRepository::class));
 
         $repo = $this->createStub(TransactionRepository::class);
-        $repo->method('findAll')->willReturn($transactions);
+        $repo->method('findForUser')->willReturn($transactions);
 
         return new IrpfService($repo, $vat);
     }
@@ -51,7 +52,7 @@ class IrpfServiceTest extends TestCase
             $this->tx('-38.50', 'Restauración'),
         ]);
 
-        $s = $svc->summary(new \DateTimeImmutable('2026-07-02'));
+        $s = $svc->summary(new User(), new \DateTimeImmutable('2026-07-02'));
 
         self::assertSame(2026, $s['year']);
         // Q1 net = 1600 (client income base) - 446.79 (expense bases) = 1153.21; 20% = 230.64
@@ -64,7 +65,7 @@ class IrpfServiceTest extends TestCase
     {
         // Only a salary → no self-employment income → nothing to prepay.
         $svc = $this->irpf([$this->tx('3000.00', 'Nómina')]);
-        $s = $svc->summary(new \DateTimeImmutable('2026-07-02'));
+        $s = $svc->summary(new User(), new \DateTimeImmutable('2026-07-02'));
 
         self::assertSame('0.00', $s['totalPayment']);
     }
@@ -72,7 +73,7 @@ class IrpfServiceTest extends TestCase
     public function testNextDeadlineCountdown(): void
     {
         $svc = $this->irpf([$this->tx('1000.00', 'Ingresos de cliente')]);
-        $s = $svc->summary(new \DateTimeImmutable('2026-07-02'));
+        $s = $svc->summary(new User(), new \DateTimeImmutable('2026-07-02'));
 
         // Q1 (Apr 20) already passed → next is Q2 (Jul 20), 18 days away.
         self::assertSame(2, $s['nextDeadline']['quarter']);

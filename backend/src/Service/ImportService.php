@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Transaction;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -27,17 +28,17 @@ class ImportService
      *
      * @return array{imported:int, errors:string[]}
      */
-    public function import(string $content): array
+    public function import(string $content, User $user): array
     {
         return $this->looksLikeNorma43($content)
-            ? $this->importNorma43($content)
-            : $this->importCsv($content);
+            ? $this->importNorma43($content, $user)
+            : $this->importCsv($content, $user);
     }
 
     /**
      * @return array{imported:int, errors:string[]}
      */
-    public function importCsv(string $csv): array
+    public function importCsv(string $csv, User $user): array
     {
         $errors = [];
         $lines = preg_split('/\r\n|\r|\n/', trim($csv)) ?: [];
@@ -78,7 +79,8 @@ class ImportService
                     ->setBookedAt($date)
                     ->setDescription($description)
                     ->setAmount($amount)
-                    ->setImportedFrom('csv');
+                    ->setImportedFrom('csv')
+                    ->setUser($user);
 
                 $this->em->persist($tx); // stage it for saving / lo prepara para guardar
                 $imported++;
@@ -103,7 +105,7 @@ class ImportService
      *
      * @return array{imported:int, errors:string[]}
      */
-    public function importNorma43(string $content): array
+    public function importNorma43(string $content, User $user): array
     {
         $errors = [];
         $lines = preg_split('/\r\n|\r|\n/', $content) ?: [];
@@ -137,7 +139,8 @@ class ImportService
                         ->setBookedAt($date)
                         ->setDescription('')
                         ->setAmount($amount)
-                        ->setImportedFrom('norma43');
+                        ->setImportedFrom('norma43')
+                        ->setUser($user);
                 } catch (\Throwable $e) {
                     $errors[] = sprintf('Line %d: %s', $i + 1, $e->getMessage());
                     $current = null;
