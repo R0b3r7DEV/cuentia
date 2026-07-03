@@ -44,7 +44,7 @@ Goal: the features a generic dev could not build without finance knowledge.
 
 ### Phase 4 — Production quality 🟨
 - ✅ Authentication + multi-user (each user sees only their data)
-- 🟨 Tests (✅ unit for the finance logic — VAT/IRPF; integration for the API pending)
+- ✅ Tests (unit for the finance logic + API integration tests — 16 tests)
 - 🟨 CI (GitHub Actions) ✅ + live deploy + screenshots in the README (pending)
 - ✅ GDPR basics (clear data, delete account/right to erasure, privacy note; data export TODO)
 
@@ -95,7 +95,7 @@ Objetivo: las funciones que un dev genérico no podría construir sin conocer fi
 
 ### Fase 4 — Calidad de producción 🟨
 - ✅ Autenticación + multiusuario (cada usuario ve solo sus datos)
-- 🟨 Tests (✅ unitarios de la lógica financiera — IVA/IRPF; integración de la API pendiente)
+- ✅ Tests (unitarios de la lógica financiera + tests de integración de la API — 16 tests)
 - 🟨 CI (GitHub Actions) ✅ + deploy en vivo + capturas en el README (pendiente)
 - ✅ Básicos de RGPD (limpiar datos, borrar cuenta/derecho al olvido, nota de privacidad; exportar TODO)
 

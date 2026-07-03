@@ -12,6 +12,24 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-03 — Entry 025: API integration tests
+**Done**
+- Added `tests/Api/ApiIntegrationTest` (WebTestCase): boots the real kernel/firewall/DB and tests register/
+  login/me/logout, 401 for unauthenticated, duplicate-email 409, **per-user isolation** (A imports 2, B sees
+  0), and clear/delete account.
+- Runs on **SQLite in-memory** (`.env.test`) with `disableReboot()` — no DB service needed; CI installs
+  `pdo_sqlite`.
+- Caught two real bugs: `transaction` is a reserved word in SQLite (fixed by quoting the table name), and
+  Windows SQLite file-locking (fixed with the in-memory DB). `php bin/phpunit` → **OK (16 tests, 52 assertions)**.
+  Documented in [guide 22](guide/22-integration-tests.md).
+
+**Why**
+- Integration tests prove the whole stack is wired correctly — the strongest evidence, for an interviewer,
+  that the app really works.
+
+**Next**
+- The live deployment.
+
 ### 2026-07-03 — Entry 024: UX polish — liquid-glass redesign + responsive
 **Done**
 - Reworked `index.css` into a "liquid glass" system (iOS/WhatsApp-inspired): translucent frosted cards and
@@ -376,6 +394,24 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-03 — Entrada 025: Tests de integración de la API
+**Hecho**
+- Añadido `tests/Api/ApiIntegrationTest` (WebTestCase): arranca el kernel/firewall/BD reales y prueba
+  register/login/me/logout, 401 sin auth, email duplicado 409, **aislamiento por usuario** (A importa 2, B
+  ve 0), y limpiar/borrar cuenta.
+- Corre sobre **SQLite en memoria** (`.env.test`) con `disableReboot()` — sin servicio de BD; CI instala
+  `pdo_sqlite`.
+- Cazó dos errores reales: `transaction` es palabra reservada en SQLite (resuelto entrecomillando el nombre
+  de la tabla) y el bloqueo de fichero SQLite en Windows (resuelto con la BD en memoria). `php bin/phpunit`
+  → **OK (16 tests, 52 assertions)**. Documentado en la [guía 22](guide/22-integration-tests.md).
+
+**Por qué**
+- Los tests de integración demuestran que toda la pila está bien cableada — la prueba más fuerte, para un
+  entrevistador, de que la app funciona de verdad.
+
+**Siguiente**
+- El despliegue en vivo.
 
 ### 2026-07-03 — Entrada 024: Pulido UX — rediseño liquid glass + responsive
 **Hecho**

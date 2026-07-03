@@ -9,7 +9,12 @@ use Doctrine\ORM\Mapping as ORM;
  * A single bank movement (an income or an expense).
  * ES: Un movimiento bancario (un ingreso o un gasto).
  */
+// The table name is quoted because "transaction" is a reserved word in some databases
+// (e.g. SQLite). Doctrine then emits the right quotes per platform.
+// ES: El nombre de la tabla va entrecomillado porque "transaction" es palabra reservada en
+// algunas bases de datos (p.ej. SQLite). Doctrine pone las comillas adecuadas por plataforma.
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
+#[ORM\Table(name: '`transaction`')]
 class Transaction
 {
     #[ORM\Id]
