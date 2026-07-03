@@ -31,13 +31,13 @@ export default function AuthPage() {
   return (
     <div className="auth-wrap">
       <div className="card auth-card">
-        <div className="auth-head">
-          <span className="brand">Cuentia<span className="brand-dot">.</span></span>
+        <div className="auth-topbar">
           <button className="lang-btn" onClick={() => setLang(lang === 'es' ? 'en' : 'es')}>
             {lang === 'es' ? 'EN' : 'ES'}
           </button>
         </div>
-        <p className="page-subtitle">{t('auth.tagline')}</p>
+        <div className="auth-brand">Cuentia<span className="brand-dot">.</span></div>
+        <p className="page-subtitle auth-tagline">{t('auth.tagline')}</p>
 
         <h2>{mode === 'login' ? t('auth.loginTitle') : t('auth.registerTitle')}</h2>
         <form onSubmit={submit} className="auth-form">
