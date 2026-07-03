@@ -34,7 +34,8 @@ to a step. This complements:
 17. [16 — Cash-flow forecast (Phase 3)](16-forecast.md)
 18. [17 — Natural-language assistant](17-chat.md)
 19. [18 — Authentication & multi-user (Phase 4)](18-auth.md)
-20. *19 — Production & deploy (next)*
+20. [19 — Demo data & user CLI](19-demo-and-admin.md)
+21. *20 — Account & GDPR / UX polish / deploy (next)*
 
 ---
 
@@ -68,4 +69,5 @@ paso. Complementa a:
 17. [16 — Previsión de tesorería (Fase 3)](16-forecast.md)
 18. [17 — Asistente en lenguaje natural](17-chat.md)
 19. [18 — Autenticación y multiusuario (Fase 4)](18-auth.md)
-20. *19 — Producción y deploy (siguiente)*
+20. [19 — Datos de ejemplo y CLI de usuarios](19-demo-and-admin.md)
+21. *20 — Cuenta y GDPR / pulido UX / deploy (siguiente)*

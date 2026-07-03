@@ -12,6 +12,22 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-03 — Entry 022: Demo data + user/admin CLI (polish)
+**Done**
+- Added `POST /api/demo/load`: loads 2 months of realistic sample movements for the current user (only if
+  empty) by reusing the real import + categorization pipeline, so a fresh account is never empty.
+- Added a "Load sample data" button to the Movements empty state (ES/EN).
+- Added `app:create-user` console command (with `--admin`) to create accounts/admins for a deployment.
+- Verified: created an admin; a fresh user loads 15 movements (2 months, 8 categories, VAT computed).
+  Documented in [guide 19](guide/19-demo-and-admin.md).
+
+**Why**
+- Going public: the biggest demo-killer is an empty screen. Sample data (through the real pipeline) makes
+  the app instantly explorable; the CLI safely seeds server accounts.
+
+**Next**
+- Account & GDPR (delete/clear), UX & responsive polish, API integration tests, then deploy.
+
 ### 2026-07-03 — Entry 021: Authentication & multi-user (Phase 4)
 **Done**
 - Added a `User` entity + Symfony security-bundle: entity provider, session `json_login`, logout, access
@@ -330,6 +346,23 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-03 — Entrada 022: Datos de ejemplo + CLI de usuario/admin (pulido)
+**Hecho**
+- Añadido `POST /api/demo/load`: carga 2 meses de movimientos de ejemplo realistas para el usuario actual
+  (solo si está vacío) reutilizando el pipeline real de import + categorización, para que una cuenta nueva
+  nunca esté vacía.
+- Añadido un botón "Cargar datos de ejemplo" en el estado vacío de Movimientos (ES/EN).
+- Añadido el comando de consola `app:create-user` (con `--admin`) para crear cuentas/admins en un deploy.
+- Verificado: creado un admin; un usuario nuevo carga 15 movimientos (2 meses, 8 categorías, IVA calculado).
+  Documentado en la [guía 19](guide/19-demo-and-admin.md).
+
+**Por qué**
+- Para publicar: lo que más mata una demo es una pantalla vacía. Los datos de ejemplo (por el pipeline
+  real) hacen la app explorable al instante; el CLI siembra cuentas de servidor con seguridad.
+
+**Siguiente**
+- Cuenta y GDPR (borrar/limpiar), pulido UX y responsive, tests de integración de la API, y luego deploy.
 
 ### 2026-07-03 — Entrada 021: Autenticación y multiusuario (Fase 4)
 **Hecho**

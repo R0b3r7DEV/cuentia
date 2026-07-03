@@ -8,7 +8,22 @@ export default function MovementsPage() {
   const { t } = useTranslation()
   const [importing, setImporting] = useState(false)
   const [categorizing, setCategorizing] = useState(false)
+  const [demoLoading, setDemoLoading] = useState(false)
   const [message, setMessage] = useState(null)
+
+  const handleDemo = async () => {
+    setDemoLoading(true); setMessage(null)
+    try {
+      const res = await fetch('/api/demo/load', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
+      reload()
+    } catch (err) {
+      setMessage(t('common.errorMsg', { msg: err.message }))
+    } finally {
+      setDemoLoading(false)
+    }
+  }
 
   const handleImport = async (event) => {
     const file = event.target.files?.[0]
@@ -87,7 +102,12 @@ export default function MovementsPage() {
               </tr>
             ))}
             {transactions.length === 0 && (
-              <tr><td className="empty" colSpan={4}>{t('mov.empty')}</td></tr>
+              <tr><td className="empty" colSpan={4}>
+                <p style={{ marginBottom: 12 }}>{t('mov.empty')}</p>
+                <button className="btn btn-primary" onClick={handleDemo} disabled={demoLoading}>
+                  {demoLoading ? t('mov.loadingDemo') : t('mov.loadDemo')}
+                </button>
+              </td></tr>
             )}
           </tbody>
         </table>
