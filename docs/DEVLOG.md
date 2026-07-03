@@ -12,6 +12,22 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-03 — Entry 026: Deploy configuration (Docker + Vercel)
+**Done**
+- Added `backend/Dockerfile` (Apache + PHP 8.4, runs migrations on boot), `public/.htaccess` (apache-pack),
+  a `when@prod` framework config (trusted proxies + secure cookies), and `frontend/vercel.json` (SPA routing
+  + `/api` proxy to the backend — so no CORS and first-party session cookies).
+- Wrote a full deploy guide ([guide 23](guide/23-deploy.md)): PostgreSQL (Supabase/Railway), backend on
+  Railway with env vars, `app:create-user` for the admin, frontend on Vercel, verification & troubleshooting.
+- Tests still green (16), dev app unaffected.
+
+**Why**
+- The frontend→backend proxy avoids the classic cross-domain cookie/CORS pain and keeps the setup simple.
+  Configs are prepared and documented; the actual cloud deploy is done from the user's accounts.
+
+**Next**
+- Go live (create the accounts, deploy), then add the URL + screenshots to the README and pin the repo.
+
 ### 2026-07-03 — Entry 025: API integration tests
 **Done**
 - Added `tests/Api/ApiIntegrationTest` (WebTestCase): boots the real kernel/firewall/DB and tests register/
@@ -394,6 +410,23 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-03 — Entrada 026: Configuración de despliegue (Docker + Vercel)
+**Hecho**
+- Añadido `backend/Dockerfile` (Apache + PHP 8.4, ejecuta migraciones al arrancar), `public/.htaccess`
+  (apache-pack), una config `when@prod` (proxies de confianza + cookies seguras) y `frontend/vercel.json`
+  (rutas SPA + proxy de `/api` al backend — sin CORS y cookies de sesión de primera parte).
+- Escrita una guía de despliegue completa ([guía 23](guide/23-deploy.md)): PostgreSQL (Supabase/Railway),
+  backend en Railway con variables, `app:create-user` para el admin, frontend en Vercel, verificación y
+  resolución de problemas.
+- Tests siguen en verde (16), la app en dev sin cambios.
+
+**Por qué**
+- El proxy frontend→backend evita el clásico dolor de cookies cross-domain/CORS y mantiene todo simple. La
+  config está lista y documentada; el despliegue real se hace desde las cuentas del usuario.
+
+**Siguiente**
+- Publicar (crear cuentas, desplegar), y luego añadir la URL + capturas al README y fijar el repo.
 
 ### 2026-07-03 — Entrada 025: Tests de integración de la API
 **Hecho**

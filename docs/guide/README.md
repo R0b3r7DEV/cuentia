@@ -38,7 +38,7 @@ to a step. This complements:
 21. [20 — Account & GDPR](20-account-gdpr.md)
 22. [21 — UX polish: liquid glass + responsive](21-ux-glass.md)
 23. [22 — API integration tests](22-integration-tests.md)
-24. *23 — Live deploy (next)*
+24. [23 — Live deploy](23-deploy.md)
 
 ---
 
@@ -76,4 +76,4 @@ paso. Complementa a:
 21. [20 — Cuenta y RGPD](20-account-gdpr.md)
 22. [21 — Pulido UX: liquid glass + responsive](21-ux-glass.md)
 23. [22 — Tests de integración de la API](22-integration-tests.md)
-24. *23 — Deploy en vivo (siguiente)*
+24. [23 — Despliegue en vivo](23-deploy.md)

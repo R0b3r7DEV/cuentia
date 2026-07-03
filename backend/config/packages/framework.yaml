@@ -3,10 +3,23 @@ framework:
     secret: '%env(APP_SECRET)%'
 
     # Note that the session will be started ONLY if you read or write from it.
-    session: true
+    session:
+        # Secure cookie when served over HTTPS (production). / Cookie segura sobre HTTPS (producción).
+        cookie_secure: auto
+        cookie_samesite: lax
 
     #esi: true
     #fragments: true
+
+when@prod:
+    framework:
+        # Trust the platform's reverse proxy (Railway) so HTTPS is detected and
+        # Secure cookies + absolute URLs are generated correctly. Set TRUSTED_PROXIES
+        # to the proxy range (or "REMOTE_ADDR" / "*") in the environment.
+        # ES: Confía en el proxy inverso de la plataforma (Railway) para detectar HTTPS
+        # y generar cookies Secure y URLs correctas. Define TRUSTED_PROXIES en el entorno.
+        trusted_proxies: '%env(TRUSTED_PROXIES)%'
+        trusted_headers: ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-host']
 
 when@test:
     framework:
