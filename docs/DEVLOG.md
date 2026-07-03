@@ -12,6 +12,21 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-03 — Entry 027: Free hosting — Render + Neon (Railway trial expired)
+**Done**
+- Switched the deploy target to free tiers: **Render** (Docker web service) for the backend and **Neon**
+  (PostgreSQL that doesn't pause) for the database; Vercel unchanged. Added `render.yaml` (blueprint).
+- **Fixed a Dockerfile bug**: the Apache `$PORT` was substituted at build time (would be empty); now it's
+  set at container start (`${PORT:-8080}`), so it works on Render/Koyeb/Fly/Railway.
+- Updated the deploy guide (Render + Neon, cold-start note, Koyeb alternative).
+
+**Why**
+- The Railway trial expired and paying isn't an option; the Dockerfile being host-agnostic means only the
+  hosting instructions changed, not the app.
+
+**Next**
+- Deploy on Render + Neon, then add the URL + screenshots to the README and pin the repo.
+
 ### 2026-07-03 — Entry 026: Deploy configuration (Docker + Vercel)
 **Done**
 - Added `backend/Dockerfile` (Apache + PHP 8.4, runs migrations on boot), `public/.htaccess` (apache-pack),
@@ -410,6 +425,21 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-03 — Entrada 027: Hosting gratis — Render + Neon (caducó el trial de Railway)
+**Hecho**
+- Cambiado el objetivo de despliegue a planes gratuitos: **Render** (servicio web Docker) para el backend y
+  **Neon** (PostgreSQL que no se pausa) para la base de datos; Vercel igual. Añadido `render.yaml` (blueprint).
+- **Corregido un fallo del Dockerfile**: el `$PORT` de Apache se sustituía en *build* (quedaría vacío);
+  ahora se fija al arrancar el contenedor (`${PORT:-8080}`), así funciona en Render/Koyeb/Fly/Railway.
+- Actualizada la guía de despliegue (Render + Neon, nota de arranque en frío, alternativa Koyeb).
+
+**Por qué**
+- Caducó el trial de Railway y pagar no es opción; como el Dockerfile es agnóstico del host, solo cambian
+  las instrucciones de hosting, no la app.
+
+**Siguiente**
+- Desplegar en Render + Neon, y luego añadir la URL + capturas al README y fijar el repo.
 
 ### 2026-07-03 — Entrada 026: Configuración de despliegue (Docker + Vercel)
 **Hecho**

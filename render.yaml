@@ -1,0 +1,24 @@
+# Render blueprint — deploys the Symfony backend as a free Docker web service.
+# ES: Blueprint de Render — despliega el backend Symfony como servicio web Docker (plan free).
+# In Render: New → Blueprint → pick this repo. Then set DATABASE_URL (and ANTHROPIC_API_KEY).
+services:
+  - type: web
+    name: cuentia-api
+    runtime: docker
+    plan: free
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: APP_DEBUG
+        value: "0"
+      - key: TRUSTED_PROXIES
+        value: REMOTE_ADDR
+      - key: APP_SECRET
+        generateValue: true          # Render generates a random secret
+      - key: DATABASE_URL
+        sync: false                  # set manually (your Neon/Supabase Postgres URL)
+      - key: ANTHROPIC_API_KEY
+        sync: false                  # optional: enables AI categorization + chat

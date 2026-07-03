@@ -33,11 +33,13 @@ RUN composer dump-autoload --no-dev --optimize --classmap-authoritative \
     && composer run-script --no-dev post-install-cmd \
     && chown -R www-data:www-data var
 
-# Railway (and most PaaS) inject $PORT — make Apache listen on it.
-# ES: Railway (y la mayoría de PaaS) inyectan $PORT — que Apache escuche en él.
-RUN sed -ri -e 's!Listen 80!Listen ${PORT}!' /etc/apache2/ports.conf \
-    && sed -ri -e 's!:80>!:${PORT}>!' /etc/apache2/sites-available/000-default.conf
-
-# On boot: run DB migrations, then start Apache in the foreground.
-# ES: Al arrancar: ejecuta las migraciones y luego inicia Apache en primer plano.
-CMD ["sh", "-c", "php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration || true; apache2-foreground"]
+# On boot: make Apache listen on the platform's $PORT (Render/Koyeb/Fly/Railway all
+# inject it; default 8080), run DB migrations, then start Apache in the foreground.
+# ES: Al arrancar: que Apache escuche en el $PORT de la plataforma (Render/Koyeb/Fly/Railway
+# lo inyectan; por defecto 8080), ejecuta las migraciones e inicia Apache en primer plano.
+CMD ["sh", "-c", "\
+    PORT=${PORT:-8080}; \
+    sed -ri \"s!Listen 80!Listen $PORT!\" /etc/apache2/ports.conf; \
+    sed -ri \"s!:80>!:$PORT>!\" /etc/apache2/sites-available/000-default.conf; \
+    php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration || true; \
+    apache2-foreground"]
