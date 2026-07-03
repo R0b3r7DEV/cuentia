@@ -39,14 +39,14 @@ export default function AccountPage() {
       <div className="card">
         <h2>{t('account.dataTitle')}</h2>
         <p className="msg" style={{ marginTop: 0 }}>{t('account.dataDesc')}</p>
-        <button className="btn" onClick={clearData} disabled={busy}>{t('account.clear')}</button>
+        <button className="btn btn-glass btn-sm" style={{ marginTop: '0.75rem' }} onClick={clearData} disabled={busy}>{t('account.clear')}</button>
         {message && <p className="msg">{message}</p>}
       </div>
 
       <div className="card">
         <h2>{t('account.dangerTitle')}</h2>
         <p className="msg" style={{ marginTop: 0 }}>{t('account.deleteDesc')}</p>
-        <button className="btn btn-danger" onClick={removeAccount} disabled={busy}>{t('account.delete')}</button>
+        <button className="btn btn-danger-glass btn-sm" style={{ marginTop: '0.75rem' }} onClick={removeAccount} disabled={busy}>{t('account.delete')}</button>
       </div>
 
       <div className="card">

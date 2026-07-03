@@ -13,11 +13,20 @@
   --border: #e4e7ee;
   --border-strong: #d3d8e2;
 
-  /* glass */
-  --glass: rgba(255, 255, 255, 0.55);
-  --glass-strong: rgba(255, 255, 255, 0.72);
-  --glass-border: rgba(255, 255, 255, 0.7);
-  --blur: 18px;
+  /* glass (accentuated) */
+  --glass: rgba(255, 255, 255, 0.30);
+  --glass-strong: rgba(255, 255, 255, 0.44);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-hi: rgba(255, 255, 255, 0.5);
+  --active-bg: rgba(255, 255, 255, 0.5);
+  --active-hi: rgba(255, 255, 255, 0.8);
+  --blur: 28px;
+
+  /* page background (a bit more colour so the glass reads) */
+  --page-bg:
+    radial-gradient(1000px 600px at 12% -12%, rgba(42, 120, 214, 0.16), transparent 60%),
+    radial-gradient(900px 620px at 100% 0%, rgba(18, 161, 80, 0.12), transparent 55%),
+    linear-gradient(180deg, #e8edf6 0%, #f1f4f9 100%);
 
   /* brand & semantics */
   --accent: #2a78d6;
@@ -50,54 +59,51 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Dark theme tokens. Applied automatically when the OS prefers dark AND the user hasn't
+   chosen a theme, or explicitly when data-theme="dark" is set by the toggle button.
+   ES: Tokens del tema oscuro. Se aplican automáticamente si el SO prefiere oscuro y el
+   usuario no ha elegido tema, o explícitamente con data-theme="dark" (botón). */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --text: #eef1f6;
-    --text-muted: #9aa4b2;
-    --surface-solid: #171b22;
-    --surface-2: #1c2129;
-    --border: #2a303a;
-    --border-strong: #38404c;
-
-    --glass: rgba(28, 33, 41, 0.55);
-    --glass-strong: rgba(28, 33, 41, 0.72);
-    --glass-border: rgba(255, 255, 255, 0.08);
-
-    --accent: #4b93ea;
-    --accent-weak: rgba(75, 147, 234, 0.18);
-    --pos: #34c471;
-    --neg: #f2685c;
-    --warn-bg: rgba(234, 130, 40, 0.16);
-    --warn-border: rgba(234, 130, 40, 0.4);
-    --warn-text: #f0b47a;
-
-    --chart-1: #4b93ea;
-    --chart-2: #f2685c;
-    --chart-grid: rgba(150, 160, 180, 0.16);
-    --chart-muted: #8b97a8;
-    --shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.4);
+  :root:not([data-theme]) {
+    --text: #eef1f6; --text-muted: #9aa4b2;
+    --surface-solid: #171b22; --surface-2: #1c2129;
+    --border: #2a303a; --border-strong: #38404c;
+    --glass: rgba(22, 26, 34, 0.34); --glass-strong: rgba(22, 26, 34, 0.46);
+    --glass-border: rgba(255, 255, 255, 0.10); --glass-hi: rgba(255, 255, 255, 0.06);
+    --active-bg: rgba(255, 255, 255, 0.14); --active-hi: rgba(255, 255, 255, 0.18);
+    --accent: #4b93ea; --accent-weak: rgba(75, 147, 234, 0.22);
+    --pos: #34c471; --neg: #f2685c;
+    --warn-bg: rgba(234, 130, 40, 0.16); --warn-border: rgba(234, 130, 40, 0.4); --warn-text: #f0b47a;
+    --chart-1: #4b93ea; --chart-2: #f2685c; --chart-grid: rgba(150, 160, 180, 0.16); --chart-muted: #8b97a8;
+    --shadow: 0 8px 30px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.45);
+    --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.45);
+    --page-bg:
+      radial-gradient(1000px 600px at 12% -12%, rgba(42, 120, 214, 0.24), transparent 60%),
+      radial-gradient(900px 620px at 100% 0%, rgba(18, 161, 80, 0.16), transparent 55%),
+      linear-gradient(180deg, #0b0d12 0%, #08090c 100%);
   }
+}
+:root[data-theme="dark"] {
+  --text: #eef1f6; --text-muted: #9aa4b2;
+  --surface-solid: #171b22; --surface-2: #1c2129;
+  --border: #2a303a; --border-strong: #38404c;
+  --glass: rgba(22, 26, 34, 0.34); --glass-strong: rgba(22, 26, 34, 0.46);
+  --glass-border: rgba(255, 255, 255, 0.10); --glass-hi: rgba(255, 255, 255, 0.06);
+  --active-bg: rgba(255, 255, 255, 0.14); --active-hi: rgba(255, 255, 255, 0.18);
+  --accent: #4b93ea; --accent-weak: rgba(75, 147, 234, 0.22);
+  --pos: #34c471; --neg: #f2685c;
+  --warn-bg: rgba(234, 130, 40, 0.16); --warn-border: rgba(234, 130, 40, 0.4); --warn-text: #f0b47a;
+  --chart-1: #4b93ea; --chart-2: #f2685c; --chart-grid: rgba(150, 160, 180, 0.16); --chart-muted: #8b97a8;
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.45);
+  --page-bg:
+    radial-gradient(1000px 600px at 12% -12%, rgba(42, 120, 214, 0.24), transparent 60%),
+    radial-gradient(900px 620px at 100% 0%, rgba(18, 161, 80, 0.16), transparent 55%),
+    linear-gradient(180deg, #0b0d12 0%, #08090c 100%);
 }
 
 * { box-sizing: border-box; }
-body {
-  margin: 0;
-  min-height: 100svh;
-  background:
-    radial-gradient(1000px 600px at 15% -10%, rgba(42, 120, 214, 0.10), transparent 60%),
-    radial-gradient(900px 600px at 100% 0%, rgba(18, 161, 80, 0.08), transparent 55%),
-    linear-gradient(180deg, #eef2f8 0%, #f4f6fa 100%);
-  background-attachment: fixed;
-}
-@media (prefers-color-scheme: dark) {
-  body {
-    background:
-      radial-gradient(1000px 600px at 15% -10%, rgba(42, 120, 214, 0.16), transparent 60%),
-      radial-gradient(900px 600px at 100% 0%, rgba(18, 161, 80, 0.10), transparent 55%),
-      linear-gradient(180deg, #0b0d12 0%, #0a0b0f 100%);
-  }
-}
+body { margin: 0; min-height: 100svh; background: var(--page-bg); background-attachment: fixed; }
 
 /* Soft colour blobs behind every page (fixed, subtle) — the login shows a stronger version. */
 /* ES: Manchas de color suaves detrás de cada página (fijas, sutiles) — el login muestra una versión más marcada. */
@@ -127,34 +133,54 @@ a { color: inherit; }
 /* ── Floating glass navbar ──────────────────────────────────────────────── */
 .navbar { position: sticky; top: 0; z-index: 30; padding: 12px 16px 0; }
 .navbar-inner {
+  position: relative; overflow: hidden;
   max-width: 1000px; margin: 0 auto; padding: 7px 10px;
   display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-  background: var(--glass-strong);
-  -webkit-backdrop-filter: blur(var(--blur)) saturate(180%);
-  backdrop-filter: blur(var(--blur)) saturate(180%);
+  background: linear-gradient(180deg, var(--glass-hi), transparent 60%), var(--glass-strong);
+  -webkit-backdrop-filter: blur(calc(var(--blur) + 4px)) saturate(200%);
+  backdrop-filter: blur(calc(var(--blur) + 4px)) saturate(200%);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-pill);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-hi);
 }
+/* Watermark: the app name faint in the navbar background. */
+/* ES: Marca de agua: el nombre de la app tenue en el fondo de la navbar. */
+.navbar-inner::before {
+  content: 'Cuentia';
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 46px; letter-spacing: 12px;
+  color: var(--text); opacity: 0.07; white-space: nowrap;
+}
+.navbar-inner > * { position: relative; z-index: 1; }
 .brand { font-weight: 800; font-size: 18px; margin: 0 8px 0 8px; letter-spacing: -0.3px; }
 .brand-dot { color: var(--accent); }
 .navlink { padding: 7px 14px; border-radius: var(--radius-pill); text-decoration: none; font-size: 14px; font-weight: 600; color: var(--text-muted); transition: background 0.15s, color 0.15s; }
 .navlink:hover { background: var(--surface-2); color: var(--text); }
-.navlink.active { color: #fff; background: var(--accent); }
+/* Active tab = a translucent "water drop", not a solid colour. */
+/* ES: Pestaña activa = una "gota de agua" translúcida, no un color sólido. */
+.navlink.active {
+  color: var(--text);
+  background: linear-gradient(180deg, var(--active-hi), transparent 70%), var(--active-bg);
+  box-shadow: inset 0 1px 0 var(--active-hi), inset 0 -1px 2px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(16, 24, 40, 0.10);
+  border: 1px solid var(--glass-border);
+}
 .lang-btn { font: inherit; font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: var(--radius-pill); border: 1px solid var(--border-strong); background: transparent; color: var(--text-muted); cursor: pointer; }
 .lang-btn:hover { background: var(--surface-2); color: var(--text); }
-.nav-user { margin-left: auto; font-size: 13px; color: var(--text-muted); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-decoration: none; padding: 4px 8px; border-radius: var(--radius-pill); }
+.nav-links { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.nav-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+.nav-user { font-size: 13px; color: var(--text-muted); white-space: nowrap; text-decoration: none; padding: 4px 10px; border-radius: var(--radius-pill); }
 .nav-user:hover { color: var(--text); background: var(--surface-2); }
 .nav-logout { font-size: 13px; padding: 6px 12px; }
 
 /* ── Glass cards ────────────────────────────────────────────────────────── */
 .card {
-  background: var(--glass);
-  -webkit-backdrop-filter: blur(var(--blur)) saturate(160%);
-  backdrop-filter: blur(var(--blur)) saturate(160%);
+  background: linear-gradient(155deg, var(--glass-hi), transparent 42%), var(--glass);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(190%);
+  backdrop-filter: blur(var(--blur)) saturate(190%);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-hi);
   padding: 1.25rem 1.5rem;
   margin-bottom: 1.25rem;
 }
@@ -173,8 +199,33 @@ a { color: inherit; }
 .btn-primary:hover:not(:disabled) { filter: brightness(1.05); background: var(--accent); }
 .btn-danger { background: var(--neg); border-color: transparent; color: #fff; }
 .btn-danger:hover:not(:disabled) { filter: brightness(1.05); background: var(--neg); }
+/* Liquid-glass button */
+.btn-glass {
+  background: linear-gradient(180deg, var(--glass-hi), transparent 65%), var(--glass);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  backdrop-filter: blur(14px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  box-shadow: var(--shadow-soft), inset 0 1px 0 var(--glass-hi);
+}
+.btn-glass:hover:not(:disabled) { filter: brightness(1.04); }
+/* Glass, but red-tinted for destructive actions; fills solid red on hover. */
+.btn-danger-glass {
+  background: linear-gradient(180deg, var(--glass-hi), transparent 65%), var(--glass);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  backdrop-filter: blur(14px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  color: var(--neg);
+  box-shadow: var(--shadow-soft), inset 0 1px 0 var(--glass-hi);
+}
+.btn-danger-glass:hover:not(:disabled) { background: var(--neg); color: #fff; border-color: transparent; }
+.btn-sm { padding: 6px 12px; font-size: 13px; }
 .file-field { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.file-field input[type="file"] { font: inherit; font-size: 13px; color: var(--text-muted); }
+/* Hide the native file input; the styled <label> is the button. */
+/* ES: Oculta el input de fichero nativo; el <label> con estilo es el botón. */
+.file-input-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); border: 0; }
+.is-disabled { opacity: 0.5; pointer-events: none; }
+label.btn { display: inline-block; }
 
 /* ── Table ──────────────────────────────────────────────────────────────── */
 .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -216,13 +267,14 @@ a { color: inherit; }
 .auth-wrap::before { background: radial-gradient(circle, #2a78d6, transparent 70%); top: -8%; left: -6%; }
 .auth-wrap::after  { background: radial-gradient(circle, #12a150, transparent 70%); bottom: -10%; right: -8%; }
 .auth-card { position: relative; z-index: 1; width: 100%; max-width: 400px; margin: 0; padding: 1.75rem 1.75rem 1.5rem; background: var(--glass-strong); }
-.auth-topbar { display: flex; justify-content: flex-end; min-height: 30px; }
+.auth-topbar { display: flex; justify-content: flex-end; gap: 8px; min-height: 30px; }
+.icon-btn { line-height: 1; min-width: 42px; text-align: center; }
 .auth-brand { text-align: center; font-weight: 800; font-size: 38px; letter-spacing: -1px; margin: 2px 0 4px; }
 .auth-brand .brand-dot { color: var(--accent); }
 .auth-tagline { text-align: center; }
 .auth-form { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
 .auth-form .chat-input { padding: 12px 16px; }
-.auth-form .btn-primary { width: 100%; padding: 12px; font-size: 15px; }
+.auth-form .btn { width: 100%; padding: 12px; font-size: 15px; }
 
 /* ── Charts ─────────────────────────────────────────────────────────────── */
 .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
@@ -237,7 +289,7 @@ a { color: inherit; }
   .navbar-inner { padding: 7px 8px; }
   .brand { margin-left: 4px; }
   .navlink { padding: 7px 11px; }
-  .nav-user { max-width: 120px; }
+  .nav-actions { margin-left: 0; width: 100%; }
   .stat-row { gap: 1.25rem; }
   .card { padding: 1rem 1.15rem; }
   h1 { font-size: 22px; }

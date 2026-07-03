@@ -67,18 +67,25 @@ export default function MovementsPage() {
 
       <div className="card">
         <div className="file-field">
-          <label className="file-field">
-            <span style={{ fontWeight: 600, fontSize: 14 }}>{t('mov.import')}</span>
-            <input type="file" accept=".csv,.n43,.txt,text/csv,text/plain" onChange={handleImport} disabled={importing} />
+          <label className={`btn btn-glass btn-sm${importing ? ' is-disabled' : ''}`}>
+            {importing ? t('mov.importing') : t('mov.import')}
+            <input
+              type="file"
+              className="file-input-hidden"
+              accept=".csv,.n43,.txt,text/csv,text/plain"
+              onChange={handleImport}
+              disabled={importing}
+            />
           </label>
           <button
-            className="btn btn-primary"
+            className="btn btn-glass btn-sm"
             onClick={handleCategorize}
             disabled={categorizing || transactions.length === 0}
           >
             {categorizing ? t('mov.categorizing') : t('mov.categorize')}
           </button>
         </div>
+        <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>{t('mov.importHint')}</p>
         {message && <p className="msg">{message}</p>}
       </div>
 
@@ -104,7 +111,7 @@ export default function MovementsPage() {
             {transactions.length === 0 && (
               <tr><td className="empty" colSpan={4}>
                 <p style={{ marginBottom: 12 }}>{t('mov.empty')}</p>
-                <button className="btn btn-primary" onClick={handleDemo} disabled={demoLoading}>
+                <button className="btn btn-glass btn-sm" onClick={handleDemo} disabled={demoLoading}>
                   {demoLoading ? t('mov.loadingDemo') : t('mov.loadDemo')}
                 </button>
               </td></tr>

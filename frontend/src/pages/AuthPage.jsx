@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import { useTranslation } from '../i18n/LanguageContext'
+import { useTheme } from '../theme/ThemeContext'
 
 /**
  * The login / register screen shown when nobody is logged in.
@@ -9,6 +10,7 @@ import { useTranslation } from '../i18n/LanguageContext'
 export default function AuthPage() {
   const { login, register } = useAuth()
   const { t, lang, setLang } = useTranslation()
+  const { theme, toggle } = useTheme()
   const [mode, setMode] = useState('login') // 'login' | 'register'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -32,7 +34,10 @@ export default function AuthPage() {
     <div className="auth-wrap">
       <div className="card auth-card">
         <div className="auth-topbar">
-          <button className="lang-btn" onClick={() => setLang(lang === 'es' ? 'en' : 'es')}>
+          <button className="btn btn-glass btn-sm icon-btn" onClick={toggle} title="Light / dark" aria-label="Toggle theme">
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
+          <button className="btn btn-glass btn-sm icon-btn" onClick={() => setLang(lang === 'es' ? 'en' : 'es')}>
             {lang === 'es' ? 'EN' : 'ES'}
           </button>
         </div>
@@ -47,7 +52,7 @@ export default function AuthPage() {
             value={password} onChange={(e) => setPassword(e.target.value)}
             autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
           {error && <p className="msg error">{error}</p>}
-          <button className="btn btn-primary" type="submit" disabled={busy}>
+          <button className="btn btn-glass" type="submit" disabled={busy}>
             {mode === 'login' ? t('auth.login') : t('auth.register')}
           </button>
         </form>

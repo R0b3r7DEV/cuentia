@@ -45,7 +45,9 @@ export const translations = {
 
     'mov.title': 'Movements',
     'mov.subtitle': 'Import a bank CSV and categorize your transactions.',
-    'mov.import': 'Import bank file (CSV or Norma 43)',
+    'mov.import': '📥 Import bank file',
+    'mov.importing': 'Importing…',
+    'mov.importHint': 'Accepted formats: CSV or Norma 43',
     'mov.categorize': '🧠 Categorize',
     'mov.categorizing': 'Categorizing…',
     'mov.empty': 'No transactions yet — import a bank file, or load sample data to explore.',
@@ -134,7 +136,9 @@ export const translations = {
 
     'mov.title': 'Movimientos',
     'mov.subtitle': 'Importa un CSV del banco y categoriza tus movimientos.',
-    'mov.import': 'Importar fichero del banco (CSV o Norma 43)',
+    'mov.import': '📥 Importar fichero',
+    'mov.importing': 'Importando…',
+    'mov.importHint': 'Formatos aceptados: CSV o Norma 43',
     'mov.categorize': '🧠 Categorizar',
     'mov.categorizing': 'Categorizando…',
     'mov.empty': 'Aún no hay movimientos — importa un fichero del banco, o carga datos de ejemplo para explorar.',

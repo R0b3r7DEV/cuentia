@@ -56,7 +56,7 @@ export default function ChatPage() {
             placeholder={t('chat.placeholder')}
             disabled={loading}
           />
-          <button className="btn btn-primary" type="submit" disabled={loading || !input.trim()}>
+          <button className="btn btn-glass btn-sm" type="submit" disabled={loading || !input.trim()}>
             {t('chat.send')}
           </button>
         </form>
