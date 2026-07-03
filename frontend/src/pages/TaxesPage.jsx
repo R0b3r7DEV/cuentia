@@ -34,6 +34,7 @@ export default function TaxesPage() {
             </div>
           )}
 
+          <div className="table-scroll">
           <table className="table">
             <thead>
               <tr>
@@ -54,6 +55,7 @@ export default function TaxesPage() {
               ))}
             </tbody>
           </table>
+          </div>
           <p className="msg" style={{ marginTop: 12 }}>{t('irpf.note')}</p>
         </div>
       )}

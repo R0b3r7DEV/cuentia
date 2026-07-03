@@ -82,7 +82,7 @@ export default function MovementsPage() {
         {message && <p className="msg">{message}</p>}
       </div>
 
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="card table-scroll" style={{ padding: 0 }}>
         <table className="table">
           <thead>
             <tr>

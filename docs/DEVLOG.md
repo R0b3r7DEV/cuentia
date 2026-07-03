@@ -12,6 +12,21 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-03 — Entry 024: UX polish — liquid-glass redesign + responsive
+**Done**
+- Reworked `index.css` into a "liquid glass" system (iOS/WhatsApp-inspired): translucent frosted cards and
+  a floating rounded navbar (`backdrop-filter`), pill buttons/inputs, a tinted background, and WhatsApp-style
+  chat bubbles (accent user bubble, asymmetric radii). Light + dark tokens.
+- Responsive: navbar wraps, charts stack, tables scroll horizontally (`.table-scroll`) on mobile.
+- All via tokens/classes — components unchanged. Build passes. Documented in [guide 21](guide/21-ux-glass.md).
+
+**Why**
+- A cohesive, modern finish across light/dark and desktop/mobile is what makes the project *feel*
+  professional at a glance.
+
+**Next**
+- API integration tests, then deploy.
+
 ### 2026-07-03 — Entry 023: Account & GDPR (clear data / delete account)
 **Done**
 - Added `AccountController`: `POST /api/account/clear` (delete the user's transactions) and
@@ -361,6 +376,23 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-03 — Entrada 024: Pulido UX — rediseño liquid glass + responsive
+**Hecho**
+- Rehecho `index.css` como un sistema "liquid glass" (inspirado en iOS/WhatsApp): tarjetas translúcidas
+  esmeriladas y una navbar flotante redondeada (`backdrop-filter`), botones/inputs de píldora, fondo con
+  tinte, y burbujas de chat estilo WhatsApp (burbuja de usuario en color, radios asimétricos). Tokens claro
+  + oscuro.
+- Responsive: la navbar se envuelve, los gráficos se apilan, las tablas hacen scroll horizontal
+  (`.table-scroll`) en móvil.
+- Todo vía tokens/clases — componentes sin cambios. Compila. Documentado en la [guía 21](guide/21-ux-glass.md).
+
+**Por qué**
+- Un acabado moderno y coherente en claro/oscuro y escritorio/móvil es lo que hace que el proyecto
+  *se sienta* profesional de un vistazo.
+
+**Siguiente**
+- Tests de integración de la API, y luego deploy.
 
 ### 2026-07-03 — Entrada 023: Cuenta y RGPD (limpiar datos / borrar cuenta)
 **Hecho**
