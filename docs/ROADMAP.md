@@ -46,7 +46,7 @@ Goal: the features a generic dev could not build without finance knowledge.
 - ✅ Authentication + multi-user (each user sees only their data)
 - 🟨 Tests (✅ unit for the finance logic — VAT/IRPF; integration for the API pending)
 - 🟨 CI (GitHub Actions) ✅ + live deploy + screenshots in the README (pending)
-- ⬜ GDPR basics (privacy policy, data export/delete)
+- ✅ GDPR basics (clear data, delete account/right to erasure, privacy note; data export TODO)
 
 ### Scope guardrails (so it stays finishable)
 - Spain-first (VAT/IRPF rules for one country, done well, beats ten done badly).
@@ -97,7 +97,7 @@ Objetivo: las funciones que un dev genérico no podría construir sin conocer fi
 - ✅ Autenticación + multiusuario (cada usuario ve solo sus datos)
 - 🟨 Tests (✅ unitarios de la lógica financiera — IVA/IRPF; integración de la API pendiente)
 - 🟨 CI (GitHub Actions) ✅ + deploy en vivo + capturas en el README (pendiente)
-- ⬜ Básicos de RGPD (política de privacidad, exportar/borrar datos)
+- ✅ Básicos de RGPD (limpiar datos, borrar cuenta/derecho al olvido, nota de privacidad; exportar TODO)
 
 ### Límites de alcance (para que sea terminable)
 - España primero (las reglas de IVA/IRPF de un país, bien hechas, superan a diez a medias).

@@ -12,6 +12,21 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-03 — Entry 023: Account & GDPR (clear data / delete account)
+**Done**
+- Added `AccountController`: `POST /api/account/clear` (delete the user's transactions) and
+  `DELETE /api/account` (delete the account + data, invalidate the session — right to erasure).
+- Added an Account page (`/account`, via the email in the navbar) with clear-data, delete-account (danger)
+  and a privacy note; `AuthContext.deleteAccount()`. ES/EN.
+- Verified: clear 15→0; delete account → session invalidated. Documented in [guide 20](guide/20-account-gdpr.md).
+
+**Why**
+- Real accounts need a way out (GDPR), and "clear my data" is a handy reset for the live demo — both cheap
+  thanks to the per-user data isolation.
+
+**Next**
+- UX & responsive polish, API integration tests, then deploy.
+
 ### 2026-07-03 — Entry 022: Demo data + user/admin CLI (polish)
 **Done**
 - Added `POST /api/demo/load`: loads 2 months of realistic sample movements for the current user (only if
@@ -346,6 +361,21 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-03 — Entrada 023: Cuenta y RGPD (limpiar datos / borrar cuenta)
+**Hecho**
+- Añadido `AccountController`: `POST /api/account/clear` (borra los movimientos del usuario) y
+  `DELETE /api/account` (borra cuenta + datos, invalida la sesión — derecho al olvido).
+- Añadida una página de Cuenta (`/account`, vía el email en la navbar) con limpiar datos, borrar cuenta
+  (peligro) y una nota de privacidad; `AuthContext.deleteAccount()`. ES/EN.
+- Verificado: limpiar 15→0; borrar cuenta → sesión invalidada. Documentado en la [guía 20](guide/20-account-gdpr.md).
+
+**Por qué**
+- Las cuentas reales necesitan una salida (RGPD), y "limpiar mis datos" es un reinicio cómodo para la demo
+  en vivo — ambos baratos gracias al aislamiento de datos por usuario.
+
+**Siguiente**
+- Pulido UX y responsive, tests de integración de la API, y luego deploy.
 
 ### 2026-07-03 — Entrada 022: Datos de ejemplo + CLI de usuario/admin (pulido)
 **Hecho**

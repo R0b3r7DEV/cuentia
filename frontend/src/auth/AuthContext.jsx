@@ -46,8 +46,13 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
+  const deleteAccount = async () => {
+    await fetch('/api/account', { method: 'DELETE' })
+    setUser(null)
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   )

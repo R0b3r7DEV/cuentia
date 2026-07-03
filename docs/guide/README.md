@@ -35,7 +35,8 @@ to a step. This complements:
 18. [17 — Natural-language assistant](17-chat.md)
 19. [18 — Authentication & multi-user (Phase 4)](18-auth.md)
 20. [19 — Demo data & user CLI](19-demo-and-admin.md)
-21. *20 — Account & GDPR / UX polish / deploy (next)*
+21. [20 — Account & GDPR](20-account-gdpr.md)
+22. *21 — UX polish / integration tests / deploy (next)*
 
 ---
 
@@ -70,4 +71,5 @@ paso. Complementa a:
 18. [17 — Asistente en lenguaje natural](17-chat.md)
 19. [18 — Autenticación y multiusuario (Fase 4)](18-auth.md)
 20. [19 — Datos de ejemplo y CLI de usuarios](19-demo-and-admin.md)
-21. *20 — Cuenta y GDPR / pulido UX / deploy (siguiente)*
+21. [20 — Cuenta y RGPD](20-account-gdpr.md)
+22. *21 — Pulido UX / tests de integración / deploy (siguiente)*

@@ -4,6 +4,7 @@ import MovementsPage from './pages/MovementsPage'
 import DashboardPage from './pages/DashboardPage'
 import TaxesPage from './pages/TaxesPage'
 import ChatPage from './pages/ChatPage'
+import AccountPage from './pages/AccountPage'
 import AuthPage from './pages/AuthPage'
 import { useAuth } from './auth/AuthContext'
 
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/taxes" element={<TaxesPage />} />
           <Route path="/chat" element={<ChatPage />} />
+          <Route path="/account" element={<AccountPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

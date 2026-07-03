@@ -97,7 +97,10 @@ a { color: inherit; }
 .navlink.active { color: var(--accent); background: var(--accent-weak); }
 .lang-btn { font: inherit; font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: var(--radius-pill); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-muted); cursor: pointer; }
 .lang-btn:hover { background: var(--surface-2); color: var(--text); border-color: var(--text-muted); }
-.nav-user { margin-left: auto; font-size: 13px; color: var(--text-muted); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-user { margin-left: auto; font-size: 13px; color: var(--text-muted); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-decoration: none; }
+.nav-user:hover { color: var(--text); }
+.btn-danger { background: var(--neg); border-color: var(--neg); color: #fff; }
+.btn-danger:hover:not(:disabled) { filter: brightness(0.95); background: var(--neg); }
 .nav-logout { font-size: 13px; padding: 5px 12px; }
 
 /* ── Auth screen ────────────────────────────────────────────────────────── */

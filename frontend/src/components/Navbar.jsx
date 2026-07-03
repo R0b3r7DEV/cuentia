@@ -17,7 +17,7 @@ export default function Navbar() {
         <NavLink to="/taxes" className={cls}>{t('nav.taxes')}</NavLink>
         <NavLink to="/chat" className={cls}>{t('nav.assistant')}</NavLink>
 
-        <span className="nav-user">{user?.email}</span>
+        <NavLink to="/account" className="nav-user" title={t('account.title')}>{user?.email}</NavLink>
         <button className="btn nav-logout" onClick={logout}>{t('auth.logout')}</button>
         <button className="lang-btn" onClick={() => setLang(lang === 'es' ? 'en' : 'es')} title="Change language / Cambiar idioma">
           {lang === 'es' ? 'EN' : 'ES'}
