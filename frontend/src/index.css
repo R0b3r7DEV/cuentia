@@ -99,6 +99,19 @@ body {
   }
 }
 
+/* Soft colour blobs behind every page (fixed, subtle) — the login shows a stronger version. */
+/* ES: Manchas de color suaves detrás de cada página (fijas, sutiles) — el login muestra una versión más marcada. */
+body::before, body::after {
+  content: ''; position: fixed; z-index: -1; pointer-events: none;
+  width: 46vw; height: 46vw; max-width: 540px; max-height: 540px;
+  border-radius: 50%; filter: blur(70px); opacity: 0.40;
+}
+body::before { background: radial-gradient(circle, #2a78d6, transparent 70%); top: -12%; left: -8%; }
+body::after  { background: radial-gradient(circle, #12a150, transparent 70%); bottom: -14%; right: -10%; }
+@media (prefers-color-scheme: dark) {
+  body::before, body::after { opacity: 0.30; }
+}
+
 h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin: 0 0 4px; }
 h2 { font-size: 16px; font-weight: 650; margin: 0 0 12px; }
 p { margin: 0; }
