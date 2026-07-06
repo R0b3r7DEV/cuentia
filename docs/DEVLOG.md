@@ -12,6 +12,22 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-06 — Entry 030: Invoices page — surfacing Verifactu in the UI
+**Done**
+- New **Invoices** page (React): issue an invoice (customer + dynamic lines with a live client-side total
+  preview), see the list, and expand any row to reveal its **Verifactu fingerprint** (hash, the record it
+  chains to, sealed timestamp). A **"Verify chain"** button calls `/api/invoices/verify` and shows a green
+  "🔒 Chain intact · N records verified" badge (or an amber "broken at …" one). Added the route, the navbar
+  link and full ES/EN strings. Frontend build green (604 modules).
+
+**Why**
+- The Verifactu engine (phases A–B) was API-only and therefore invisible to anyone opening the live app.
+  This page makes the tamper-evident chain something a visitor can *see and operate* — the point of the
+  feature for a portfolio.
+
+**Next**
+- Phase C: the invoice QR (to the AEAT) and XML export, embedded in this same page.
+
 ### 2026-07-06 — Entry 029: Verifactu invoicing — Phase B (tamper-evident hash chain)
 **Done**
 - Every issued invoice now generates an `InvoiceRecord` (Verifactu *registro de alta*) carrying a
@@ -466,6 +482,23 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-06 — Entrada 030: Página de facturas — Verifactu visible en la interfaz
+**Hecho**
+- Nueva página **Facturas** (React): emitir una factura (cliente + líneas dinámicas con previsualización
+  del total en cliente), ver la lista, y desplegar cualquier fila para revelar su **huella Verifactu**
+  (hash, el registro con el que encadena, sello temporal). Un botón **«Verificar cadena»** llama a
+  `/api/invoices/verify` y muestra una insignia verde «🔒 Cadena íntegra · N registros verificados» (o una
+  ámbar «rota en …»). Añadidos la ruta, el enlace del navbar y los textos ES/EN. Build del frontend en
+  verde (604 módulos).
+
+**Por qué**
+- El motor Verifactu (fases A–B) vivía solo en la API y era invisible para quien abriera la app en vivo.
+  Esta página convierte la cadena inalterable en algo que un visitante puede *ver y operar* — el sentido de
+  la funcionalidad para un portfolio.
+
+**Siguiente**
+- Fase C: el QR de la factura (a la AEAT) y la exportación XML, integrados en esta misma página.
 
 ### 2026-07-06 — Entrada 029: Facturación Verifactu — Fase B (cadena de hash inalterable)
 **Hecho**
