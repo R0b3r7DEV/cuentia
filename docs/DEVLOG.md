@@ -12,6 +12,26 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-06 — Entry 028: Verifactu invoicing — Phase A (domain model)
+**Done**
+- Added the invoicing domain: `Customer`, `Invoice` and `InvoiceLine` entities (all scoped to a `User`),
+  their repositories, an `InvoiceService` and an `InvoiceController` (`GET`/`POST /api/invoices`,
+  `GET /api/invoices/{id}`). Migration `Version20260706075837` creates the three tables.
+- Totals are computed in **integer cents** (never floats) and invoice numbers are **correlative per
+  series** (`nextNumber = MAX(number)+1`) — both prerequisites for the Verifactu hash chain.
+- Wrote [ADR 0003](decisions/0003-verifactu-invoicing.md) (scope A→D + honest monetization note) and
+  [guide 24](guide/24-verifactu-invoicing.md). Added `InvoiceServiceTest` (totals/VAT/numbering + empty-lines
+  guard): suite now **18 tests, 59 assertions**. Live check: one line @21 % + two @10 % → base 1100.00,
+  VAT 220.00, total 1320.00, number 2026/1.
+
+**Why**
+- Verifactu (Orden HAC/1177/2024) becomes obligatory in 2026; getting ahead of it makes Cuentia a credible
+  showcase. The domain model has to be right — cents-exact totals and gapless numbering — before the
+  tamper-evident hash chain can sit on top of it.
+
+**Next**
+- Phase B: the `InvoiceRecord` with the chained SHA-256 hash and tamper-detection tests.
+
 ### 2026-07-03 — Entry 027: Free hosting — Render + Neon (Railway trial expired)
 **Done**
 - Switched the deploy target to free tiers: **Render** (Docker web service) for the backend and **Neon**
@@ -425,6 +445,27 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-06 — Entrada 028: Facturación Verifactu — Fase A (modelo de dominio)
+**Hecho**
+- Añadido el dominio de facturación: entidades `Customer`, `Invoice` e `InvoiceLine` (todas ligadas a un
+  `User`), sus repositorios, un `InvoiceService` y un `InvoiceController` (`GET`/`POST /api/invoices`,
+  `GET /api/invoices/{id}`). La migración `Version20260706075837` crea las tres tablas.
+- Los totales se calculan en **céntimos enteros** (nunca floats) y los números de factura son
+  **correlativos por serie** (`nextNumber = MAX(number)+1`) — ambos requisitos previos a la cadena de hash
+  Verifactu.
+- Escrito el [ADR 0003](decisions/0003-verifactu-invoicing.md) (alcance A→D + nota honesta de
+  monetización) y la [guía 24](guide/24-verifactu-invoicing.md). Añadido `InvoiceServiceTest`
+  (totales/IVA/numeración + guardia de líneas vacías): la suite ya tiene **18 tests, 59 aserciones**.
+  Prueba en vivo: una línea al 21 % + dos al 10 % → base 1100.00, IVA 220.00, total 1320.00, número 2026/1.
+
+**Por qué**
+- Verifactu (Orden HAC/1177/2024) será obligatorio en 2026; adelantarse lo convierte en un escaparate
+  creíble. El modelo de dominio tiene que estar bien — totales exactos al céntimo y numeración sin huecos —
+  antes de poner encima la cadena de hash inalterable.
+
+**Siguiente**
+- Fase B: el `InvoiceRecord` con el hash SHA-256 encadenado y tests de detección de manipulación.
 
 ### 2026-07-03 — Entrada 027: Hosting gratis — Render + Neon (caducó el trial de Railway)
 **Hecho**
