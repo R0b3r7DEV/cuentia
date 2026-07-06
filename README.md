@@ -43,6 +43,26 @@ project sits exactly on that intersection: the hard part isn't the CRUD, it's *k
 numbers mean* — VAT mechanics, Spanish tax models, what a healthy cash flow looks like. That domain
 knowledge is the core of the product.
 
+### What it solves — and what would make it a real product (honest take)
+
+Product sense matters, so let's be honest about scope. Cuentia gives a freelancer **visibility**: at a
+glance, categorized movements, an **estimate** of VAT/IRPF, and a cash-flow forecast. That's genuinely
+useful — but it's a **"vitamin," not a "painkiller."**
+
+The problems a Spanish freelancer actually *pays* to solve are:
+
+- **Issuing invoices** — and soon mandatory **e-invoicing / Verifactu**;
+- **Filing taxes correctly** (modelo 130 / 303) without risking a penalty;
+- doing it **fast and with confidence** — which is why they pay a *gestoría*.
+
+Cuentia **estimates**; a product people pay for must be something they can **act on** (file, invoice) and
+**trust**. To cross that line it would need an **accurate, per-line tax engine** (deductibility rules,
+exemptions, reverse charge…), **invoicing / e-invoicing**, a **real bank connection** (open banking), and
+**filing / accountant integration** — validated with real users first.
+
+This project's goal was never revenue: it's to demonstrate building **serious business software** at the
+intersection of web development and finance. Understanding the distinction above is part of that.
+
 ### Tech stack
 
 - **Backend:** PHP · Symfony · PostgreSQL
@@ -100,6 +120,27 @@ Soy estudiante de desarrollo web con un segundo título en **Administración y F
 está justo en esa intersección: lo difícil no es el CRUD, es *saber qué significan los números* —la
 mecánica del IVA, los modelos fiscales españoles, cómo se ve una tesorería sana—. Ese conocimiento del
 dominio es el núcleo del producto.
+
+### Qué resuelve — y qué le faltaría para ser producto (visión honesta)
+
+El criterio de producto importa, así que seamos honestos con el alcance. Cuentia le da al autónomo
+**visibilidad**: de un vistazo, movimientos categorizados, una **estimación** de IVA/IRPF y una previsión
+de tesorería. Es útil de verdad — pero es una **"vitamina", no un "analgésico".**
+
+Los problemas por los que un autónomo español *paga* realmente son:
+
+- **Emitir facturas** — y pronto la **factura electrónica obligatoria / Verifactu**;
+- **Presentar bien los impuestos** (modelo 130 / 303) sin arriesgarse a una sanción;
+- hacerlo **rápido y con confianza** — por eso pagan a una *gestoría*.
+
+Cuentia **estima**; un producto por el que se paga tiene que ser algo sobre lo que puedas **actuar**
+(declarar, facturar) y en lo que puedas **confiar**. Para cruzar esa línea necesitaría un **motor fiscal
+preciso por línea** (reglas de deducibilidad, exenciones, inversión del sujeto pasivo…), **facturación /
+factura electrónica**, una **conexión bancaria real** (open banking) e **integración de presentación /
+gestor** — validado antes con usuarios reales.
+
+El objetivo de este proyecto nunca fue facturar: es demostrar que sé construir **software de negocio
+serio** en la intersección entre desarrollo web y finanzas. Entender esa distinción forma parte de ello.
 
 ### Stack tecnológico
 
