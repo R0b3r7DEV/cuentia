@@ -31,10 +31,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private string $password;
 
+    /** Issuer tax id (NIF) — needed as the IDEmisor in the Verifactu fingerprint. / NIF emisor. */
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $taxId = null;
+
     public function getId(): ?int { return $this->id; }
 
     public function getEmail(): string { return $this->email; }
     public function setEmail(string $email): self { $this->email = $email; return $this; }
+
+    public function getTaxId(): ?string { return $this->taxId; }
+    public function setTaxId(?string $taxId): self { $this->taxId = $taxId; return $this; }
 
     /** The unique identifier for the security system (we use the email). */
     public function getUserIdentifier(): string { return $this->email; }

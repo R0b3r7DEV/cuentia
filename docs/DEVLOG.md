@@ -12,6 +12,27 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-06 — Entry 029: Verifactu invoicing — Phase B (tamper-evident hash chain)
+**Done**
+- Every issued invoice now generates an `InvoiceRecord` (Verifactu *registro de alta*) carrying a
+  **SHA-256 fingerprint chained to the previous record** — the core anti-fraud mechanism. Added
+  `VerifactuHasher` (canonical string + hash), `VerifactuChain` (integrity verifier), the record entity +
+  repository, wired generation into `InvoiceService`, and a `GET /api/invoices/verify` endpoint; the
+  invoice detail now returns its `verifactu` block (hash, previousHash, generatedAt). Added a `taxId` (NIF)
+  to `User` as the fingerprint's issuer id. Migration `Version20260706083619`.
+- Tests: `VerifactuChainTest` (determinism, chaining, tamper detection — both a mutated field and a
+  resealed-but-unlinked record) + an end-to-end integration test (two invoices → `/verify` ok, count 2,
+  chained, per-user isolation). Suite now **24 tests, 86 assertions**.
+
+**Why**
+- A field-mutation test failed *only on SQLite*: a `NUMERIC` `1210.00` read back as `1210`, so the
+  fingerprint recomputed after a DB round-trip didn't match the sealed one (PostgreSQL returns `1210.00`,
+  hiding it in the live check). Lesson banked: a cryptographic hash must never depend on how the database
+  formats a value — amounts are now normalized to two decimals inside the canonical string.
+
+**Next**
+- Phase C: the invoice QR (to the AEAT) and the XML export.
+
 ### 2026-07-06 — Entry 028: Verifactu invoicing — Phase A (domain model)
 **Done**
 - Added the invoicing domain: `Customer`, `Invoice` and `InvoiceLine` entities (all scoped to a `User`),
@@ -445,6 +466,27 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-06 — Entrada 029: Facturación Verifactu — Fase B (cadena de hash inalterable)
+**Hecho**
+- Cada factura emitida genera ahora un `InvoiceRecord` (registro de alta Verifactu) con una **huella
+  SHA-256 encadenada al registro anterior** — el mecanismo antifraude central. Añadidos `VerifactuHasher`
+  (cadena canónica + hash), `VerifactuChain` (verificador de integridad), la entidad + repositorio del
+  registro, la generación enganchada en `InvoiceService`, y un endpoint `GET /api/invoices/verify`; el
+  detalle de factura devuelve ahora su bloque `verifactu` (hash, previousHash, generatedAt). Añadido un
+  `taxId` (NIF) al `User` como emisor de la huella. Migración `Version20260706083619`.
+- Tests: `VerifactuChainTest` (determinismo, encadenado, detección de manipulación — tanto un campo alterado
+  como un registro reesellado pero desenganchado) + un test de integración de extremo a extremo (dos
+  facturas → `/verify` ok, count 2, encadenado, aislamiento por usuario). Suite: **24 tests, 86 aserciones**.
+
+**Por qué**
+- Un test de campo alterado falló *solo en SQLite*: un `NUMERIC` `1210.00` se releía como `1210`, así que
+  la huella recalculada tras el viaje a la BD no coincidía con la sellada (PostgreSQL devuelve `1210.00` y
+  lo ocultaba en la prueba en vivo). Lección aprendida: un hash criptográfico nunca debe depender de cómo
+  formatee un valor la base de datos — los importes se normalizan a dos decimales en la cadena canónica.
+
+**Siguiente**
+- Fase C: el QR de la factura (a la AEAT) y la exportación XML.
 
 ### 2026-07-06 — Entrada 028: Facturación Verifactu — Fase A (modelo de dominio)
 **Hecho**

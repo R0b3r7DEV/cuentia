@@ -96,6 +96,49 @@ class ApiIntegrationTest extends WebTestCase
         self::assertCount(0, $body);
     }
 
+    public function testInvoicingChainIsVerifiableEndToEnd(): void
+    {
+        $this->registerAndLogin('inv@test.local');
+
+        [$s1, $inv1] = $this->json('POST', '/api/invoices', [
+            'series' => '2026',
+            'customer' => ['name' => 'ACME', 'taxId' => 'B12345678'],
+            'lines' => [['description' => 'Web', 'unitPrice' => '1000.00', 'vatRate' => '21.00']],
+        ]);
+        self::assertSame(201, $s1);
+        self::assertSame('2026/1', $inv1['number']);
+        self::assertSame('1210.00', $inv1['total']);
+        self::assertNull($inv1['verifactu']['previousHash'], 'first record has no previous hash');
+        self::assertMatchesRegularExpression('/^[0-9A-F]{64}$/', $inv1['verifactu']['hash']);
+
+        [, $inv2] = $this->json('POST', '/api/invoices', [
+            'series' => '2026',
+            'customer' => ['name' => 'Beta', 'taxId' => 'B87654321'],
+            'lines' => [['description' => 'Hosting', 'quantity' => 2, 'unitPrice' => '50.00', 'vatRate' => '10.00']],
+        ]);
+        self::assertSame('2026/2', $inv2['number']);
+        // the second record chains to the first (tamper-evidence).
+        self::assertSame($inv1['verifactu']['hash'], $inv2['verifactu']['previousHash']);
+
+        // the whole chain verifies intact.
+        [$vs, $vr] = $this->json('GET', '/api/invoices/verify');
+        self::assertSame(200, $vs);
+        self::assertTrue($vr['ok']);
+        self::assertSame(2, $vr['count']);
+
+        [, $list] = $this->json('GET', '/api/invoices');
+        self::assertCount(2, $list);
+
+        // a second user shares no invoices and has an empty (valid) chain.
+        $this->json('POST', '/api/logout');
+        $this->registerAndLogin('other@test.local');
+        [, $list] = $this->json('GET', '/api/invoices');
+        self::assertCount(0, $list);
+        [, $vr] = $this->json('GET', '/api/invoices/verify');
+        self::assertTrue($vr['ok']);
+        self::assertSame(0, $vr['count']);
+    }
+
     public function testClearAndDeleteAccount(): void
     {
         $this->registerAndLogin('c@test.local');

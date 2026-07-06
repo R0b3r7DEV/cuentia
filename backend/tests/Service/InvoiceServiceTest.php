@@ -4,8 +4,10 @@ namespace App\Tests\Service;
 
 use App\Entity\User;
 use App\Repository\CustomerRepository;
+use App\Repository\InvoiceRecordRepository;
 use App\Repository\InvoiceRepository;
 use App\Service\InvoiceService;
+use App\Service\VerifactuHasher;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -21,7 +23,10 @@ class InvoiceServiceTest extends TestCase
         $customers = $this->createStub(CustomerRepository::class);
         $customers->method('findOneBy')->willReturn(null); // always create a new customer
 
-        return new InvoiceService($em, $invoices, $customers);
+        $records = $this->createStub(InvoiceRecordRepository::class);
+        $records->method('lastForUser')->willReturn(null); // first in the chain
+
+        return new InvoiceService($em, $invoices, $customers, $records, new VerifactuHasher());
     }
 
     public function testComputesTotalsAndAssignsNumber(): void
