@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { eur } from '../lib/format'
 import { useTranslation } from '../i18n/LanguageContext'
+import BankConnect from '../components/BankConnect'
 
 export default function MovementsPage() {
   const { transactions, reload } = useOutletContext()
@@ -88,6 +89,8 @@ export default function MovementsPage() {
         <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>{t('mov.importHint')}</p>
         {message && <p className="msg">{message}</p>}
       </div>
+
+      <BankConnect onImported={reload} />
 
       <div className="card table-scroll" style={{ padding: 0 }}>
         <table className="table">

@@ -153,6 +153,19 @@ class ApiIntegrationTest extends WebTestCase
         self::assertSame(0, $vr['count']);
     }
 
+    public function testOpenBankingReportsDisabledWithoutCredentials(): void
+    {
+        $this->registerAndLogin('bank@test.local');
+
+        [$s, $body] = $this->json('GET', '/api/bank/status');
+        self::assertSame(200, $s);
+        self::assertFalse($body['enabled']);
+
+        // enabled-only endpoints return 503 so the frontend can show a disabled state.
+        [$s2] = $this->json('GET', '/api/bank/institutions');
+        self::assertSame(503, $s2);
+    }
+
     public function testClearAndDeleteAccount(): void
     {
         $this->registerAndLogin('c@test.local');

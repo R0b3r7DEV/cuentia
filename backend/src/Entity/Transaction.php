@@ -61,6 +61,10 @@ class Transaction
     #[ORM\Column(length: 20)]
     private string $importedFrom = 'csv';
 
+    /** External id (e.g. the bank transaction id) — used to skip duplicates on re-import. / Id externo para evitar duplicados. */
+    #[ORM\Column(length: 128, nullable: true)]
+    private ?string $externalId = null;
+
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
@@ -99,6 +103,9 @@ class Transaction
 
     public function getImportedFrom(): string { return $this->importedFrom; }
     public function setImportedFrom(string $importedFrom): self { $this->importedFrom = $importedFrom; return $this; }
+
+    public function getExternalId(): ?string { return $this->externalId; }
+    public function setExternalId(?string $externalId): self { $this->externalId = $externalId; return $this; }
 
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
 

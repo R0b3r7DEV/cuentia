@@ -12,6 +12,26 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-06 — Entry 032: Open banking (GoCardless) — behind a feature flag
+**Done**
+- Built a real open-banking import via **GoCardless Bank Account Data** (PSD2): `GoCardlessClient` (token →
+  institutions → requisition → account transactions), `OpenBankingService` (connect + import with mapping),
+  and `BankController` (`/api/bank/status|institutions|connect|import`). Movements now carry an `externalId`
+  (migration `Version20260706103931`) so re-imports **skip duplicates**. Frontend `BankConnect` component on
+  the Movements page: pick a bank → authorize (hosted GoCardless link) → import.
+- **Feature flag:** disabled unless `GOCARDLESS_SECRET_ID`/`_KEY` are set; the UI then shows an honest "not
+  configured" note and enabled-only endpoints return 503.
+- Tests: `GoCardlessClientTest` (MockHttpClient), `OpenBankingServiceTest` (mapping, creditor-name fallback,
+  dedup counts), integration test of the disabled path. Suite now **36 tests, 128 assertions**.
+
+**Why**
+- Creating GoCardless app credentials asks for more personal data than makes sense for a portfolio, so the
+  integration is built and **tested against the documented API shape but not run live** — shipping it behind
+  a flag is the honest way to showcase the capability without pretending it's been exercised end-to-end.
+
+**Next**
+- Agentic AI + OCR — both need an Anthropic API key.
+
 ### 2026-07-06 — Entry 031: Verifactu invoicing — Phase C (QR + XML)
 **Done**
 - Each invoice now has its two Verifactu artifacts. `VerifactuQr` builds the AEAT `ValidarQR` URL (nif,
@@ -500,6 +520,29 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-06 — Entrada 032: Banca abierta (GoCardless) — tras un flag de función
+**Hecho**
+- Construida una importación real de banca abierta vía **GoCardless Bank Account Data** (PSD2):
+  `GoCardlessClient` (token → instituciones → requisition → transacciones de cuenta), `OpenBankingService`
+  (conectar + importar con mapeo) y `BankController` (`/api/bank/status|institutions|connect|import`). Los
+  movimientos llevan ahora un `externalId` (migración `Version20260706103931`) para que las reimportaciones
+  **salten duplicados**. Componente frontend `BankConnect` en la página de Movimientos: elige banco →
+  autoriza (enlace alojado de GoCardless) → importa.
+- **Flag de función:** deshabilitada salvo que estén `GOCARDLESS_SECRET_ID`/`_KEY`; entonces la UI muestra un
+  aviso honesto de "no configurada" y los endpoints que la requieren devuelven 503.
+- Tests: `GoCardlessClientTest` (MockHttpClient), `OpenBankingServiceTest` (mapeo, fallback al nombre del
+  acreedor, conteos de dedup), test de integración de la ruta deshabilitada. Suite: **36 tests, 128
+  aserciones**.
+
+**Por qué**
+- Crear credenciales de aplicación de GoCardless pide más datos personales de los que tienen sentido para un
+  portfolio, así que la integración está construida y **testeada contra la forma documentada de la API pero
+  no ejecutada en vivo** — publicarla tras un flag es la forma honesta de mostrar la capacidad sin fingir que
+  se ha probado de extremo a extremo.
+
+**Siguiente**
+- IA agéntica + OCR — ambas necesitan una API key de Anthropic.
 
 ### 2026-07-06 — Entrada 031: Facturación Verifactu — Fase C (QR + XML)
 **Hecho**

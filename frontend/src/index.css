@@ -304,6 +304,8 @@ label.btn { display: inline-block; }
 .lines-table th { padding: 4px 6px; border-bottom: 1px solid var(--border); }
 .lines-table tbody tr:hover { background: transparent; }
 .num-input { text-align: right; max-width: 96px; }
+.bank-select { font: inherit; font-size: 14px; padding: 9px 13px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-solid); color: var(--text); min-width: 200px; }
+.bank-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-weak); }
 .link-btn { background: none; border: none; color: var(--accent); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; padding: 4px 2px; }
 .link-btn:hover { text-decoration: underline; }
 

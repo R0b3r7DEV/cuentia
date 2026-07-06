@@ -25,4 +25,21 @@ class TransactionRepository extends ServiceEntityRepository
     {
         return $this->findBy(['user' => $user], ['bookedAt' => 'DESC', 'id' => 'DESC']);
     }
+
+    /**
+     * The set of external ids already imported for a user (to skip duplicates on re-import).
+     * ES: El conjunto de ids externos ya importados de un usuario (para saltar duplicados al reimportar).
+     *
+     * @return array<string, true>
+     */
+    public function existingExternalIds(User $user): array
+    {
+        $rows = $this->createQueryBuilder('t')
+            ->select('t.externalId')
+            ->andWhere('t.user = :u')->setParameter('u', $user)
+            ->andWhere('t.externalId IS NOT NULL')
+            ->getQuery()->getScalarResult();
+
+        return array_fill_keys(array_column($rows, 'externalId'), true);
+    }
 }
