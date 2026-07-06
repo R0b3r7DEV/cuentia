@@ -103,6 +103,9 @@ export const translations = {
     'inv.prevHash': 'Chains to',
     'inv.genAt': 'Sealed at',
     'inv.none': 'none — first in chain',
+    'inv.qrAlt': 'Verifactu QR (AEAT validation)',
+    'inv.downloadXml': '⭳ Download XML',
+    'inv.aeatNote': 'QR & XML follow the AEAT format and point at its test service — a faithful demonstration, not a live fiscal submission.',
 
     'dash.title': 'Dashboard',
     'dash.subtitle': 'Where your money comes from and goes to.',
@@ -231,6 +234,9 @@ export const translations = {
     'inv.prevHash': 'Encadena con',
     'inv.genAt': 'Sellada el',
     'inv.none': 'ninguno — primera de la cadena',
+    'inv.qrAlt': 'QR Verifactu (validación AEAT)',
+    'inv.downloadXml': '⭳ Descargar XML',
+    'inv.aeatNote': 'El QR y el XML siguen el formato de la AEAT y apuntan a su servicio de pruebas — una demostración fiel, no un envío fiscal real.',
 
     'dash.title': 'Panel',
     'dash.subtitle': 'De dónde viene y a dónde va tu dinero.',

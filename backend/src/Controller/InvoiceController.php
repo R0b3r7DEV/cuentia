@@ -3,14 +3,18 @@
 namespace App\Controller;
 
 use App\Entity\Invoice;
+use App\Entity\InvoiceRecord;
 use App\Entity\User;
 use App\Repository\InvoiceRecordRepository;
 use App\Repository\InvoiceRepository;
 use App\Service\InvoiceService;
 use App\Service\VerifactuChain;
+use App\Service\VerifactuQr;
+use App\Service\VerifactuXml;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
@@ -66,6 +70,45 @@ class InvoiceController extends AbstractController
         }
 
         return $this->json($this->detail($invoice, $records));
+    }
+
+    /** The Verifactu QR (SVG) pointing at the AEAT validation service. */
+    #[Route('/api/invoices/{id}/qr', name: 'api_invoices_qr', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function qr(int $id, InvoiceRepository $repo, InvoiceRecordRepository $records, VerifactuQr $qr, #[CurrentUser] User $user): Response
+    {
+        $record = $this->ownedRecord($id, $repo, $records, $user);
+        if ($record === null) {
+            return $this->json(['error' => 'Not found'], 404);
+        }
+
+        return new Response($qr->svg($record), 200, ['Content-Type' => 'image/svg+xml']);
+    }
+
+    /** The invoice record as a Verifactu RegistroAlta XML (download). */
+    #[Route('/api/invoices/{id}/xml', name: 'api_invoices_xml', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function xml(int $id, InvoiceRepository $repo, InvoiceRecordRepository $records, VerifactuXml $xml, #[CurrentUser] User $user): Response
+    {
+        $record = $this->ownedRecord($id, $repo, $records, $user);
+        if ($record === null) {
+            return $this->json(['error' => 'Not found'], 404);
+        }
+
+        $filename = 'factura-' . str_replace('/', '-', $record->getFullNumber()) . '.xml';
+
+        return new Response($xml->build($record), 200, [
+            'Content-Type' => 'application/xml; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
+    private function ownedRecord(int $id, InvoiceRepository $repo, InvoiceRecordRepository $records, User $user): ?InvoiceRecord
+    {
+        $invoice = $repo->find($id);
+        if ($invoice === null || $invoice->getUser() !== $user) {
+            return null;
+        }
+
+        return $records->findOneBy(['invoice' => $invoice]);
     }
 
     private function detail(Invoice $i, InvoiceRecordRepository $records): array

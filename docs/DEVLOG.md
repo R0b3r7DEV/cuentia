@@ -12,6 +12,24 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-06 — Entry 031: Verifactu invoicing — Phase C (QR + XML)
+**Done**
+- Each invoice now has its two Verifactu artifacts. `VerifactuQr` builds the AEAT `ValidarQR` URL (nif,
+  numserie, fecha, importe) and renders it as an **SVG** via `endroid/qr-code` (SVG needs no gd/imagick);
+  `VerifactuXml` serializes a `RegistroAlta` XML with `DOMDocument`. Endpoints `GET /api/invoices/{id}/qr`
+  (image/svg+xml) and `/xml` (download). The Invoices page shows the scannable QR + a Download XML link in
+  the expanded detail, with a note that it's a faithful demonstration (test host), not a live submission.
+- Tests: `VerifactuDocumentsTest` (QR url fields, SVG render, XML well-formed + carries the huella, first-vs
+  -chained record) + integration coverage of both endpoints. Suite now **28 tests, 106 assertions**.
+
+**Why**
+- SVG over PNG keeps the Docker image and CI free of the `gd`/`imagick` extension. The QR and XML follow the
+  AEAT format faithfully but point at the pre-production host — Cuentia isn't a registered issuer, so real
+  SOAP submission stays Phase D (out of scope), as the ADR says.
+
+**Next**
+- Open banking (GoCardless Bank Account Data) — real bank movement imports.
+
 ### 2026-07-06 — Entry 030: Invoices page — surfacing Verifactu in the UI
 **Done**
 - New **Invoices** page (React): issue an invoice (customer + dynamic lines with a live client-side total
@@ -482,6 +500,26 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-06 — Entrada 031: Facturación Verifactu — Fase C (QR + XML)
+**Hecho**
+- Cada factura tiene ya sus dos artefactos Verifactu. `VerifactuQr` construye la URL `ValidarQR` de la AEAT
+  (nif, numserie, fecha, importe) y la renderiza como **SVG** con `endroid/qr-code` (el SVG no necesita
+  gd/imagick); `VerifactuXml` serializa un XML `RegistroAlta` con `DOMDocument`. Endpoints
+  `GET /api/invoices/{id}/qr` (image/svg+xml) y `/xml` (descarga). La página de facturas muestra el QR
+  escaneable + un enlace de descarga del XML en el detalle desplegado, con una nota de que es una
+  demostración fiel (host de pruebas), no un envío real.
+- Tests: `VerifactuDocumentsTest` (campos de la URL del QR, render SVG, XML bien formado + con la huella,
+  primer registro vs. encadenado) + cobertura de integración de ambos endpoints. Suite: **28 tests, 106
+  aserciones**.
+
+**Por qué**
+- SVG en vez de PNG mantiene la imagen Docker y el CI libres de la extensión `gd`/`imagick`. El QR y el XML
+  siguen el formato de la AEAT fielmente pero apuntan al host de pruebas — Cuentia no es un emisor
+  registrado, así que el envío SOAP real queda en la Fase D (fuera de alcance), como dice el ADR.
+
+**Siguiente**
+- Banca abierta (GoCardless Bank Account Data) — importación real de movimientos bancarios.
 
 ### 2026-07-06 — Entrada 030: Página de facturas — Verifactu visible en la interfaz
 **Hecho**

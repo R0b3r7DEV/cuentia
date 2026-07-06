@@ -225,16 +225,26 @@ export default function InvoicesPage() {
                           ))}
                         </ul>
                         {expanded.detail.verifactu && (
-                          <div className="fingerprint">
-                            <div><span className="fp-label">{t('inv.hash')}</span>
-                              <code className="hash">{expanded.detail.verifactu.hash}</code></div>
-                            <div><span className="fp-label">{t('inv.prevHash')}</span>
-                              <code className="hash">
-                                {expanded.detail.verifactu.previousHash || `(${t('inv.none')})`}
-                              </code></div>
-                            <div><span className="fp-label">{t('inv.genAt')}</span>
-                              <span className="muted num">{expanded.detail.verifactu.generatedAt}</span></div>
-                          </div>
+                          <>
+                            <div className="detail-verifactu">
+                              <div className="fingerprint">
+                                <div><span className="fp-label">{t('inv.hash')}</span>
+                                  <code className="hash">{expanded.detail.verifactu.hash}</code></div>
+                                <div><span className="fp-label">{t('inv.prevHash')}</span>
+                                  <code className="hash">
+                                    {expanded.detail.verifactu.previousHash || `(${t('inv.none')})`}
+                                  </code></div>
+                                <div><span className="fp-label">{t('inv.genAt')}</span>
+                                  <span className="muted num">{expanded.detail.verifactu.generatedAt}</span></div>
+                              </div>
+                              <div className="qr-box">
+                                <img className="qr-img" width="150" height="150"
+                                  src={`/api/invoices/${inv.id}/qr`} alt={t('inv.qrAlt')} />
+                                <a className="link-btn" href={`/api/invoices/${inv.id}/xml`}>{t('inv.downloadXml')}</a>
+                              </div>
+                            </div>
+                            <p className="muted" style={{ fontSize: 11, margin: 0 }}>{t('inv.aeatNote')}</p>
+                          </>
                         )}
                       </div>
                     </td>

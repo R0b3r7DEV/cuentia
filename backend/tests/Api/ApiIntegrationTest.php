@@ -129,6 +129,20 @@ class ApiIntegrationTest extends WebTestCase
         [, $list] = $this->json('GET', '/api/invoices');
         self::assertCount(2, $list);
 
+        // the QR (SVG) and the RegistroAlta XML render for an owned invoice.
+        $id = $inv1['id'];
+        $this->client->request('GET', "/api/invoices/$id/qr");
+        $qrRes = $this->client->getResponse();
+        self::assertSame(200, $qrRes->getStatusCode());
+        self::assertStringContainsString('image/svg+xml', (string) $qrRes->headers->get('Content-Type'));
+        self::assertStringContainsString('<svg', $qrRes->getContent());
+
+        $this->client->request('GET', "/api/invoices/$id/xml");
+        $xmlRes = $this->client->getResponse();
+        self::assertSame(200, $xmlRes->getStatusCode());
+        self::assertStringContainsString('application/xml', (string) $xmlRes->headers->get('Content-Type'));
+        self::assertStringContainsString('<RegistroAlta', $xmlRes->getContent());
+
         // a second user shares no invoices and has an empty (valid) chain.
         $this->json('POST', '/api/logout');
         $this->registerAndLogin('other@test.local');
