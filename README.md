@@ -9,6 +9,11 @@
 > ⚠️ **Work in progress.** This project is being built in public, step by step, with every
 > decision documented in [`docs/`](docs/). Follow the build in [`docs/DEVLOG.md`](docs/DEVLOG.md).
 
+### 🌐 Live demo: **[cuentia-snowy.vercel.app](https://cuentia-snowy.vercel.app/)**
+
+Register (or log in) and click **“Load sample data”** to explore with realistic movements.
+*The backend runs on a free tier, so the very first request may take ~30–60 s to wake up.*
+
 [![CI](https://github.com/R0b3r7DEV/cuentia/actions/workflows/ci.yml/badge.svg)](https://github.com/R0b3r7DEV/cuentia/actions/workflows/ci.yml)
 ![PHP](https://img.shields.io/badge/PHP_8.4-777BB4?logo=php&logoColor=white)
 ![Symfony](https://img.shields.io/badge/Symfony_8-000000?logo=symfony&logoColor=white)
