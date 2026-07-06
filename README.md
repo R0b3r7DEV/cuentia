@@ -20,6 +20,14 @@ Register (or log in) and click **“Load sample data”** to explore with realis
 ![React](https://img.shields.io/badge/React_19-20232A?logo=react&logoColor=61DAFB)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
 
+## 📸 Screenshots
+
+| Dashboard — spending, income vs expenses, cash-flow forecast | Taxes — VAT & IRPF (modelo 130) with deadline alert |
+|---|---|
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Taxes](docs/screenshots/taxes.png) |
+
+![Movements — imported & AI-categorized transactions](docs/screenshots/movements.png)
+
 ---
 
 ## English
