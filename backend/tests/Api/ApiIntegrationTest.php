@@ -342,6 +342,56 @@ class ApiIntegrationTest extends WebTestCase
         self::assertSame(404, $sf);
     }
 
+    public function testInstallationDesignerComputeCrudAndIsolation(): void
+    {
+        $this->registerAndLogin('elec2@test.local');
+
+        // stateless compute
+        [$sc, $res] = $this->json('POST', '/api/installations/compute', [
+            'rooms' => [['type' => 'salon', 'area' => 20], ['type' => 'cocina', 'area' => 9], ['type' => 'bano', 'area' => 4]],
+        ]);
+        self::assertSame(200, $sc);
+        self::assertSame('basico', $res['grade']);
+        self::assertNotEmpty($res['circuits']);
+
+        // save a design; the result is derived from the stored input
+        [$s, $inst] = $this->json('POST', '/api/installations', [
+            'name' => 'Piso Ana',
+            'rooms' => [['type' => 'salon', 'area' => 25], ['type' => 'dormitorio', 'area' => 14]],
+            'loads' => ['aire' => true],
+        ]);
+        self::assertSame(201, $s);
+        self::assertSame('Piso Ana', $inst['name']);
+        self::assertSame('elevado', $inst['result']['grade']); // A/A ⇒ elevado
+
+        [$sb] = $this->json('POST', '/api/installations', ['name' => '']);
+        self::assertSame(400, $sb);
+
+        [, $list] = $this->json('GET', '/api/installations');
+        self::assertCount(1, $list);
+
+        [, $d] = $this->json('GET', "/api/installations/{$inst['id']}");
+        self::assertSame('elevado', $d['result']['grade']);
+
+        [$su, $u] = $this->json('PUT', "/api/installations/{$inst['id']}", [
+            'name' => 'Piso Ana 2', 'rooms' => [['type' => 'salon', 'area' => 20]],
+        ]);
+        self::assertSame(200, $su);
+        self::assertSame('Piso Ana 2', $u['name']);
+
+        [$sd] = $this->json('DELETE', "/api/installations/{$inst['id']}");
+        self::assertSame(200, $sd);
+
+        // isolation
+        [, $inst2] = $this->json('POST', '/api/installations', ['name' => 'X', 'rooms' => []]);
+        $this->json('POST', '/api/logout');
+        $this->registerAndLogin('other5@test.local');
+        [, $l3] = $this->json('GET', '/api/installations');
+        self::assertCount(0, $l3);
+        [$sf] = $this->json('DELETE', "/api/installations/{$inst2['id']}");
+        self::assertSame(404, $sf);
+    }
+
     public function testClearAndDeleteAccount(): void
     {
         $this->registerAndLogin('c@test.local');

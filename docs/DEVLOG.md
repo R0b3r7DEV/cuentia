@@ -12,6 +12,26 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-08 — Entry 039: Installation designer — Phase 1 (ITC-BT-25 calculator + single-line diagram)
+**Done**
+- New **Instalación** tab: a REBT **ITC-BT-25** calculator. `InstallationCalculator` (pure, unit-tested)
+  turns rooms + expected loads into circuits (C1–C12 with section/PIA, splitting into C6/C7 when point
+  limits are exceeded), minimum points per room, grade & power to contract, differentials, a bill of
+  materials and an estimated cable length. `InstallationController` exposes a stateless `/compute` plus CRUD
+  to save designs (`Installation` entity, JSON columns; result recomputed from stored input). The frontend
+  recomputes live and renders a **single-line diagram (SVG)** + circuits/points/materials tables. Migration
+  added. Suite now **52 tests, 233 assertions** (6 calculator unit + integration).
+- Researched and grounded in ITC-BT-25 (5 mandatory circuits básico, 9+ elevado; one differential per 5
+  circuits; per-room point minima). Honest framing: a pre-dimensioning aid; cable is an estimate; not a
+  signed project.
+
+**Why**
+- The electrician's design → CIE → quote → invoice chain starts here. This is Phase 1 of the designer we
+  scoped (enfoque B); Phase 2 = 2D floor-plan editor, Phase 3 = extruded 3D view.
+
+**Next**
+- Phase 2 (2D plan), autofill the CIE from a design, materials → quote. Agentic AI + OCR still need a key.
+
 ### 2026-07-08 — Entry 038: CIE — make it really submittable (sign-ready + AutoFirma)
 **Done**
 - Took the CIE from "draft" to **sign-ready**. Researched the GVA telematic procedure: documents must be
@@ -624,6 +644,27 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-08 — Entrada 039: Diseñador de instalación — Fase 1 (calculadora ITC-BT-25 + esquema unifilar)
+**Hecho**
+- Nueva pestaña **Instalación**: una calculadora del REBT **ITC-BT-25**. `InstallationCalculator` (puro,
+  con tests) convierte estancias + cargas previstas en circuitos (C1–C12 con sección/PIA, desdoblando en
+  C6/C7 al superar los límites de puntos), puntos mínimos por estancia, grado y potencia a contratar,
+  diferenciales, lista de materiales y estimación de cable. `InstallationController` expone un `/compute` sin
+  estado más CRUD para guardar diseños (entidad `Installation`, columnas JSON; el resultado se recalcula
+  desde la entrada guardada). El frontend recalcula en vivo y dibuja un **esquema unifilar (SVG)** + tablas
+  de circuitos/puntos/materiales. Migración añadida. Suite: **52 tests, 233 aserciones**.
+- Basado en la ITC-BT-25 (5 circuitos básico, 9+ elevado; un diferencial por cada 5 circuitos; puntos
+  mínimos por estancia). Enfoque honesto: ayuda de predimensionado; el cable es estimación; no es proyecto
+  firmado.
+
+**Por qué**
+- Aquí empieza la cadena diseño → CIE → presupuesto → factura del electricista. Es la Fase 1 del diseñador
+  (enfoque B); Fase 2 = editor 2D de planta, Fase 3 = vista 3D extruida.
+
+**Siguiente**
+- Fase 2 (plano 2D), autorrellenar el CIE desde un diseño, materiales → presupuesto. La IA agéntica + OCR
+  siguen necesitando una key.
 
 ### 2026-07-08 — Entrada 038: CIE — presentable de verdad (listo para firmar + AutoFirma)
 **Hecho**

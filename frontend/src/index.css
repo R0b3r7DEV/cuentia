@@ -314,6 +314,18 @@ label.btn { display: inline-block; }
 .cie-note { font-size: 12px; color: var(--text-muted); }
 .cie-steps { margin: 10px 0 12px; padding-left: 18px; font-size: 13px; line-height: 1.6; color: var(--text); }
 .cie-steps li { margin-bottom: 4px; }
+
+/* Installation designer */
+.loads-grid { display: flex; flex-wrap: wrap; gap: 10px 20px; margin-top: 8px; }
+.load-check { font-size: 14px; display: flex; align-items: center; gap: 7px; cursor: pointer; }
+.unifilar { display: block; }
+.unifilar text { font-family: inherit; font-size: 10px; }
+.uni-line { stroke: var(--border-strong); stroke-width: 1.5; }
+.uni-box { fill: var(--surface-solid); stroke: var(--border-strong); stroke-width: 1.5; }
+.uni-iga { fill: var(--accent-weak); stroke: var(--accent); stroke-width: 1.5; }
+.uni-id { fill: color-mix(in srgb, var(--pos) 12%, transparent); stroke: var(--pos); stroke-width: 1.5; }
+.uni-code { fill: var(--text); font-weight: 700; }
+.uni-sub { fill: var(--text-muted); font-size: 9px; }
 .cie-textarea { font: inherit; font-size: 14px; padding: 9px 13px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-solid); color: var(--text); width: 100%; min-height: 60px; resize: vertical; }
 .cie-textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-weak); }
 .bank-select { font: inherit; font-size: 14px; padding: 9px 13px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-solid); color: var(--text); min-width: 200px; }

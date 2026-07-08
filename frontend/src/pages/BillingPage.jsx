@@ -5,6 +5,7 @@ import QuotesTab from '../components/billing/QuotesTab'
 import CustomersTab from '../components/billing/CustomersTab'
 import ServicesTab from '../components/billing/ServicesTab'
 import CertificatesTab from '../components/billing/CertificatesTab'
+import InstallationTab from '../components/billing/InstallationTab'
 
 /**
  * The billing section, grouped into sub-tabs: invoices, customers (and later quotes + services).
@@ -21,6 +22,7 @@ export default function BillingPage() {
     ['customers', t('bill.customers')],
     ['services', t('bill.services')],
     ['certificates', t('bill.certificates')],
+    ['installation', t('bill.installation')],
   ]
 
   return (
@@ -44,6 +46,7 @@ export default function BillingPage() {
       {tab === 'customers' && <CustomersTab />}
       {tab === 'services' && <ServicesTab />}
       {tab === 'certificates' && <CertificatesTab />}
+      {tab === 'installation' && <InstallationTab />}
     </>
   )
 }
