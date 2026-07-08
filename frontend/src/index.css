@@ -289,6 +289,12 @@ label.btn { display: inline-block; }
 .chain-empty { color: var(--text-muted); background: var(--surface-2); }
 .tag-sealed { background: color-mix(in srgb, var(--pos) 16%, transparent); color: var(--pos); }
 
+/* Quote status pills. */
+.status-draft { background: var(--surface-2); color: var(--text-muted); }
+.status-sent { background: var(--accent-weak); color: var(--accent); }
+.status-accepted, .status-converted { background: color-mix(in srgb, var(--pos) 16%, transparent); color: var(--pos); }
+.status-rejected { background: color-mix(in srgb, var(--neg) 15%, transparent); color: var(--neg); }
+
 .invoice-form { margin-top: 14px; display: flex; flex-direction: column; gap: 14px; }
 .field-row { display: flex; gap: 12px; flex-wrap: wrap; }
 .field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px; }

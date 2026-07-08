@@ -12,6 +12,24 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-08 — Entry 036: Quotes (presupuestos) + convert-to-invoice
+**Done**
+- Added **quotes**: `Quote`/`QuoteLine` entities (non-fiscal, no hash chain), `QuoteService`,
+  `QuoteController` (`list/create/get/status/convert/pdf`), `QuotePdf`, migration, and a **Presupuestos**
+  tab (create with customer + catalog lines + *valid until*, status pill, per-row actions). The headline:
+  **convert** copies a quote into `InvoiceService::create()` to produce a fully sealed Verifactu invoice —
+  **idempotent** (converts once, never duplicates), then marks the quote `converted` and links it.
+- Tests: `QuoteServiceTest` (totals/numbering/default series/draft/empty guard) + an integration test of
+  create → status → convert → invoice sealed → idempotent → PDF. Suite now **44 tests, 179 assertions**.
+  Guide 31. Fixed a create bug where an unset `status` re-read an undefined key and blanked the status.
+
+**Why**
+- Freelancers quote before they invoice; converting the accepted quote in one click (into a compliant
+  invoice) is the natural workflow and keeps the fiscal chain separate from non-fiscal offers.
+
+**Next**
+- Agentic AI + OCR — both need an Anthropic API key.
+
 ### 2026-07-08 — Entry 035: Services catalog (reusable line items)
 **Done**
 - Added a reusable **services/products catalog**: `Service` entity (user-scoped name/unitPrice/vatRate),
@@ -568,6 +586,26 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-08 — Entrada 036: Presupuestos + convertir en factura
+**Hecho**
+- Añadidos los **presupuestos**: entidades `Quote`/`QuoteLine` (no fiscales, sin cadena de hash),
+  `QuoteService`, `QuoteController` (`list/create/get/status/convert/pdf`), `QuotePdf`, migración, y una
+  pestaña **Presupuestos** (crear con cliente + líneas del catálogo + *válido hasta*, insignia de estado,
+  acciones por fila). Lo principal: **convertir** copia el presupuesto a `InvoiceService::create()` para
+  producir una factura Verifactu completamente sellada — **idempotente** (se convierte una vez, sin
+  duplicar), y marca el presupuesto como `converted` enlazándolo.
+- Tests: `QuoteServiceTest` (totales/numeración/serie por defecto/borrador/guarda de líneas vacías) + un
+  test de integración de crear → estado → convertir → factura sellada → idempotente → PDF. Suite: **44
+  tests, 179 aserciones**. Guía 31. Corregido un bug de creación donde un `status` sin definir releía una
+  clave inexistente y dejaba el estado en blanco.
+
+**Por qué**
+- Los autónomos presupuestan antes de facturar; convertir el presupuesto aceptado en un clic (en una
+  factura conforme) es el flujo natural y mantiene la cadena fiscal separada de las ofertas no fiscales.
+
+**Siguiente**
+- IA agéntica + OCR — ambas necesitan una API key de Anthropic.
 
 ### 2026-07-08 — Entrada 035: Catálogo de servicios (líneas reutilizables)
 **Hecho**

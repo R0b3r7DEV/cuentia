@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from '../i18n/LanguageContext'
 import InvoicesTab from '../components/billing/InvoicesTab'
+import QuotesTab from '../components/billing/QuotesTab'
 import CustomersTab from '../components/billing/CustomersTab'
 import ServicesTab from '../components/billing/ServicesTab'
 
@@ -15,6 +16,7 @@ export default function BillingPage() {
 
   const tabs = [
     ['invoices', t('bill.invoices')],
+    ['quotes', t('bill.quotes')],
     ['customers', t('bill.customers')],
     ['services', t('bill.services')],
   ]
@@ -36,6 +38,7 @@ export default function BillingPage() {
       </div>
 
       {tab === 'invoices' && <InvoicesTab />}
+      {tab === 'quotes' && <QuotesTab />}
       {tab === 'customers' && <CustomersTab />}
       {tab === 'services' && <ServicesTab />}
     </>

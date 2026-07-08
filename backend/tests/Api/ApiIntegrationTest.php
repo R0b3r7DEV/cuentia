@@ -250,6 +250,53 @@ class ApiIntegrationTest extends WebTestCase
         self::assertSame(404, $sf);
     }
 
+    public function testQuotesCreateConvertToInvoiceAndPdf(): void
+    {
+        $this->registerAndLogin('quote@test.local');
+
+        [, $c] = $this->json('POST', '/api/customers', ['name' => 'ACME', 'taxId' => 'B1']);
+
+        [$s, $q] = $this->json('POST', '/api/quotes', [
+            'customerId' => $c['id'],
+            'validUntil' => '2026-12-31',
+            'lines' => [['description' => 'Web', 'unitPrice' => '1000.00', 'vatRate' => '21.00']],
+        ]);
+        self::assertSame(201, $s);
+        self::assertSame('draft', $q['status']);
+        self::assertSame('1210.00', $q['total']);
+
+        [, $list] = $this->json('GET', '/api/quotes');
+        self::assertCount(1, $list);
+
+        // status transition.
+        [$ss, $qs] = $this->json('POST', "/api/quotes/{$q['id']}/status", ['status' => 'accepted']);
+        self::assertSame(200, $ss);
+        self::assertSame('accepted', $qs['status']);
+
+        // convert → a real Verifactu invoice.
+        [$scv, $conv] = $this->json('POST', "/api/quotes/{$q['id']}/convert", null);
+        self::assertSame(201, $scv);
+        self::assertNotEmpty($conv['invoiceNumber']);
+
+        [, $qd] = $this->json('GET', "/api/quotes/{$q['id']}");
+        self::assertSame('converted', $qd['status']);
+        self::assertSame($conv['invoiceNumber'], $qd['convertedInvoice']['number']);
+
+        [, $invoices] = $this->json('GET', '/api/invoices');
+        self::assertCount(1, $invoices);
+
+        // converting again is idempotent (no duplicate invoice).
+        [, $conv2] = $this->json('POST', "/api/quotes/{$q['id']}/convert", null);
+        self::assertSame($conv['invoiceNumber'], $conv2['invoiceNumber']);
+        [, $invoices2] = $this->json('GET', '/api/invoices');
+        self::assertCount(1, $invoices2);
+
+        // the quote PDF renders.
+        $this->client->request('GET', "/api/quotes/{$q['id']}/pdf");
+        self::assertSame(200, $this->client->getResponse()->getStatusCode());
+        self::assertStringStartsWith('%PDF', $this->client->getResponse()->getContent());
+    }
+
     public function testClearAndDeleteAccount(): void
     {
         $this->registerAndLogin('c@test.local');
