@@ -172,6 +172,49 @@ class ApiIntegrationTest extends WebTestCase
         self::assertSame(503, $s2);
     }
 
+    public function testCustomersCrudDeleteGuardAndIsolation(): void
+    {
+        $this->registerAndLogin('cust@test.local');
+
+        [$s, $c] = $this->json('POST', '/api/customers', ['name' => 'ACME', 'taxId' => 'B1', 'email' => 'a@acme.com']);
+        self::assertSame(201, $s);
+        self::assertSame('ACME', $c['name']);
+
+        [, $list] = $this->json('GET', '/api/customers');
+        self::assertCount(1, $list);
+
+        [$su, $cu] = $this->json('PUT', "/api/customers/{$c['id']}", ['name' => 'ACME SL', 'taxId' => 'B1']);
+        self::assertSame(200, $su);
+        self::assertSame('ACME SL', $cu['name']);
+
+        // validation: name & taxId required.
+        [$sb] = $this->json('POST', '/api/customers', ['name' => '', 'taxId' => '']);
+        self::assertSame(400, $sb);
+
+        // an invoice can reference an existing customer by id, and that customer then can't be deleted.
+        [$si, $inv] = $this->json('POST', '/api/invoices', [
+            'customerId' => $c['id'],
+            'lines' => [['description' => 'x', 'unitPrice' => '10.00', 'vatRate' => '21.00']],
+        ]);
+        self::assertSame(201, $si);
+        self::assertSame('ACME SL', $inv['customer']['name']);
+        [$sd] = $this->json('DELETE', "/api/customers/{$c['id']}");
+        self::assertSame(409, $sd);
+
+        // a customer with no invoices deletes cleanly.
+        [, $c2] = $this->json('POST', '/api/customers', ['name' => 'Beta', 'taxId' => 'B2']);
+        [$sd2] = $this->json('DELETE', "/api/customers/{$c2['id']}");
+        self::assertSame(200, $sd2);
+        [, $list2] = $this->json('GET', '/api/customers');
+        self::assertCount(1, $list2);
+
+        // another user shares no customers.
+        $this->json('POST', '/api/logout');
+        $this->registerAndLogin('other2@test.local');
+        [, $list3] = $this->json('GET', '/api/customers');
+        self::assertCount(0, $list3);
+    }
+
     public function testClearAndDeleteAccount(): void
     {
         $this->registerAndLogin('c@test.local');

@@ -46,7 +46,7 @@ class InvoiceService
 
         $invoice = (new Invoice())
             ->setUser($user)
-            ->setCustomer($this->resolveCustomer($user, $data['customer'] ?? []))
+            ->setCustomer($this->resolveCustomer($user, $data))
             ->setSeries($series)
             ->setNumber($this->invoices->nextNumber($user, $series))
             ->setIssuedAt($issuedAt);
@@ -101,10 +101,26 @@ class InvoiceService
         return $record->setHash($this->hasher->fingerprint($record));
     }
 
-    /** @param array{name?:string,taxId?:string,address?:string,email?:string} $data */
+    /**
+     * Resolve the invoice's customer: prefer an explicit existing `customerId`, else get-or-create by
+     * taxId from the inline `customer` payload.
+     * ES: Resuelve el cliente: prioriza un `customerId` existente, si no, busca-o-crea por NIF desde el
+     * `customer` del payload.
+     *
+     * @param array<string,mixed> $data
+     */
     private function resolveCustomer(User $user, array $data): Customer
     {
-        $taxId = trim((string) ($data['taxId'] ?? ''));
+        $customerId = $data['customerId'] ?? ($data['customer']['id'] ?? null);
+        if ($customerId !== null) {
+            $existing = $this->customers->find((int) $customerId);
+            if ($existing !== null && $existing->getUser() === $user) {
+                return $existing;
+            }
+        }
+
+        $c = is_array($data['customer'] ?? null) ? $data['customer'] : [];
+        $taxId = trim((string) ($c['taxId'] ?? ''));
         $existing = $taxId !== '' ? $this->customers->findOneBy(['user' => $user, 'taxId' => $taxId]) : null;
         if ($existing !== null) {
             return $existing;
@@ -112,10 +128,10 @@ class InvoiceService
 
         $customer = (new Customer())
             ->setUser($user)
-            ->setName(trim((string) ($data['name'] ?? 'Cliente')))
+            ->setName(trim((string) ($c['name'] ?? 'Cliente')))
             ->setTaxId($taxId !== '' ? $taxId : 'N/A')
-            ->setAddress(isset($data['address']) ? trim((string) $data['address']) : null)
-            ->setEmail(isset($data['email']) ? trim((string) $data['email']) : null);
+            ->setAddress(isset($c['address']) ? trim((string) $c['address']) : null)
+            ->setEmail(isset($c['email']) ? trim((string) $c['email']) : null);
         $this->em->persist($customer);
 
         return $customer;

@@ -12,6 +12,24 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-08 — Entry 034: Billing tabs + customer management (CRUD)
+**Done**
+- Turned the Invoices screen into a **Billing** section with sub-tabs (`BillingPage` → `Facturas`,
+  `Clientes`; `Presupuestos`/`Servicios` coming). Added **customer CRUD**: `CustomerController`
+  (`GET/POST/PUT/DELETE /api/customers`, all user-scoped) with a **delete guard** (409 if the customer has
+  invoices) and required `name`/`taxId`. New `Clientes` tab (list + create/edit/delete). Issuing an invoice
+  can now reuse an existing customer by **`customerId`** (dropdown in the form); `InvoiceService` resolves
+  id → get-or-create.
+- Tests: an integration test covering create/list/update, validation (400), the delete guard (409) and
+  per-user isolation. Suite now **39 tests, 146 assertions**. Guide 29.
+
+**Why**
+- This is the step from "issue a one-off invoice" toward an actual billing tool: customers you reuse, a
+  section that can hold quotes and a services catalog next.
+
+**Next**
+- A services catalog to prefill lines, then quotes (presupuestos) with convert-to-invoice.
+
 ### 2026-07-08 — Entry 033: Invoice PDF (with embedded QR)
 **Done**
 - Each invoice can now be downloaded as a **professional PDF** (`InvoicePdf` service via **Dompdf**, pure
@@ -536,6 +554,24 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-08 — Entrada 034: Pestañas de facturación + gestión de clientes (CRUD)
+**Hecho**
+- Convertida la pantalla de Facturas en un apartado de **Facturación** con sub-pestañas (`BillingPage` →
+  `Facturas`, `Clientes`; llegan `Presupuestos`/`Servicios`). Añadido **CRUD de clientes**:
+  `CustomerController` (`GET/POST/PUT/DELETE /api/customers`, acotado al usuario) con **guarda de borrado**
+  (409 si el cliente tiene facturas) y `name`/`taxId` obligatorios. Nueva pestaña `Clientes` (listar +
+  crear/editar/borrar). Emitir una factura puede reutilizar un cliente existente por **`customerId`**
+  (desplegable en el formulario); `InvoiceService` resuelve id → busca-o-crea.
+- Tests: un test de integración que cubre crear/listar/actualizar, validación (400), la guarda de borrado
+  (409) y el aislamiento por usuario. Suite: **39 tests, 146 aserciones**. Guía 29.
+
+**Por qué**
+- Es el paso de "emitir una factura suelta" hacia una herramienta de facturación real: clientes que
+  reutilizas, un apartado que albergará presupuestos y un catálogo de servicios a continuación.
+
+**Siguiente**
+- Un catálogo de servicios para rellenar líneas, y luego presupuestos con convertir-en-factura.
 
 ### 2026-07-08 — Entrada 033: PDF de factura (con QR incrustado)
 **Hecho**

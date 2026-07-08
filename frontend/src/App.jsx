@@ -3,7 +3,7 @@ import Layout from './components/Layout'
 import MovementsPage from './pages/MovementsPage'
 import DashboardPage from './pages/DashboardPage'
 import TaxesPage from './pages/TaxesPage'
-import InvoicesPage from './pages/InvoicesPage'
+import BillingPage from './pages/BillingPage'
 import ChatPage from './pages/ChatPage'
 import AccountPage from './pages/AccountPage'
 import AuthPage from './pages/AuthPage'
@@ -24,7 +24,7 @@ export default function App() {
           <Route path="/" element={<MovementsPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/taxes" element={<TaxesPage />} />
-          <Route path="/invoices" element={<InvoicesPage />} />
+          <Route path="/invoices" element={<BillingPage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/account" element={<AccountPage />} />
         </Route>

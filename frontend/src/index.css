@@ -306,8 +306,15 @@ label.btn { display: inline-block; }
 .num-input { text-align: right; max-width: 96px; }
 .bank-select { font: inherit; font-size: 14px; padding: 9px 13px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-solid); color: var(--text); min-width: 200px; }
 .bank-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-weak); }
-.link-btn { background: none; border: none; color: var(--accent); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; padding: 4px 2px; }
+.link-btn { background: none; border: none; color: var(--accent); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; padding: 4px 2px; margin-right: 12px; }
 .link-btn:hover { text-decoration: underline; }
+.danger-link { color: var(--neg); }
+
+/* Sub-tabs inside the Billing section. */
+.subtabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 18px; }
+.subtab { font: inherit; font-size: 14px; font-weight: 600; padding: 7px 15px; border-radius: var(--radius-pill); border: 1px solid transparent; background: transparent; color: var(--text-muted); cursor: pointer; transition: background 0.15s, color 0.15s; }
+.subtab:hover { color: var(--text); background: var(--surface-2); }
+.subtab.active { color: var(--text); background: linear-gradient(180deg, var(--active-hi), transparent 70%), var(--active-bg); border-color: var(--glass-border); box-shadow: var(--shadow-soft), inset 0 1px 0 var(--glass-hi); }
 
 .row-click { cursor: pointer; }
 .detail-row td { background: var(--surface-2); }

@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from 'react'
-import { eur } from '../lib/format'
-import { useTranslation } from '../i18n/LanguageContext'
+import { eur } from '../../lib/format'
+import { useTranslation } from '../../i18n/LanguageContext'
 
 const emptyLine = () => ({ description: '', quantity: 1, unitPrice: '', vatRate: '21' })
 
@@ -15,9 +15,10 @@ function previewTotal(lines) {
   return cents / 100
 }
 
-export default function InvoicesPage() {
+export default function InvoicesTab() {
   const { t } = useTranslation()
   const [invoices, setInvoices] = useState([])
+  const [customers, setCustomers] = useState([])
   const [verify, setVerify] = useState(null)
   const [verifying, setVerifying] = useState(false)
   const [showForm, setShowForm] = useState(false)
@@ -25,6 +26,7 @@ export default function InvoicesPage() {
   const [message, setMessage] = useState(null)
   const [expanded, setExpanded] = useState(null) // { id, detail }
 
+  const [customerId, setCustomerId] = useState('') // '' = enter a new customer
   const [customer, setCustomer] = useState({ name: '', taxId: '' })
   const [series, setSeries] = useState('')
   const [lines, setLines] = useState([emptyLine()])
@@ -33,8 +35,12 @@ export default function InvoicesPage() {
     const res = await fetch('/api/invoices')
     if (res.ok) setInvoices(await res.json())
   }
+  const loadCustomers = async () => {
+    const res = await fetch('/api/customers')
+    if (res.ok) setCustomers(await res.json())
+  }
 
-  useEffect(() => { loadInvoices() }, [])
+  useEffect(() => { loadInvoices(); loadCustomers() }, [])
 
   const runVerify = async () => {
     setVerifying(true)
@@ -53,18 +59,18 @@ export default function InvoicesPage() {
     e.preventDefault()
     setSubmitting(true); setMessage(null)
     try {
+      const body = customerId ? { customerId: Number(customerId) } : { customer }
       const res = await fetch('/api/invoices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ series: series || undefined, customer, lines }),
+        body: JSON.stringify({ ...body, series: series || undefined, lines }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
       setMessage(t('inv.createdMsg', { n: data.number }))
-      setCustomer({ name: '', taxId: '' }); setSeries(''); setLines([emptyLine()])
+      setCustomerId(''); setCustomer({ name: '', taxId: '' }); setSeries(''); setLines([emptyLine()])
       setShowForm(false)
-      await loadInvoices()
-      await runVerify()
+      await loadInvoices(); await loadCustomers(); await runVerify()
     } catch (err) {
       setMessage(t('common.errorMsg', { msg: err.message }))
     } finally {
@@ -84,7 +90,6 @@ export default function InvoicesPage() {
 
   return (
     <>
-      <h1 className="page-title">{t('inv.title')}</h1>
       <p className="page-subtitle">{t('inv.subtitle')}</p>
 
       {/* Verifactu chain status — the headline "wow": tamper-evident integrity. */}
@@ -116,14 +121,11 @@ export default function InvoicesPage() {
           <form className="invoice-form" onSubmit={submit}>
             <div className="field-row">
               <label className="field">
-                <span>{t('inv.customerName')}</span>
-                <input required value={customer.name}
-                  onChange={(e) => setCustomer({ ...customer, name: e.target.value })} />
-              </label>
-              <label className="field">
-                <span>{t('inv.taxId')}</span>
-                <input required value={customer.taxId}
-                  onChange={(e) => setCustomer({ ...customer, taxId: e.target.value })} />
+                <span>{t('inv.customerLabel')}</span>
+                <select className="bank-select" value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
+                  <option value="">{t('inv.newCustomer')}</option>
+                  {customers.map((c) => <option key={c.id} value={c.id}>{c.name} · {c.taxId}</option>)}
+                </select>
               </label>
               <label className="field field-sm">
                 <span>{t('inv.series')}</span>
@@ -131,6 +133,21 @@ export default function InvoicesPage() {
                   onChange={(e) => setSeries(e.target.value)} />
               </label>
             </div>
+
+            {!customerId && (
+              <div className="field-row">
+                <label className="field">
+                  <span>{t('inv.customerName')}</span>
+                  <input required value={customer.name}
+                    onChange={(e) => setCustomer({ ...customer, name: e.target.value })} />
+                </label>
+                <label className="field">
+                  <span>{t('inv.taxId')}</span>
+                  <input required value={customer.taxId}
+                    onChange={(e) => setCustomer({ ...customer, taxId: e.target.value })} />
+                </label>
+              </div>
+            )}
 
             <table className="table lines-table">
               <thead>
