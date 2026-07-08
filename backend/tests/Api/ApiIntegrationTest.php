@@ -215,6 +215,41 @@ class ApiIntegrationTest extends WebTestCase
         self::assertCount(0, $list3);
     }
 
+    public function testServicesCatalogCrudAndIsolation(): void
+    {
+        $this->registerAndLogin('svc@test.local');
+
+        [$s, $svc] = $this->json('POST', '/api/services', ['name' => 'Hora de consultoría', 'unitPrice' => '60', 'vatRate' => '21']);
+        self::assertSame(201, $s);
+        self::assertSame('60.00', $svc['unitPrice']);
+        self::assertSame('21.00', $svc['vatRate']);
+
+        [$sb] = $this->json('POST', '/api/services', ['name' => '']);
+        self::assertSame(400, $sb);
+
+        [$su, $svcU] = $this->json('PUT', "/api/services/{$svc['id']}", ['name' => 'Consultoría', 'unitPrice' => '75', 'vatRate' => '21']);
+        self::assertSame(200, $su);
+        self::assertSame('75.00', $svcU['unitPrice']);
+
+        [, $list] = $this->json('GET', '/api/services');
+        self::assertCount(1, $list);
+
+        [$sd] = $this->json('DELETE', "/api/services/{$svc['id']}");
+        self::assertSame(200, $sd);
+        [, $list2] = $this->json('GET', '/api/services');
+        self::assertCount(0, $list2);
+
+        // isolation: another user sees no services.
+        [, $svc2] = $this->json('POST', '/api/services', ['name' => 'X', 'unitPrice' => '10']);
+        $this->json('POST', '/api/logout');
+        $this->registerAndLogin('other3@test.local');
+        [, $l3] = $this->json('GET', '/api/services');
+        self::assertCount(0, $l3);
+        // and can't touch someone else's service.
+        [$sf] = $this->json('DELETE', "/api/services/{$svc2['id']}");
+        self::assertSame(404, $sf);
+    }
+
     public function testClearAndDeleteAccount(): void
     {
         $this->registerAndLogin('c@test.local');

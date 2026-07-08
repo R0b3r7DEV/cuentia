@@ -12,6 +12,20 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-08 — Entry 035: Services catalog (reusable line items)
+**Done**
+- Added a reusable **services/products catalog**: `Service` entity (user-scoped name/unitPrice/vatRate),
+  `ServiceController` CRUD (`/api/services`), migration `Version20260708075806`, and a **Servicios** tab.
+  The new-invoice form gets an **"Add from catalog…"** dropdown that appends a line prefilled from the
+  chosen service (still editable). Suite now **40 tests, 157 assertions** (CRUD + validation + isolation).
+
+**Why**
+- Freelancers bill the same handful of services repeatedly; a catalog removes the retyping. Lines copy the
+  service's values at creation, so deleting a catalog item never rewrites past invoices.
+
+**Next**
+- Quotes (presupuestos) — non-fiscal documents that convert into a real Verifactu invoice.
+
 ### 2026-07-08 — Entry 034: Billing tabs + customer management (CRUD)
 **Done**
 - Turned the Invoices screen into a **Billing** section with sub-tabs (`BillingPage` → `Facturas`,
@@ -554,6 +568,21 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-08 — Entrada 035: Catálogo de servicios (líneas reutilizables)
+**Hecho**
+- Añadido un **catálogo de servicios/productos** reutilizable: entidad `Service` (nombre/precio/IVA acotado
+  al usuario), CRUD `ServiceController` (`/api/services`), migración `Version20260708075806`, y una pestaña
+  **Servicios**. El formulario de factura gana un desplegable **«Añadir del catálogo…»** que añade una línea
+  prellenada del servicio elegido (editable). Suite: **40 tests, 157 aserciones** (CRUD + validación +
+  aislamiento).
+
+**Por qué**
+- Los autónomos facturan los mismos servicios una y otra vez; un catálogo elimina el reescribir. Las líneas
+  copian los valores del servicio al crearse, así que borrar un elemento nunca reescribe facturas pasadas.
+
+**Siguiente**
+- Presupuestos — documentos no fiscales que se convierten en factura Verifactu real.
 
 ### 2026-07-08 — Entrada 034: Pestañas de facturación + gestión de clientes (CRUD)
 **Hecho**

@@ -19,6 +19,7 @@ export default function InvoicesTab() {
   const { t } = useTranslation()
   const [invoices, setInvoices] = useState([])
   const [customers, setCustomers] = useState([])
+  const [services, setServices] = useState([])
   const [verify, setVerify] = useState(null)
   const [verifying, setVerifying] = useState(false)
   const [showForm, setShowForm] = useState(false)
@@ -39,8 +40,23 @@ export default function InvoicesTab() {
     const res = await fetch('/api/customers')
     if (res.ok) setCustomers(await res.json())
   }
+  const loadServices = async () => {
+    const res = await fetch('/api/services')
+    if (res.ok) setServices(await res.json())
+  }
 
-  useEffect(() => { loadInvoices(); loadCustomers() }, [])
+  useEffect(() => { loadInvoices(); loadCustomers(); loadServices() }, [])
+
+  // Append a line prefilled from a catalog service. / Añade una línea prellenada desde un servicio.
+  const addFromService = (id) => {
+    const s = services.find((x) => String(x.id) === String(id))
+    if (!s) return
+    setLines((prev) => {
+      const next = [...prev, { description: s.name, quantity: 1, unitPrice: s.unitPrice, vatRate: s.vatRate }]
+      // drop a leading empty line so the first pick doesn't leave a blank row
+      return next.length === 2 && !prev[0].description && !prev[0].unitPrice ? next.slice(1) : next
+    })
+  }
 
   const runVerify = async () => {
     setVerifying(true)
@@ -195,6 +211,13 @@ export default function InvoicesTab() {
               <button type="button" className="link-btn" onClick={() => setLines([...lines, emptyLine()])}>
                 {t('inv.addLine')}
               </button>
+              {services.length > 0 && (
+                <select className="bank-select" value=""
+                  onChange={(e) => { addFromService(e.target.value); e.target.value = '' }}>
+                  <option value="">{t('inv.fromCatalog')}</option>
+                  {services.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              )}
               <span className="muted num">{t('inv.previewTotal', { total: eur(previewTotal(lines)) })}</span>
             </div>
 

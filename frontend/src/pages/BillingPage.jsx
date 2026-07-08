@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from '../i18n/LanguageContext'
 import InvoicesTab from '../components/billing/InvoicesTab'
 import CustomersTab from '../components/billing/CustomersTab'
+import ServicesTab from '../components/billing/ServicesTab'
 
 /**
  * The billing section, grouped into sub-tabs: invoices, customers (and later quotes + services).
@@ -15,6 +16,7 @@ export default function BillingPage() {
   const tabs = [
     ['invoices', t('bill.invoices')],
     ['customers', t('bill.customers')],
+    ['services', t('bill.services')],
   ]
 
   return (
@@ -35,6 +37,7 @@ export default function BillingPage() {
 
       {tab === 'invoices' && <InvoicesTab />}
       {tab === 'customers' && <CustomersTab />}
+      {tab === 'services' && <ServicesTab />}
     </>
   )
 }
