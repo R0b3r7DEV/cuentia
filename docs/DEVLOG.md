@@ -12,6 +12,22 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-08 — Entry 040: Close the loop — design → CIE & design → quote
+**Done**
+- Wired the installation designer into the rest of the billing module (frontend-only). From a computed
+  design, two buttons: **"Create certificate (CIE)"** prefills the Certificados form with the technical
+  data (power→kW, voltage, supply, earthing TT, circuits, IGA 25/40 A, differential 30 mA); **"Materials →
+  quote"** opens the Presupuestos form with a line per material. Added cross-tab prefill plumbing in
+  `BillingPage` (a tab hands data to another; manual tab clicks clear it). No placeholders: the user
+  completes the customer/identity where it belongs.
+
+**Why**
+- This is the differentiator I kept pointing at: **design → CIE → quote → invoice** in one tool, each step
+  feeding the next. The data the electrician already entered once now flows through the whole chain.
+
+**Next**
+- Designer Phase 2 (2D plan) / Phase 3 (3D). Agentic AI + OCR still need an Anthropic key.
+
 ### 2026-07-08 — Entry 039: Installation designer — Phase 1 (ITC-BT-25 calculator + single-line diagram)
 **Done**
 - New **Instalación** tab: a REBT **ITC-BT-25** calculator. `InstallationCalculator` (pure, unit-tested)
@@ -644,6 +660,23 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-08 — Entrada 040: Cerrar el círculo — diseño → CIE y diseño → presupuesto
+**Hecho**
+- Enganchado el diseñador de instalación con el resto del módulo de facturación (solo frontend). Desde un
+  diseño calculado, dos botones: **«Crear certificado (CIE)»** prellena el formulario de Certificados con
+  los datos técnicos (potencia→kW, tensión, suministro, tierra TT, circuitos, IGA 25/40 A, diferencial 30
+  mA); **«Materiales → presupuesto»** abre el formulario de Presupuestos con una línea por material.
+  Añadido el paso de datos entre pestañas en `BillingPage` (una pestaña entrega datos a otra; al pulsar una
+  pestaña manualmente se limpia). Sin placeholders: el usuario completa cliente/identidad donde toca.
+
+**Por qué**
+- Es el diferencial que venía señalando: **diseño → CIE → presupuesto → factura** en una sola herramienta,
+  cada paso alimentando el siguiente. Los datos que el electricista introdujo una vez fluyen por toda la
+  cadena.
+
+**Siguiente**
+- Fase 2 (plano 2D) / Fase 3 (3D) del diseñador. La IA agéntica + OCR siguen necesitando una key.
 
 ### 2026-07-08 — Entrada 039: Diseñador de instalación — Fase 1 (calculadora ITC-BT-25 + esquema unifilar)
 **Hecho**

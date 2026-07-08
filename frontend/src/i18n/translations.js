@@ -189,6 +189,8 @@ export const translations = {
     'inst.col.switches': 'Switches',
     'inst.col.item': 'Item',
     'inst.col.qty': 'Qty',
+    'inst.createCie': '📄 Create certificate (CIE)',
+    'inst.createQuote': '🧾 Materials → quote',
 
     'qt.subtitle': 'Quotes (presupuestos) — non-fiscal offers you can convert into a real invoice.',
     'qt.new': '＋ New quote',
@@ -516,6 +518,8 @@ export const translations = {
     'inst.col.switches': 'Interruptores',
     'inst.col.item': 'Material',
     'inst.col.qty': 'Cant.',
+    'inst.createCie': '📄 Crear certificado (CIE)',
+    'inst.createQuote': '🧾 Materiales → presupuesto',
 
     'qt.subtitle': 'Presupuestos — ofertas no fiscales que puedes convertir en factura real.',
     'qt.new': '＋ Nuevo presupuesto',

@@ -15,7 +15,7 @@ function previewTotal(lines) {
 
 const STATUSES = ['draft', 'sent', 'accepted', 'rejected']
 
-export default function QuotesTab() {
+export default function QuotesTab({ prefill }) {
   const { t } = useTranslation()
   const [quotes, setQuotes] = useState([])
   const [customers, setCustomers] = useState([])
@@ -38,6 +38,11 @@ export default function QuotesTab() {
     if (s.ok) setServices(await s.json())
   }
   useEffect(() => { load() }, [])
+
+  // Open a prefilled quote (lines from the installation designer's materials).
+  useEffect(() => {
+    if (prefill?.lines?.length) { setLines(prefill.lines); setShowForm(true) }
+  }, [prefill])
 
   const setLine = (i, patch) => setLines((prev) => prev.map((l, j) => (j === i ? { ...l, ...patch } : l)))
   const addFromService = (id) => {

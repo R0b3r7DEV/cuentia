@@ -50,7 +50,7 @@ function Unifilar({ result, t }) {
   )
 }
 
-export default function InstallationTab() {
+export default function InstallationTab({ onNavigate }) {
   const { t } = useTranslation()
   const [form, setForm] = useState(blank())
   const [result, setResult] = useState(null)
@@ -120,6 +120,22 @@ export default function InstallationTab() {
     if (currentId === id) { setForm(blank()); setCurrentId(null) }
     await loadSaved()
   }
+
+  // Hand the computed design to another tab: prefill a CIE, or a quote from the materials.
+  const toCertificate = () => onNavigate?.('certificates', {
+    installationType: 'nueva',
+    address: form.name || '',
+    maxPower: (result.contractedPower / 1000).toFixed(3),
+    voltage: result.voltage,
+    supplyType: result.supplyType,
+    earthingScheme: 'TT',
+    circuits: result.totals.circuits,
+    igaCurrent: result.grade === 'elevado' ? '40' : '25',
+    differentialSensitivity: '30',
+  })
+  const toQuote = () => onNavigate?.('quotes', {
+    lines: result.materials.map((m) => ({ description: m.item, quantity: Number(m.qty) || 1, unitPrice: '', vatRate: '21' })),
+  })
 
   return (
     <>
@@ -196,6 +212,12 @@ export default function InstallationTab() {
               <span className="muted num">{t('inst.cable')}: ~{result.cable.totalM} m</span>
             </div>
             {result.notes?.map((n, i) => <p key={i} className="msg" style={{ color: 'var(--warn-text)' }}>⚠️ {n}</p>)}
+            {onNavigate && (
+              <div className="verify-bar" style={{ marginTop: 12 }}>
+                <button className="btn btn-glass btn-sm" onClick={toCertificate}>{t('inst.createCie')}</button>
+                <button className="btn btn-glass btn-sm" onClick={toQuote}>{t('inst.createQuote')}</button>
+              </div>
+            )}
           </div>
 
           <div className="card">

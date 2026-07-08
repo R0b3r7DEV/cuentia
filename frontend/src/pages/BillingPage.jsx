@@ -15,6 +15,13 @@ import InstallationTab from '../components/billing/InstallationTab'
 export default function BillingPage() {
   const { t } = useTranslation()
   const [tab, setTab] = useState('invoices')
+  // Lets one tab hand data to another (e.g. a design → a prefilled CIE or quote).
+  // ES: Permite que una pestaña pase datos a otra (p.ej. un diseño → un CIE o presupuesto prellenado).
+  const [prefill, setPrefill] = useState(null)
+
+  const selectTab = (key) => { setPrefill(null); setTab(key) }
+  const navigate = (key, data) => { setPrefill({ tab: key, data }); setTab(key) }
+  const pf = (key) => (prefill && prefill.tab === key ? prefill.data : null)
 
   const tabs = [
     ['invoices', t('bill.invoices')],
@@ -34,7 +41,7 @@ export default function BillingPage() {
           <button
             key={key}
             className={`subtab${tab === key ? ' active' : ''}`}
-            onClick={() => setTab(key)}
+            onClick={() => selectTab(key)}
           >
             {label}
           </button>
@@ -42,11 +49,11 @@ export default function BillingPage() {
       </div>
 
       {tab === 'invoices' && <InvoicesTab />}
-      {tab === 'quotes' && <QuotesTab />}
+      {tab === 'quotes' && <QuotesTab prefill={pf('quotes')} />}
       {tab === 'customers' && <CustomersTab />}
       {tab === 'services' && <ServicesTab />}
-      {tab === 'certificates' && <CertificatesTab />}
-      {tab === 'installation' && <InstallationTab />}
+      {tab === 'certificates' && <CertificatesTab prefill={pf('certificates')} />}
+      {tab === 'installation' && <InstallationTab onNavigate={navigate} />}
     </>
   )
 }

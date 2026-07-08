@@ -11,7 +11,7 @@ const blank = {
   observations: '',
 }
 
-export default function CertificatesTab() {
+export default function CertificatesTab({ prefill }) {
   const { t } = useTranslation()
   const [certificates, setCertificates] = useState([])
   const [form, setForm] = useState(null)
@@ -23,6 +23,11 @@ export default function CertificatesTab() {
     if (res.ok) setCertificates(await res.json())
   }
   useEffect(() => { load() }, [])
+
+  // Open a prefilled draft when arriving from the installation designer.
+  useEffect(() => {
+    if (prefill) setForm({ ...blank, ...prefill })
+  }, [prefill])
 
   const set = (patch) => setForm((f) => ({ ...f, ...patch }))
 
