@@ -12,6 +12,25 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-08 — Entry 037: Electrical Installation Certificate (CIE / CERTINS E)
+**Done**
+- Researched the Comunitat Valenciana CIE and confirmed an official model — **CERTINS E (12/2012)**, filed
+  telematically with a digital signature via the GVA sede electrónica. Implemented a **Certificate** entity
+  + `CertificateController` CRUD + `CiePdf` (a CERTINS E-style PDF via Dompdf) + a **Certificados** tab in
+  Billing. Fields follow the REBT (RD 842/2002): installation, titular, installer company/installer, and
+  technical characteristics (power, voltage, supply, earthing, IGA, differential, etc.). Migration added.
+- Honest framing throughout (form note + PDF footer): it's a **fill-in draft aid**, not the official
+  telematic+signed submission. Tests: CRUD, validation, PDF, per-user isolation. Suite **45 tests, 192
+  assertions**. Guide 32. (Fixed two small bugs the tests caught: an undefined-key read on an unset
+  `installationType`, and using null as an array offset in the PDF.)
+
+**Why**
+- A real plus for an electrician using the app: the CIE is the document they issue on every job, and
+  reusing the same data they already keep for invoicing removes duplicate typing.
+
+**Next**
+- Agentic AI + OCR — both need an Anthropic API key.
+
 ### 2026-07-08 — Entry 036: Quotes (presupuestos) + convert-to-invoice
 **Done**
 - Added **quotes**: `Quote`/`QuoteLine` entities (non-fiscal, no hash chain), `QuoteService`,
@@ -586,6 +605,26 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-08 — Entrada 037: Certificado de Instalación Eléctrica (CIE / CERTINS E)
+**Hecho**
+- Investigado el CIE de la Comunitat Valenciana y confirmado un modelo oficial — **CERTINS E (12/2012)**,
+  que se presenta telemáticamente con firma digital en la sede de la GVA. Implementada una entidad
+  **Certificate** + CRUD `CertificateController` + `CiePdf` (PDF con estructura CERTINS E vía Dompdf) + una
+  pestaña **Certificados** en Facturación. Los campos siguen el REBT (RD 842/2002): instalación, titular,
+  empresa instaladora/instalador y características técnicas (potencia, tensión, suministro, tierra, IGA,
+  diferencial, etc.). Migración añadida.
+- Enfoque honesto (nota del formulario + pie del PDF): es un **borrador de ayuda**, no la presentación
+  oficial telemática y firmada. Tests: CRUD, validación, PDF, aislamiento por usuario. Suite: **45 tests,
+  192 aserciones**. Guía 32. (Corregidos dos bugs que cazaron los tests: lectura de clave indefinida en un
+  `installationType` sin definir, y usar null como índice de array en el PDF.)
+
+**Por qué**
+- Un plus real para un electricista que use la app: el CIE es el documento que emite en cada trabajo, y
+  reutilizar los datos que ya guarda para facturar elimina reescribir.
+
+**Siguiente**
+- IA agéntica + OCR — ambas necesitan una API key de Anthropic.
 
 ### 2026-07-08 — Entrada 036: Presupuestos + convertir en factura
 **Hecho**

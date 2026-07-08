@@ -297,6 +297,51 @@ class ApiIntegrationTest extends WebTestCase
         self::assertStringStartsWith('%PDF', $this->client->getResponse()->getContent());
     }
 
+    public function testElectricalCertificatesCrudPdfAndIsolation(): void
+    {
+        $this->registerAndLogin('elec@test.local');
+
+        [$s, $cert] = $this->json('POST', '/api/certificates', [
+            'address' => 'C/ Major 1', 'titularName' => 'Ana Pérez', 'companyName' => 'Electro SL',
+            'useType' => 'vivienda', 'installationType' => 'nueva',
+            'maxPower' => '5.75', 'voltage' => 230, 'supplyType' => 'monofasico', 'earthingScheme' => 'TT',
+        ]);
+        self::assertSame(201, $s);
+        self::assertSame('vivienda', $cert['useType']);
+        self::assertSame('5.750', $cert['maxPower']);
+        self::assertSame(230, $cert['voltage']);
+
+        // required-field validation.
+        [$sb] = $this->json('POST', '/api/certificates', ['address' => '', 'titularName' => '', 'companyName' => '']);
+        self::assertSame(400, $sb);
+
+        [$su, $cu] = $this->json('PUT', "/api/certificates/{$cert['id']}", [
+            'address' => 'C/ Major 2', 'titularName' => 'Ana Pérez', 'companyName' => 'Electro SL', 'installationType' => 'reforma',
+        ]);
+        self::assertSame(200, $su);
+        self::assertSame('reforma', $cu['installationType']);
+
+        [, $list] = $this->json('GET', '/api/certificates');
+        self::assertCount(1, $list);
+
+        // the CIE PDF renders.
+        $this->client->request('GET', "/api/certificates/{$cert['id']}/pdf");
+        self::assertSame(200, $this->client->getResponse()->getStatusCode());
+        self::assertStringStartsWith('%PDF', $this->client->getResponse()->getContent());
+
+        [$sd] = $this->json('DELETE', "/api/certificates/{$cert['id']}");
+        self::assertSame(200, $sd);
+
+        // isolation: another user can't see or delete this user's certificate.
+        [, $cert2] = $this->json('POST', '/api/certificates', ['address' => 'X', 'titularName' => 'Y', 'companyName' => 'Z']);
+        $this->json('POST', '/api/logout');
+        $this->registerAndLogin('other4@test.local');
+        [, $l3] = $this->json('GET', '/api/certificates');
+        self::assertCount(0, $l3);
+        [$sf] = $this->json('DELETE', "/api/certificates/{$cert2['id']}");
+        self::assertSame(404, $sf);
+    }
+
     public function testClearAndDeleteAccount(): void
     {
         $this->registerAndLogin('c@test.local');
