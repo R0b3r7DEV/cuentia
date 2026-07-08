@@ -24,9 +24,16 @@ class InstallationController extends AbstractController
     #[Route('/api/installations/compute', name: 'api_installations_compute', methods: ['POST'])]
     public function compute(Request $request, InstallationCalculator $calc): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $data = is_array($d = json_decode($request->getContent(), true)) ? $d : [];
+        $result = $calc->compute($data);
+        if (is_array($data['layout'] ?? null)) {
+            $layoutCable = $calc->layoutCable($data['layout']);
+            if ($layoutCable !== null) {
+                $result['layoutCable'] = $layoutCable;
+            }
+        }
 
-        return $this->json($calc->compute(is_array($data) ? $data : []));
+        return $this->json($result);
     }
 
     #[Route('/api/installations', name: 'api_installations_list', methods: ['GET'])]
@@ -103,6 +110,38 @@ class InstallationController extends AbstractController
         $i->setSupplyType(($data['supplyType'] ?? 'monofasico') === 'trifasico' ? 'trifasico' : 'monofasico');
         $i->setLoads($this->cleanLoads($data['loads'] ?? []));
         $i->setRooms($this->cleanRooms($data['rooms'] ?? []));
+        $i->setLayout($this->cleanLayout($data['layout'] ?? []));
+    }
+
+    /** @return array<string,mixed> */
+    private function cleanLayout(mixed $layout): array
+    {
+        if (!is_array($layout)) {
+            return [];
+        }
+        $num = static fn ($v): float => round((float) $v, 2);
+        $out = [];
+        if (is_array($layout['panel'] ?? null)) {
+            $out['panel'] = ['x' => $num($layout['panel']['x'] ?? 0), 'y' => $num($layout['panel']['y'] ?? 0)];
+        }
+        $out['rooms'] = [];
+        foreach ((is_array($layout['rooms'] ?? null) ? $layout['rooms'] : []) as $r) {
+            if (is_array($r)) {
+                $out['rooms'][] = [
+                    'type' => (string) ($r['type'] ?? 'otros'),
+                    'x' => $num($r['x'] ?? 0), 'y' => $num($r['y'] ?? 0),
+                    'w' => $num($r['w'] ?? 2), 'h' => $num($r['h'] ?? 2),
+                ];
+            }
+        }
+        $out['devices'] = [];
+        foreach ((is_array($layout['devices'] ?? null) ? $layout['devices'] : []) as $d) {
+            if (is_array($d) && isset($d['type'])) {
+                $out['devices'][] = ['type' => (string) $d['type'], 'x' => $num($d['x'] ?? 0), 'y' => $num($d['y'] ?? 0)];
+            }
+        }
+
+        return $out;
     }
 
     /** @return array<string,bool> */
@@ -146,6 +185,12 @@ class InstallationController extends AbstractController
 
     private function detail(Installation $i, InstallationCalculator $calc): array
     {
+        $result = $calc->compute($i->toInput());
+        $layoutCable = $calc->layoutCable($i->getLayout());
+        if ($layoutCable !== null) {
+            $result['layoutCable'] = $layoutCable;
+        }
+
         return [
             'id'         => $i->getId(),
             'name'       => $i->getName(),
@@ -153,7 +198,8 @@ class InstallationController extends AbstractController
             'supplyType' => $i->getSupplyType(),
             'loads'      => $i->getLoads(),
             'rooms'      => $i->getRooms(),
-            'result'     => $calc->compute($i->toInput()),
+            'layout'     => $i->getLayout(),
+            'result'     => $result,
         ];
     }
 }

@@ -392,6 +392,33 @@ class ApiIntegrationTest extends WebTestCase
         self::assertSame(404, $sf);
     }
 
+    public function testInstallationLayoutCableAndPersistence(): void
+    {
+        $this->registerAndLogin('elec3@test.local');
+        $layout = [
+            'panel' => ['x' => 0, 'y' => 0],
+            'devices' => [['type' => 'socket', 'x' => 3, 'y' => 0], ['type' => 'light', 'x' => 0, 'y' => 4]],
+        ];
+
+        // compute includes cable measured from the layout
+        [$sc, $res] = $this->json('POST', '/api/installations/compute', [
+            'rooms' => [['type' => 'salon', 'area' => 20]], 'layout' => $layout,
+        ]);
+        self::assertSame(200, $sc);
+        self::assertArrayHasKey('layoutCable', $res);
+        self::assertSame(2, $res['layoutCable']['devices']);
+
+        // saving persists the layout; detail recomputes the exact cable from it
+        [, $inst] = $this->json('POST', '/api/installations', [
+            'name' => 'Con plano', 'rooms' => [['type' => 'salon', 'area' => 20]], 'layout' => $layout,
+        ]);
+        self::assertArrayHasKey('layoutCable', $inst['result']);
+
+        [, $d] = $this->json('GET', "/api/installations/{$inst['id']}");
+        self::assertCount(2, $d['layout']['devices']);
+        self::assertArrayHasKey('layoutCable', $d['result']);
+    }
+
     public function testClearAndDeleteAccount(): void
     {
         $this->registerAndLogin('c@test.local');

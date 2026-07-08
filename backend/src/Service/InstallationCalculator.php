@@ -130,6 +130,38 @@ class InstallationCalculator
     }
 
     /**
+     * Exact-er cable estimate from an actual 2D layout: Manhattan run from each device to the panel plus a
+     * drop, with 10 % slack. Positions are in metres. Returns null when there is no layout to measure.
+     * ES: Estimación de cable más exacta desde una planta 2D real: recorrido Manhattan de cada dispositivo
+     * al cuadro más una bajada, con 10 % de holgura. Posiciones en metros. null si no hay planta.
+     *
+     * @param array<string,mixed> $layout
+     * @return array{totalM:float, byType:array<string,float>, devices:int}|null
+     */
+    public function layoutCable(array $layout): ?array
+    {
+        $devices = is_array($layout['devices'] ?? null) ? $layout['devices'] : [];
+        $panel = is_array($layout['panel'] ?? null) ? $layout['panel'] : null;
+        $devices = array_values(array_filter($devices, static fn ($d) => is_array($d) && ($d['type'] ?? '') !== 'panel'));
+        if ($panel === null || count($devices) === 0) {
+            return null;
+        }
+
+        $px = (float) ($panel['x'] ?? 0);
+        $py = (float) ($panel['y'] ?? 0);
+        $total = 0.0;
+        $byType = [];
+        foreach ($devices as $d) {
+            $m = (abs((float) ($d['x'] ?? 0) - $px) + abs((float) ($d['y'] ?? 0) - $py) + 0.3) * 1.1;
+            $total += $m;
+            $type = (string) ($d['type'] ?? 'other');
+            $byType[$type] = round(($byType[$type] ?? 0) + $m, 1);
+        }
+
+        return ['totalM' => round($total, 1), 'byType' => $byType, 'devices' => count($devices)];
+    }
+
+    /**
      * Minimum points of use for a room, per ITC-BT-25 (approximated from surface).
      * @return array{lights:int, socketsGeneral:int, socketsC5:int, switches:int}
      */

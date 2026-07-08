@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from '../../i18n/LanguageContext'
+import FloorPlanEditor from './FloorPlanEditor'
 
 const ROOM_TYPES = ['salon', 'comedor', 'dormitorio', 'cocina', 'bano', 'pasillo', 'vestibulo', 'terraza', 'garaje', 'trastero']
 const LOADS = ['cocina', 'lavadora', 'calefaccion', 'aire', 'secadora', 'domotica', 'vehiculo']
-const blank = () => ({ name: '', grade: 'auto', supplyType: 'monofasico', loads: {}, rooms: [{ type: 'salon', area: 20 }] })
+const emptyLayout = () => ({ panel: { x: 0.5, y: 0.5 }, rooms: [], devices: [] })
+const blank = () => ({ name: '', grade: 'auto', supplyType: 'monofasico', loads: {}, rooms: [{ type: 'salon', area: 20 }], layout: emptyLayout() })
 
 /** Single-line diagram: IGA → one row per differential → its circuits as breaker boxes. */
 function Unifilar({ result, t }) {
@@ -70,6 +72,7 @@ export default function InstallationTab({ onNavigate }) {
     const payload = {
       grade: form.grade, supplyType: form.supplyType, loads: form.loads,
       rooms: form.rooms.map((r) => ({ type: r.type, area: Number(r.area) || 0 })),
+      layout: form.layout,
     }
     const id = setTimeout(async () => {
       const res = await fetch('/api/installations/compute', {
@@ -78,7 +81,7 @@ export default function InstallationTab({ onNavigate }) {
       if (res.ok) setResult(await res.json())
     }, 300)
     return () => clearTimeout(id)
-  }, [form.grade, form.supplyType, form.loads, form.rooms])
+  }, [form.grade, form.supplyType, form.loads, form.rooms, form.layout])
 
   const set = (patch) => setForm((f) => ({ ...f, ...patch }))
   const setRoom = (i, patch) => set({ rooms: form.rooms.map((r, j) => (j === i ? { ...r, ...patch } : r)) })
@@ -109,7 +112,11 @@ export default function InstallationTab({ onNavigate }) {
     const res = await fetch(`/api/installations/${id}`)
     if (!res.ok) return
     const d = await res.json()
-    setForm({ name: d.name, grade: d.grade, supplyType: d.supplyType, loads: d.loads || {}, rooms: d.rooms.length ? d.rooms : blank().rooms })
+    setForm({
+      name: d.name, grade: d.grade, supplyType: d.supplyType, loads: d.loads || {},
+      rooms: d.rooms.length ? d.rooms : blank().rooms,
+      layout: d.layout && d.layout.panel ? { rooms: [], devices: [], ...d.layout } : emptyLayout(),
+    })
     setCurrentId(id)
     setMessage(null)
   }
@@ -209,7 +216,9 @@ export default function InstallationTab({ onNavigate }) {
                 {t('inst.resGrade')}: {t('inst.grade.' + result.grade)}
               </span>
               <span className="muted num">{t('inst.resPower')}: {result.contractedPower} W · {result.voltage} V</span>
-              <span className="muted num">{t('inst.cable')}: ~{result.cable.totalM} m</span>
+              {result.layoutCable
+                ? <span className="chain-badge chain-ok num">🔌 {t('inst.plan.exactCable')}: {result.layoutCable.totalM} m</span>
+                : <span className="muted num">{t('inst.cable')}: ~{result.cable.totalM} m</span>}
             </div>
             {result.notes?.map((n, i) => <p key={i} className="msg" style={{ color: 'var(--warn-text)' }}>⚠️ {n}</p>)}
             {onNavigate && (
@@ -223,6 +232,17 @@ export default function InstallationTab({ onNavigate }) {
           <div className="card">
             <div className="form-sec">{t('inst.unifilar')}</div>
             <Unifilar result={result} t={t} />
+          </div>
+
+          <div className="card">
+            <div className="form-sec">{t('inst.plan.title')}</div>
+            <FloorPlanEditor
+              layout={form.layout}
+              onChange={(l) => set({ layout: l })}
+              designRooms={form.rooms}
+              resultRooms={result.rooms}
+              t={t}
+            />
           </div>
 
           <div className="card table-scroll" style={{ padding: 0 }}>

@@ -98,6 +98,29 @@ class InstallationCalculatorTest extends TestCase
         self::assertSame('basico', $r['grade']);
     }
 
+    public function testLayoutCableMeasuresFromDevicePositions(): void
+    {
+        $cable = $this->calc->layoutCable([
+            'panel' => ['x' => 0, 'y' => 0],
+            'devices' => [
+                ['type' => 'socket', 'x' => 3, 'y' => 0],
+                ['type' => 'light', 'x' => 0, 'y' => 4],
+                ['type' => 'panel', 'x' => 0, 'y' => 0], // ignored
+            ],
+        ]);
+
+        self::assertNotNull($cable);
+        self::assertSame(2, $cable['devices']);
+        // (3+0+0.3)*1.1 + (0+4+0.3)*1.1 = 3.63 + 4.73 = 8.36 → 8.4
+        self::assertEqualsWithDelta(8.4, $cable['totalM'], 0.05);
+    }
+
+    public function testLayoutCableIsNullWithoutDevices(): void
+    {
+        self::assertNull($this->calc->layoutCable(['panel' => ['x' => 0, 'y' => 0], 'devices' => []]));
+        self::assertNull($this->calc->layoutCable([]));
+    }
+
     public function testMaterialsAndCableAreProduced(): void
     {
         $r = $this->calc->compute(['rooms' => [

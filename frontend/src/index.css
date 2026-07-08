@@ -326,6 +326,23 @@ label.btn { display: inline-block; }
 .uni-id { fill: color-mix(in srgb, var(--pos) 12%, transparent); stroke: var(--pos); stroke-width: 1.5; }
 .uni-code { fill: var(--text); font-weight: 700; }
 .uni-sub { fill: var(--text-muted); font-size: 9px; }
+
+/* 2D floor-plan editor */
+.plan-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 4px; }
+.plan-tool { font: inherit; font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: var(--radius-pill); border: 1px solid var(--border-strong); background: var(--surface-solid); color: var(--text-muted); cursor: pointer; }
+.plan-tool:hover { background: var(--surface-2); color: var(--text); }
+.plan-tool.active { background: var(--accent-weak); color: var(--accent); border-color: var(--accent); }
+.plan-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+.floorplan { display: block; background: var(--surface-solid); border: 1px solid var(--border); border-radius: var(--radius-sm); touch-action: none; }
+.grid-line { stroke: var(--border); stroke-width: 1; }
+.plan-room { fill: color-mix(in srgb, var(--accent) 8%, transparent); stroke: var(--accent); stroke-width: 1.5; }
+.plan-room-label { fill: var(--text); font-size: 11px; font-weight: 600; pointer-events: none; }
+.dev-socket { fill: color-mix(in srgb, var(--accent) 30%, var(--surface-solid)); stroke: var(--accent); stroke-width: 2; }
+.dev-switch { fill: color-mix(in srgb, var(--pos) 30%, var(--surface-solid)); stroke: var(--pos); stroke-width: 2; }
+.dev-light circle { fill: var(--surface-solid); stroke: var(--warn-text); stroke-width: 2; }
+.dev-light path { stroke: var(--warn-text); stroke-width: 1.5; }
+.plan-panel { fill: var(--accent); }
+.plan-panel-label { fill: #fff; font-size: 9px; font-weight: 700; pointer-events: none; }
 .cie-textarea { font: inherit; font-size: 14px; padding: 9px 13px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-solid); color: var(--text); width: 100%; min-height: 60px; resize: vertical; }
 .cie-textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-weak); }
 .bank-select { font: inherit; font-size: 14px; padding: 9px 13px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-solid); color: var(--text); min-width: 200px; }

@@ -42,6 +42,10 @@ class Installation
     #[ORM\Column(type: 'json')]
     private array $rooms = [];
 
+    /** 2D floor-plan layout (rooms rectangles + placed devices + panel), in metres. / Planta 2D. */
+    #[ORM\Column(type: 'json')]
+    private array $layout = [];
+
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
@@ -73,6 +77,9 @@ class Installation
     public function getRooms(): array { return $this->rooms; }
     /** @param array<int,array{type:string,area:float}> $rooms */
     public function setRooms(array $rooms): self { $this->rooms = $rooms; return $this; }
+
+    public function getLayout(): array { return $this->layout; }
+    public function setLayout(array $layout): self { $this->layout = $layout; return $this; }
 
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
 

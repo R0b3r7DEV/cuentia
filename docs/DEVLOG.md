@@ -12,6 +12,23 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-08 — Entry 041: Installation designer — Phase 2 (2D floor-plan editor)
+**Done**
+- Added `FloorPlanEditor`: an SVG floor-plan canvas (metric grid) where rooms are draggable rectangles and
+  the panel + devices (socket/switch/light) are placed by tool + click and dragged with Move (Delete
+  removes). An **Auto-place** button seeds the plan from the design and drops each room's ITC-BT-25 points
+  as devices. `InstallationCalculator::layoutCable()` measures cable as each device's Manhattan run to the
+  panel (+drop, +10 % slack), so the UI shows **"Cable from plan: N m"** instead of the estimate once a
+  layout exists. Layout persists as a JSON column on `Installation` (migration); `/compute` accepts a
+  `layout`. Suite now **55 tests, 244 assertions** (2 calculator + 1 integration).
+
+**Why**
+- Phase 1 gave a rough cable estimate from surface; a real layout gives real metres and a schematic plan
+  the electrician can hand over. Same model will extrude into 3D in Phase 3.
+
+**Next**
+- Phase 3 (extruded walkable 3D). Agentic AI + OCR still need an Anthropic key.
+
 ### 2026-07-08 — Entry 040: Close the loop — design → CIE & design → quote
 **Done**
 - Wired the installation designer into the rest of the billing module (frontend-only). From a computed
@@ -660,6 +677,23 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-08 — Entrada 041: Diseñador de instalación — Fase 2 (editor 2D de planta)
+**Hecho**
+- Añadido `FloorPlanEditor`: un lienzo SVG de planta (rejilla métrica) donde las estancias son rectángulos
+  arrastrables y el cuadro + dispositivos (enchufe/interruptor/luz) se colocan con herramienta + clic y se
+  arrastran con Mover (Borrar quita). Un botón **Auto-colocar** siembra el plano desde el diseño y coloca
+  los puntos ITC-BT-25 de cada estancia como dispositivos. `InstallationCalculator::layoutCable()` mide el
+  cable como el recorrido Manhattan de cada dispositivo al cuadro (+bajada, +10 % holgura), así que la UI
+  muestra **«Cable según plano: N m»** en vez de la estimación cuando hay planta. La planta se persiste como
+  columna JSON en `Installation` (migración); `/compute` acepta `layout`. Suite: **55 tests, 244 aserciones**.
+
+**Por qué**
+- La Fase 1 daba una estimación por superficie; una planta real da metros reales y un croquis que el
+  electricista puede entregar. El mismo modelo se extruirá a 3D en la Fase 3.
+
+**Siguiente**
+- Fase 3 (3D extruido paseable). La IA agéntica + OCR siguen necesitando una key.
 
 ### 2026-07-08 — Entrada 040: Cerrar el círculo — diseño → CIE y diseño → presupuesto
 **Hecho**
