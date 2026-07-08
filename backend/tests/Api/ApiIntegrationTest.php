@@ -143,6 +143,12 @@ class ApiIntegrationTest extends WebTestCase
         self::assertStringContainsString('application/xml', (string) $xmlRes->headers->get('Content-Type'));
         self::assertStringContainsString('<RegistroAlta', $xmlRes->getContent());
 
+        $this->client->request('GET', "/api/invoices/$id/pdf");
+        $pdfRes = $this->client->getResponse();
+        self::assertSame(200, $pdfRes->getStatusCode());
+        self::assertStringContainsString('application/pdf', (string) $pdfRes->headers->get('Content-Type'));
+        self::assertStringStartsWith('%PDF', $pdfRes->getContent());
+
         // a second user shares no invoices and has an empty (valid) chain.
         $this->json('POST', '/api/logout');
         $this->registerAndLogin('other@test.local');

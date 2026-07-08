@@ -12,6 +12,22 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-08 — Entry 033: Invoice PDF (with embedded QR)
+**Done**
+- Each invoice can now be downloaded as a **professional PDF** (`InvoicePdf` service via **Dompdf**, pure
+  PHP): issuer/customer, line table, totals, the Verifactu **huella** and the **QR** embedded as an SVG
+  `data:` URI. `GET /api/invoices/{id}/pdf`; the Invoices page shows a **Download PDF** link next to XML.
+  Guide 28. Suite now **38 tests, 134 assertions** (unit render + integration endpoint).
+- Also refreshed the **README** to showcase Verifactu invoicing and open banking, with an engineering
+  highlight on the hash chain and an honestly rewritten scope section.
+
+**Why**
+- The QR/XML were developer artifacts; a PDF is the document a freelancer actually sends. Dompdf keeps it
+  gd/imagick-free, and DejaVu Sans renders the € sign and accents.
+
+**Next**
+- Agentic AI + OCR — both need an Anthropic API key.
+
 ### 2026-07-06 — Entry 032: Open banking (GoCardless) — behind a feature flag
 **Done**
 - Built a real open-banking import via **GoCardless Bank Account Data** (PSD2): `GoCardlessClient` (token →
@@ -520,6 +536,23 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-08 — Entrada 033: PDF de factura (con QR incrustado)
+**Hecho**
+- Cada factura se puede descargar ahora como **PDF profesional** (servicio `InvoicePdf` con **Dompdf**, PHP
+  puro): emisor/cliente, tabla de líneas, totales, la **huella** Verifactu y el **QR** incrustado como
+  `data:` URI en SVG. `GET /api/invoices/{id}/pdf`; la página de facturas muestra un enlace **Descargar
+  PDF** junto al de XML. Guía 28. Suite: **38 tests, 134 aserciones** (render unitario + endpoint de
+  integración).
+- Además, **README** actualizado para mostrar la facturación Verifactu y la banca abierta, con un recuadro
+  de ingeniería sobre la cadena de hash y una sección de alcance reescrita con honestidad.
+
+**Por qué**
+- El QR/XML eran artefactos de desarrollador; un PDF es el documento que un autónomo envía de verdad. Dompdf
+  lo mantiene libre de gd/imagick, y DejaVu Sans renderiza el € y los acentos.
+
+**Siguiente**
+- IA agéntica + OCR — ambas necesitan una API key de Anthropic.
 
 ### 2026-07-06 — Entrada 032: Banca abierta (GoCardless) — tras un flag de función
 **Hecho**

@@ -115,6 +115,7 @@ export const translations = {
     'inv.genAt': 'Sealed at',
     'inv.none': 'none — first in chain',
     'inv.qrAlt': 'Verifactu QR (AEAT validation)',
+    'inv.downloadPdf': '⭳ Download PDF',
     'inv.downloadXml': '⭳ Download XML',
     'inv.aeatNote': 'QR & XML follow the AEAT format and point at its test service — a faithful demonstration, not a live fiscal submission.',
 
@@ -257,6 +258,7 @@ export const translations = {
     'inv.genAt': 'Sellada el',
     'inv.none': 'ninguno — primera de la cadena',
     'inv.qrAlt': 'QR Verifactu (validación AEAT)',
+    'inv.downloadPdf': '⭳ Descargar PDF',
     'inv.downloadXml': '⭳ Descargar XML',
     'inv.aeatNote': 'El QR y el XML siguen el formato de la AEAT y apuntan a su servicio de pruebas — una demostración fiel, no un envío fiscal real.',
 

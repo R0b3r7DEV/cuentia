@@ -240,7 +240,10 @@ export default function InvoicesPage() {
                               <div className="qr-box">
                                 <img className="qr-img" width="150" height="150"
                                   src={`/api/invoices/${inv.id}/qr`} alt={t('inv.qrAlt')} />
-                                <a className="link-btn" href={`/api/invoices/${inv.id}/xml`}>{t('inv.downloadXml')}</a>
+                                <div className="doc-links">
+                                  <a className="link-btn" href={`/api/invoices/${inv.id}/pdf`}>{t('inv.downloadPdf')}</a>
+                                  <a className="link-btn" href={`/api/invoices/${inv.id}/xml`}>{t('inv.downloadXml')}</a>
+                                </div>
                               </div>
                             </div>
                             <p className="muted" style={{ fontSize: 11, margin: 0 }}>{t('inv.aeatNote')}</p>

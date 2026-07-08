@@ -7,6 +7,7 @@ use App\Entity\InvoiceRecord;
 use App\Entity\User;
 use App\Repository\InvoiceRecordRepository;
 use App\Repository\InvoiceRepository;
+use App\Service\InvoicePdf;
 use App\Service\InvoiceService;
 use App\Service\VerifactuChain;
 use App\Service\VerifactuQr;
@@ -97,6 +98,23 @@ class InvoiceController extends AbstractController
 
         return new Response($xml->build($record), 200, [
             'Content-Type' => 'application/xml; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
+    /** The invoice as a downloadable PDF (with the Verifactu fingerprint + QR when present). */
+    #[Route('/api/invoices/{id}/pdf', name: 'api_invoices_pdf', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function pdf(int $id, InvoiceRepository $repo, InvoiceRecordRepository $records, InvoicePdf $pdf, #[CurrentUser] User $user): Response
+    {
+        $invoice = $repo->find($id);
+        if ($invoice === null || $invoice->getUser() !== $user) {
+            return $this->json(['error' => 'Not found'], 404);
+        }
+        $record = $records->findOneBy(['invoice' => $invoice]);
+        $filename = 'factura-' . str_replace('/', '-', $invoice->getFullNumber()) . '.pdf';
+
+        return new Response($pdf->build($invoice, $record), 200, [
+            'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
     }
