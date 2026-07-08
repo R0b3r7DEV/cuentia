@@ -56,9 +56,13 @@ class CiePdf
             .k { font-size: 9px; text-transform: uppercase; color: #6b7280; letter-spacing: .3px; }
             .v { font-size: 12px; border-bottom: 1px solid #e4e7ee; padding-bottom: 2px; min-height: 14px; }
             .decl { margin-top: 18px; font-size: 10px; color: #3a4250; border: 1px solid #d3d8e2; border-radius: 6px; padding: 10px 12px; }
-            .sign { margin-top: 26px; width: 100%; }
-            .sign td { width: 50%; font-size: 10px; color: #6b7280; padding-top: 34px; border-top: 1px solid #1c2129; }
-            .foot { margin-top: 22px; font-size: 8px; color: #9aa2b1; border-top: 1px dashed #d3d8e2; padding-top: 8px; }
+            .lugar { margin-top: 14px; font-size: 11px; color: #3a4250; }
+            .sigrow { width: 100%; margin-top: 10px; border-collapse: collapse; }
+            .sigrow td { width: 50%; padding: 6px 8px 0; vertical-align: top; }
+            .sigbox { border: 1px solid #b9c2d0; border-radius: 6px; height: 66px; position: relative; background: #fbfcfe; }
+            .sigbox .cap { position: absolute; bottom: 5px; left: 0; right: 0; text-align: center; font-size: 8px; color: #6b7280; }
+            .sigttl { font-size: 9px; text-transform: uppercase; letter-spacing: .3px; color: #6b7280; margin-bottom: 3px; }
+            .foot { margin-top: 20px; font-size: 8px; color: #9aa2b1; border-top: 1px dashed #d3d8e2; padding-top: 8px; }
           </style></head><body>
             <h1>Certificado de Instalación Eléctrica de Baja Tensión</h1>
             <div class="sub">Modelo CERTINS E · REBT (RD 842/2002) · Comunitat Valenciana &nbsp;·&nbsp; Emitido: ' . $c->getIssuedAt()->format('d/m/Y') . '</div>
@@ -93,18 +97,25 @@ class CiePdf
             </table>
             ' . ($c->getObservations() ? '<div class="sec">Observaciones</div><div class="v">' . nl2br($this->e($c->getObservations())) . '</div>' : '') . '
 
-            <div class="decl">El instalador habilitado que suscribe certifica que la instalación descrita se ha
-            ejecutado conforme al Reglamento Electrotécnico para Baja Tensión (RD 842/2002) y sus instrucciones
-            técnicas complementarias, y que se han realizado las verificaciones y medidas reglamentarias con
-            resultado favorable.</div>
+            <div class="decl">La empresa instaladora y el instalador habilitado que suscriben <strong>CERTIFICAN</strong>
+            que la instalación eléctrica de baja tensión descrita ha sido ejecutada y verificada conforme al
+            <strong>Reglamento Electrotécnico para Baja Tensión</strong> (RD 842/2002) y sus Instrucciones Técnicas
+            Complementarias (ITC-BT), y que las mediciones reglamentarias (aislamiento, continuidad, resistencia de
+            tierra y disparo de las protecciones) han resultado <strong>favorables</strong>.</div>
 
-            <table class="sign">
-              <tr><td>Firma y sello de la empresa instaladora</td><td>Firma del instalador habilitado</td></tr>
+            <div class="lugar">En ' . $this->e($c->getLocality() ?: '____________________') . ', a ' . $c->getIssuedAt()->format('d/m/Y') . '.</div>
+
+            <table class="sigrow">
+              <tr>
+                <td><div class="sigttl">Empresa instaladora</div><div class="sigbox"><div class="cap">Firma electrónica (AutoFirma / ACCV)</div></div></td>
+                <td><div class="sigttl">Instalador habilitado</div><div class="sigbox"><div class="cap">Firma electrónica (AutoFirma / ACCV)</div></div></td>
+              </tr>
             </table>
 
-            <div class="foot">Documento generado por Cuentia como <strong>borrador de ayuda</strong> a la cumplimentación.
-            El certificado oficial debe presentarse <strong>telemáticamente y con firma digital</strong> por instalador
-            habilitado a través de la sede electrónica de la Generalitat Valenciana (modelo CERTINS E / CERTINS V).</div>
+            <div class="foot"><strong>Documento listo para firmar.</strong> Fírmelo digitalmente con AutoFirma o con el
+            firmador de la ACCV (su certificado no sale de su equipo) y preséntelo <strong>telemáticamente</strong> por
+            instalador habilitado en la sede electrónica de la Generalitat Valenciana (modelo CERTINS E / CERTINS V).
+            Generado con Cuentia · REBT RD 842/2002.</div>
           </body></html>';
     }
 

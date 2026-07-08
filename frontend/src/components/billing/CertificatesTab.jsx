@@ -68,6 +68,20 @@ export default function CertificatesTab() {
       <div className="card cie-note">{t('cie.note')}</div>
 
       <div className="card">
+        <strong>{t('cie.howTitle')}</strong>
+        <ol className="cie-steps">
+          <li>{t('cie.step1')}</li>
+          <li>{t('cie.step2')}</li>
+          <li>{t('cie.step3')}</li>
+        </ol>
+        <div className="doc-links">
+          <a className="link-btn" href="https://firmaelectronica.gob.es/Home/Descargas.html" target="_blank" rel="noreferrer">{t('cie.linkAutofirma')} ↗</a>
+          <a className="link-btn" href="https://www.accv.es" target="_blank" rel="noreferrer">{t('cie.linkAccv')} ↗</a>
+          <a className="link-btn" href="https://sede.gva.es/es/detall-tramit?id_proc=440" target="_blank" rel="noreferrer">{t('cie.linkSede')} ↗</a>
+        </div>
+      </div>
+
+      <div className="card">
         {form === null ? (
           <button className="btn btn-glass btn-sm" onClick={() => setForm({ ...blank })}>{t('cie.new')}</button>
         ) : (

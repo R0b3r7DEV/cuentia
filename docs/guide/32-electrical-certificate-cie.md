@@ -23,14 +23,30 @@ siguiendo el modelo oficial de la Comunitat Valenciana **CERTINS E**, y lo expor
 Sources: GVA trámite [id_proc=440](https://sede.gva.es/es/detall-tramit?id_proc=440), model
 [CERTINS E (PDF)](https://www.gva.es/downloads/publicados/IN/23165_ES.pdf).
 
-## Honest scope / Alcance honesto
+## Sign & file — the three layers / Firmar y presentar — las tres capas
 
-Cuentia generates a **fill-in draft PDF** that mirrors the CERTINS E structure — a working aid for the
-electrician. It is **not** the official submission: that goes telematically, digitally signed, through the
-GVA sede electrónica. The form and the PDF footer both say so.
+Making a CIE "really submittable" has three layers; Cuentia covers the two it honestly can:
 
-*Cuentia genera un **borrador PDF** con la estructura del CERTINS E — una ayuda. **No** es la presentación
-oficial (telemática y firmada digitalmente en la sede de la GVA), como indican el formulario y el pie del PDF.*
+| Layer | Cuentia |
+|---|---|
+| **A. Faithful document** — a complete CERTINS E-style PDF (all REBT fields, compliance declaration, signature areas) | ✅ produced |
+| **B. Digital signature** (DNIe / FNMT / **ACCV** / Cl@ve-firma) | ✅ **sign-ready** — signed by the installer with **AutoFirma / ACCV**; Cuentia never touches the private key |
+| **C. Telematic filing** to the GVA | ⛔ no public API — the **installer** uploads it at the GVA sede with their own certificate |
+
+- **EN:** We deliberately do **not** ask for the installer's signing certificate. GVA (and best practice)
+  recommend signing PDFs locally with **AutoFirma** or the free **ACCV** signer — the private key never
+  leaves the installer's machine. So the PDF is laid out **ready to sign** (a reserved signature area for
+  the company and the installer), and the Certificados tab shows the exact steps: download → sign
+  (AutoFirma/ACCV) → file at the GVA sede. Layer C stays manual because there is no third-party submission
+  API — the same honest boundary as Verifactu's real AEAT submission.
+- **ES:** Deliberadamente **no** pedimos el certificado de firma del instalador. La GVA (y la buena
+  práctica) recomiendan firmar los PDF en local con **AutoFirma** o el firmador gratuito de la **ACCV** — la
+  clave privada nunca sale del equipo del instalador. El PDF queda **listo para firmar** (con área de firma
+  para empresa e instalador), y la pestaña Certificados muestra los pasos: descargar → firmar
+  (AutoFirma/ACCV) → presentar en la sede de la GVA.
+
+Sources: [GVA sede — certificados admitidos](https://sede.gva.es/es/sede_certificados),
+[AutoFirma](https://firmaelectronica.gob.es/Home/Descargas.html), [ACCV](https://www.accv.es).
 
 ## Backend
 

@@ -12,6 +12,25 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-08 — Entry 038: CIE — make it really submittable (sign-ready + AutoFirma)
+**Done**
+- Took the CIE from "draft" to **sign-ready**. Researched the GVA telematic procedure: documents must be
+  **PDF digitally signed** (DNIe / FNMT / ACCV / Cl@ve-firma) and filed by the authorised installer at the
+  sede — there is **no third-party submission API**. Chose the secure path (with the user): Cuentia never
+  handles the installer's certificate.
+- Upgraded `CiePdf` to a complete CERTINS E-style document: full compliance declaration (RD 842/2002 +
+  ITC-BT, favourable measurements), *lugar y fecha*, and **reserved digital-signature areas** for the
+  company and the installer ("firma electrónica AutoFirma/ACCV"). Added an in-app **"How to sign & file it"**
+  panel (download → sign with AutoFirma/ACCV → file at the GVA sede) with official links.
+
+**Why**
+- "Presentable de verdad" = a faithful document + a real signature + filing. The signature is done locally
+  by the installer (private key never leaves their machine, as GVA recommends); filing has no public API, so
+  it stays the installer's manual upload — the same honest boundary as Verifactu's real AEAT submission.
+
+**Next**
+- Agentic AI + OCR — both need an Anthropic API key.
+
 ### 2026-07-08 — Entry 037: Electrical Installation Certificate (CIE / CERTINS E)
 **Done**
 - Researched the Comunitat Valenciana CIE and confirmed an official model — **CERTINS E (12/2012)**, filed
@@ -605,6 +624,26 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-08 — Entrada 038: CIE — presentable de verdad (listo para firmar + AutoFirma)
+**Hecho**
+- Llevado el CIE de "borrador" a **listo para firmar**. Investigada la tramitación telemática de la GVA: los
+  documentos deben ir en **PDF firmado digitalmente** (DNIe / FNMT / ACCV / Cl@ve-firma) y los presenta el
+  instalador habilitado en la sede — **no hay API de terceros**. Elegido el camino seguro (contigo): Cuentia
+  nunca maneja el certificado del instalador.
+- Mejorado `CiePdf` a un documento CERTINS E completo: declaración de conformidad íntegra (RD 842/2002 +
+  ITC-BT, mediciones favorables), *lugar y fecha* y **áreas reservadas de firma electrónica** para empresa e
+  instalador ("firma electrónica AutoFirma/ACCV"). Añadido un panel in-app **«Cómo firmarlo y presentarlo»**
+  (descargar → firmar con AutoFirma/ACCV → presentar en la sede de la GVA) con enlaces oficiales.
+
+**Por qué**
+- "Presentable de verdad" = documento fiel + firma real + presentación. La firma la hace el instalador en
+  local (la clave privada nunca sale de su equipo, como recomienda la GVA); la presentación no tiene API
+  pública, así que sigue siendo su subida manual — el mismo límite honesto que el envío real a la AEAT de
+  Verifactu.
+
+**Siguiente**
+- IA agéntica + OCR — ambas necesitan una API key de Anthropic.
 
 ### 2026-07-08 — Entrada 037: Certificado de Instalación Eléctrica (CIE / CERTINS E)
 **Hecho**
