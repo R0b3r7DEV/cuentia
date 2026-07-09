@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -28,9 +27,20 @@ class GoCardlessClient
 
     public function __construct(
         private HttpClientInterface $http,
-        #[Autowire('%env(GOCARDLESS_SECRET_ID)%')] private string $secretId = '',
-        #[Autowire('%env(GOCARDLESS_SECRET_KEY)%')] private string $secretKey = '',
+        private string $secretId = '',
+        private string $secretKey = '',
     ) {}
+
+    /**
+     * Set the credentials to use for the following calls (per-user BYOK). Resets any cached token.
+     * ES: Fija las credenciales a usar en las siguientes llamadas (BYOK por usuario). Resetea el token.
+     */
+    public function configure(string $secretId, string $secretKey): void
+    {
+        $this->secretId = $secretId;
+        $this->secretKey = $secretKey;
+        $this->token = null;
+    }
 
     /** True only when both credentials are configured. / Verdadero solo si ambas credenciales están. */
     public function isEnabled(): bool

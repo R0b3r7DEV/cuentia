@@ -8,7 +8,6 @@ use App\Entity\User;
 use App\Repository\CategoryRepository;
 use App\Repository\TransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -45,7 +44,7 @@ class CategorizerService
         private TransactionRepository $transactions,
         private CategoryRepository $categories,
         private HttpClientInterface $http,
-        #[Autowire('%env(ANTHROPIC_API_KEY)%')] private string $apiKey = '',
+        private CredentialStore $credentials,
     ) {}
 
     /**
@@ -57,11 +56,12 @@ class CategorizerService
     public function categorizeUncategorized(User $user): array
     {
         $pending = $this->transactions->findBy(['user' => $user, 'category' => null]);
+        $apiKey = $this->credentials->anthropicKey($user);
         $byAi = 0;
         $byRule = 0;
 
         foreach ($pending as $tx) {
-            [$name, $source] = $this->decide($tx->getDescription(), $tx->getAmount());
+            [$name, $source] = $this->decide($tx->getDescription(), $tx->getAmount(), $apiKey);
             $tx->setCategory($this->getOrCreateCategory($name));
             $tx->setCategorySource($source);
             $source === 'ai' ? $byAi++ : $byRule++;
@@ -76,11 +76,11 @@ class CategorizerService
      * Decide the category name for a description/amount.
      * @return array{0:string,1:string} [categoryName, source ('ai'|'rule')]
      */
-    private function decide(string $description, string $amount): array
+    private function decide(string $description, string $amount, string $apiKey): array
     {
-        if ($this->apiKey !== '') {
+        if ($apiKey !== '') {
             try {
-                return [$this->aiCategorize($description, $amount), 'ai'];
+                return [$this->aiCategorize($description, $amount, $apiKey), 'ai'];
             } catch (\Throwable) {
                 // fall through to rules / caemos a las reglas
             }
@@ -122,14 +122,14 @@ class CategorizerService
     }
 
     /** Ask Claude to pick one category from the allowed list. Throws on any problem. */
-    private function aiCategorize(string $description, string $amount): string
+    private function aiCategorize(string $description, string $amount, string $apiKey): string
     {
         $allowed = implode(', ', array_keys(self::CATEGORIES));
         $sign = str_starts_with(trim($amount), '-') ? 'expense' : 'income';
 
         $response = $this->http->request('POST', 'https://api.anthropic.com/v1/messages', [
             'headers' => [
-                'x-api-key' => $this->apiKey,
+                'x-api-key' => $apiKey,
                 'anthropic-version' => '2023-06-01',
                 'content-type' => 'application/json',
             ],

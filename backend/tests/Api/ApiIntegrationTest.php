@@ -419,6 +419,45 @@ class ApiIntegrationTest extends WebTestCase
         self::assertArrayHasKey('layoutCable', $d['result']);
     }
 
+    public function testPerUserApiCredentialsByok(): void
+    {
+        $this->registerAndLogin('byok@test.local');
+
+        [$s, $st] = $this->json('GET', '/api/account/integrations');
+        self::assertSame(200, $s);
+        self::assertFalse($st['anthropic']['configured']);
+        self::assertFalse($st['gocardless']['configured']);
+
+        // open banking is disabled until the user provides credentials
+        [, $bank] = $this->json('GET', '/api/bank/status');
+        self::assertFalse($bank['enabled']);
+
+        // save an Anthropic key — status reports it configured with a masked hint, never the key
+        [, $st] = $this->json('PUT', '/api/account/integrations/anthropic', ['key' => 'sk-ant-secret-9876']);
+        self::assertTrue($st['anthropic']['configured']);
+        self::assertSame('…9876', $st['anthropic']['hint']);
+        self::assertArrayNotHasKey('key', $st['anthropic']);
+
+        // saving GoCardless credentials enables open banking FOR THIS USER
+        [, $st] = $this->json('PUT', '/api/account/integrations/gocardless', ['secretId' => 'gc-id-1', 'secretKey' => 'gc-key-1']);
+        self::assertTrue($st['gocardless']['configured']);
+        [, $bank] = $this->json('GET', '/api/bank/status');
+        self::assertTrue($bank['enabled']);
+
+        // removing them disables it again
+        [$sd] = $this->json('DELETE', '/api/account/integrations/gocardless');
+        self::assertSame(200, $sd);
+        [, $bank] = $this->json('GET', '/api/bank/status');
+        self::assertFalse($bank['enabled']);
+
+        // another user shares nothing
+        $this->json('POST', '/api/logout');
+        $this->registerAndLogin('byok2@test.local');
+        [, $st2] = $this->json('GET', '/api/account/integrations');
+        self::assertFalse($st2['anthropic']['configured']);
+        self::assertFalse($st2['gocardless']['configured']);
+    }
+
     public function testClearAndDeleteAccount(): void
     {
         $this->registerAndLogin('c@test.local');

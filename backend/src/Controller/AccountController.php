@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Transaction;
 use App\Entity\User;
+use App\Service\CredentialStore;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -38,6 +39,51 @@ class AccountController extends AbstractController
         $request->getSession()->invalidate();
 
         return $this->json(['deleted' => true]);
+    }
+
+    /** Status of the user's own API integrations (never returns the keys). */
+    #[Route('/api/account/integrations', name: 'api_account_integrations', methods: ['GET'])]
+    public function integrations(CredentialStore $credentials, #[CurrentUser] User $user): JsonResponse
+    {
+        return $this->json($credentials->status($user));
+    }
+
+    /** Save (or update) the user's own Anthropic API key. Send an empty key to clear it. */
+    #[Route('/api/account/integrations/anthropic', name: 'api_account_anthropic', methods: ['PUT'])]
+    public function setAnthropic(Request $request, CredentialStore $credentials, #[CurrentUser] User $user): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $credentials->setAnthropicKey($user, is_array($data) ? (string) ($data['key'] ?? '') : '');
+
+        return $this->json($credentials->status($user));
+    }
+
+    #[Route('/api/account/integrations/anthropic', name: 'api_account_anthropic_delete', methods: ['DELETE'])]
+    public function deleteAnthropic(CredentialStore $credentials, #[CurrentUser] User $user): JsonResponse
+    {
+        $credentials->setAnthropicKey($user, null);
+
+        return $this->json($credentials->status($user));
+    }
+
+    /** Save (or update) the user's own GoCardless credentials. */
+    #[Route('/api/account/integrations/gocardless', name: 'api_account_gocardless', methods: ['PUT'])]
+    public function setGocardless(Request $request, CredentialStore $credentials, #[CurrentUser] User $user): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $id = is_array($data) ? (string) ($data['secretId'] ?? '') : '';
+        $key = is_array($data) ? (string) ($data['secretKey'] ?? '') : '';
+        $credentials->setGocardless($user, $id, $key);
+
+        return $this->json($credentials->status($user));
+    }
+
+    #[Route('/api/account/integrations/gocardless', name: 'api_account_gocardless_delete', methods: ['DELETE'])]
+    public function deleteGocardless(CredentialStore $credentials, #[CurrentUser] User $user): JsonResponse
+    {
+        $credentials->setGocardless($user, null, null);
+
+        return $this->json($credentials->status($user));
     }
 
     private function deleteUserTransactions(EntityManagerInterface $em, User $user): int

@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Entity\User;
 use App\Repository\TransactionRepository;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -23,7 +22,7 @@ class ChatService
         private VatService $vat,
         private IrpfService $irpf,
         private HttpClientInterface $http,
-        #[Autowire('%env(ANTHROPIC_API_KEY)%')] private string $apiKey = '',
+        private CredentialStore $credentials,
     ) {}
 
     /**
@@ -32,10 +31,11 @@ class ChatService
     public function answer(string $question, User $user): array
     {
         $context = $this->buildContext($user);
+        $apiKey = $this->credentials->anthropicKey($user);
 
-        if ($this->apiKey !== '') {
+        if ($apiKey !== '') {
             try {
-                return ['answer' => $this->askClaude($question, $context), 'source' => 'ai'];
+                return ['answer' => $this->askClaude($question, $context, $apiKey), 'source' => 'ai'];
             } catch (\Throwable) {
                 // fall through to the deterministic summary
             }
@@ -90,11 +90,11 @@ class ChatService
         return implode("\n", $lines);
     }
 
-    private function askClaude(string $question, string $context): string
+    private function askClaude(string $question, string $context, string $apiKey): string
     {
         $response = $this->http->request('POST', 'https://api.anthropic.com/v1/messages', [
             'headers' => [
-                'x-api-key' => $this->apiKey,
+                'x-api-key' => $apiKey,
                 'anthropic-version' => '2023-06-01',
                 'content-type' => 'application/json',
             ],

@@ -7,6 +7,7 @@ use App\Entity\Transaction;
 use App\Entity\User;
 use App\Repository\TransactionRepository;
 use App\Service\ChatService;
+use App\Service\CredentialStore;
 use App\Service\IrpfService;
 use App\Service\VatService;
 use PHPUnit\Framework\TestCase;
@@ -43,8 +44,10 @@ class ChatServiceTest extends TestCase
         $irpf = new IrpfService($this->repo($txs), $vat);
         $http = $this->createStub(HttpClientInterface::class);
 
-        // Empty API key → deterministic fallback (no HTTP call).
-        $chat = new ChatService($this->repo($txs), $vat, $irpf, $http, '');
+        // No key configured → deterministic fallback (no HTTP call).
+        $credentials = $this->createStub(CredentialStore::class);
+        $credentials->method('anthropicKey')->willReturn('');
+        $chat = new ChatService($this->repo($txs), $vat, $irpf, $http, $credentials);
 
         $result = $chat->answer('How much did I spend on fuel?', new User());
 

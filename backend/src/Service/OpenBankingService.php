@@ -23,7 +23,15 @@ class OpenBankingService
         private GoCardlessClient $client,
         private TransactionRepository $transactions,
         private EntityManagerInterface $em,
+        private CredentialStore $credentials,
     ) {}
+
+    /** Configure the client with this user's own GoCardless credentials (or the env fallback). */
+    private function configureFor(User $user): void
+    {
+        $c = $this->credentials->gocardless($user);
+        $this->client->configure($c['id'], $c['key']);
+    }
 
     /**
      * Start a bank connection. / Inicia una conexión bancaria.
@@ -32,6 +40,7 @@ class OpenBankingService
      */
     public function begin(User $user, string $institutionId, string $redirect): array
     {
+        $this->configureFor($user);
         $reference = 'cuentia-' . ($user->getId() ?? '0') . '-' . bin2hex(random_bytes(4));
         $req = $this->client->createRequisition($institutionId, $redirect, $reference);
 
@@ -46,6 +55,7 @@ class OpenBankingService
      */
     public function import(User $user, string $requisitionId): array
     {
+        $this->configureFor($user);
         $req = $this->client->getRequisition($requisitionId);
         $existing = $this->transactions->existingExternalIds($user);
 

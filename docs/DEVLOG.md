@@ -12,6 +12,25 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-08 — Entry 044: Bring-your-own-key integrations (encrypted, per user)
+**Done**
+- Users can now enable AI and open banking from **Account → Integrations** by pasting their **own** keys —
+  no env vars needed by the end user. Keys are **encrypted at rest** (`SecretCipher`, AES-256-GCM from the
+  app secret) and never returned to the client (status shows only configured + a masked hint).
+  `CredentialStore` resolves per-user keys with an env fallback; refactored `ChatService`,
+  `CategorizerService`, `GoCardlessClient` (now `configure()`d per request), `OpenBankingService` and
+  `BankController` to read through it. New account endpoints (GET status, PUT/DELETE anthropic & gocardless)
+  + an Account UI section. Migration adds three encrypted columns on `User`. Suite now **58 tests, 250
+  assertions** (cipher round-trip/tamper + an end-to-end BYOK test where saving GoCardless creds enables
+  `/api/bank/status` for that user).
+
+**Why**
+- The features were gated behind server env vars an end user can't touch. BYOK makes them self-serve and
+  honest (each user's own key), while staying secure — secrets encrypted, never echoed back.
+
+**Next**
+- Agentic AI + OCR could now build on a user's own Claude key.
+
 ### 2026-07-08 — Entry 043: Mobile navbar — icons instead of labels
 **Done**
 - Fixed the navbar overflowing/overlapping on phones. Each nav item now has an icon + a text label: desktop
@@ -705,6 +724,26 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-08 — Entrada 044: Integraciones "trae tu propia clave" (cifradas, por usuario)
+**Hecho**
+- Los usuarios pueden activar la IA y la banca abierta desde **Cuenta → Integraciones** pegando sus
+  **propias** claves — sin variables de entorno. Las claves van **cifradas en reposo** (`SecretCipher`,
+  AES-256-GCM desde el secreto de la app) y nunca se devuelven al cliente (el estado solo muestra
+  configurada + pista enmascarada). `CredentialStore` resuelve las claves por usuario con fallback a env;
+  refactorizados `ChatService`, `CategorizerService`, `GoCardlessClient` (ahora `configure()` por petición),
+  `OpenBankingService` y `BankController` para leer a través de él. Nuevos endpoints de cuenta + sección en
+  la UI de Cuenta. Migración con tres columnas cifradas en `User`. Suite: **58 tests, 250 aserciones**
+  (round-trip/manipulación del cifrado + test BYOK end-to-end donde guardar GoCardless activa
+  `/api/bank/status` para ese usuario).
+
+**Por qué**
+- Las funciones dependían de variables de entorno que un usuario final no puede tocar. BYOK las hace
+  autoservicio y honestas (la clave de cada uno), manteniendo la seguridad — secretos cifrados, nunca
+  devueltos.
+
+**Siguiente**
+- La IA agéntica + OCR podrían construirse ya sobre la clave propia de Claude del usuario.
 
 ### 2026-07-08 — Entrada 043: Navbar en móvil — iconos en vez de nombres
 **Hecho**

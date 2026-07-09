@@ -35,6 +35,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $taxId = null;
 
+    // Per-user API credentials (BYOK), stored ENCRYPTED (never plaintext). / Credenciales cifradas.
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $anthropicKey = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $gocardlessSecretId = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $gocardlessSecretKey = null;
+
     public function getId(): ?int { return $this->id; }
 
     public function getEmail(): string { return $this->email; }
@@ -42,6 +52,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getTaxId(): ?string { return $this->taxId; }
     public function setTaxId(?string $taxId): self { $this->taxId = $taxId; return $this; }
+
+    public function getAnthropicKey(): ?string { return $this->anthropicKey; }
+    public function setAnthropicKey(?string $v): self { $this->anthropicKey = $v; return $this; }
+
+    public function getGocardlessSecretId(): ?string { return $this->gocardlessSecretId; }
+    public function setGocardlessSecretId(?string $v): self { $this->gocardlessSecretId = $v; return $this; }
+
+    public function getGocardlessSecretKey(): ?string { return $this->gocardlessSecretKey; }
+    public function setGocardlessSecretKey(?string $v): self { $this->gocardlessSecretKey = $v; return $this; }
 
     /** The unique identifier for the security system (we use the email). */
     public function getUserIdentifier(): string { return $this->email; }

@@ -4,6 +4,7 @@ namespace App\Tests\Service;
 
 use App\Entity\User;
 use App\Repository\TransactionRepository;
+use App\Service\CredentialStore;
 use App\Service\GoCardlessClient;
 use App\Service\OpenBankingService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,7 +17,10 @@ class OpenBankingServiceTest extends TestCase
         $repo = $this->createStub(TransactionRepository::class);
         $repo->method('existingExternalIds')->willReturn($existing);
 
-        return new OpenBankingService($client, $repo, $this->createStub(EntityManagerInterface::class));
+        $credentials = $this->createStub(CredentialStore::class);
+        $credentials->method('gocardless')->willReturn(['id' => 'x', 'key' => 'y']);
+
+        return new OpenBankingService($client, $repo, $this->createStub(EntityManagerInterface::class), $credentials);
     }
 
     public function testMapsAGoCardlessTransaction(): void
