@@ -381,18 +381,18 @@ label.btn { display: inline-block; }
   .chart-grid { grid-template-columns: 1fr; }
   .app-main { padding: 1rem 1rem 3rem; }
   .navbar { padding: 10px 10px 0; }
-  .navbar-inner { padding: 6px 8px; gap: 4px; border-radius: 22px; }
-  .navbar-inner::before { font-size: 30px; letter-spacing: 8px; }
+  /* One compact row: links spread on the left, actions grouped on the right. */
+  .navbar-inner { padding: 6px 6px; gap: 2px; border-radius: 22px; flex-wrap: nowrap; }
+  .navbar-inner::before { display: none; } /* drop the watermark on the cramped mobile bar */
   .brand { margin-left: 4px; }
-  /* Compact icon nav: hide text labels, show icons. */
-  .nav-ico { display: inline; font-size: 17px; line-height: 1; }
+  .nav-ico { display: inline; font-size: 16px; line-height: 1; }
   .nav-label { display: none; }
-  .nav-links { gap: 4px; }
-  .nav-actions { margin-left: auto; width: auto; gap: 4px; }
-  .navlink { padding: 8px 10px; }
-  .nav-user { padding: 7px 9px; }
-  .nav-actions .btn-sm { padding: 7px 9px; }
-  .nav-actions .icon-btn { min-width: 36px; }
+  .nav-links { flex: 1 1 auto; justify-content: space-between; gap: 2px; }
+  .nav-actions { flex: 0 0 auto; flex-wrap: nowrap; margin-left: 4px; width: auto; gap: 2px; }
+  .navlink { padding: 7px 7px; }
+  .nav-user { padding: 6px 7px; }
+  .nav-actions .btn-sm { padding: 6px 8px; }
+  .nav-actions .icon-btn { min-width: 32px; }
   .stat-row { gap: 1.25rem; }
   .card { padding: 1rem 1.15rem; }
   h1 { font-size: 22px; }
