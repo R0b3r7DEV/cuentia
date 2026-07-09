@@ -5,32 +5,39 @@
    ============================================================================ */
 
 :root {
-  /* ink & solid surfaces */
-  --text: #0d1220;
-  --text-muted: #667085;
-  --surface-solid: #ffffff;
-  --surface-2: #f2f4f8;
+  /* ink & solid surfaces — tuned for low eye strain: text is softened from near-black,
+     secondary text is darkened for contrast (~6:1), and surfaces are off-white, not glaring.
+     ES: Ajustado para cansar menos la vista: texto menos negro, texto secundario con más
+     contraste, y superficies blanco roto en vez de blanco puro. */
+  --text: #1b2333;
+  --text-muted: #5a6478;
+  --surface-solid: #fbfcfe;
+  --surface-2: #eef1f6;
   --border: #e4e7ee;
   --border-strong: #d3d8e2;
 
-  /* glass (accentuated) */
-  --glass: rgba(255, 255, 255, 0.30);
-  --glass-strong: rgba(255, 255, 255, 0.44);
-  --glass-border: rgba(255, 255, 255, 0.75);
-  --glass-hi: rgba(255, 255, 255, 0.5);
-  --active-bg: rgba(255, 255, 255, 0.5);
-  --active-hi: rgba(255, 255, 255, 0.8);
+  /* glass — a touch less transparent so text sits on a calm backdrop instead of the gradient */
+  --glass: rgba(255, 255, 255, 0.46);
+  --glass-strong: rgba(255, 255, 255, 0.60);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-hi: rgba(255, 255, 255, 0.42);
+  --active-bg: rgba(255, 255, 255, 0.55);
+  --active-hi: rgba(255, 255, 255, 0.62);
   --blur: 28px;
+  /* Saturation boost behind the glass. High values amplify the background's colour — the main
+     cause of eye fatigue in light mode. / Saturación tras el cristal: valores altos amplifican
+     el color del fondo, la causa principal del cansancio visual en modo claro. */
+  --glass-sat: 135%;
 
-  /* page background (a bit more colour so the glass reads) */
+  /* page background — same idea, far less chroma */
   --page-bg:
-    radial-gradient(1000px 600px at 12% -12%, rgba(42, 120, 214, 0.16), transparent 60%),
-    radial-gradient(900px 620px at 100% 0%, rgba(18, 161, 80, 0.12), transparent 55%),
-    linear-gradient(180deg, #e8edf6 0%, #f1f4f9 100%);
+    radial-gradient(1100px 700px at 10% -14%, rgba(42, 120, 214, 0.07), transparent 62%),
+    radial-gradient(900px 640px at 100% 0%, rgba(18, 161, 80, 0.05), transparent 58%),
+    linear-gradient(180deg, #ecf0f5 0%, #f4f6fa 100%);
 
   /* brand & semantics */
-  --accent: #2a78d6;
-  --accent-weak: rgba(42, 120, 214, 0.12);
+  --accent: #2569c4;
+  --accent-weak: rgba(37, 105, 196, 0.12);
   --pos: #12a150;
   --neg: #e0483d;
   --warn-bg: rgba(234, 130, 40, 0.12);
@@ -38,7 +45,7 @@
   --warn-text: #b1500f;
 
   /* charts */
-  --chart-1: #2a78d6;
+  --chart-1: #2569c4;
   --chart-2: #e0483d;
   --chart-grid: rgba(120, 130, 150, 0.18);
   --chart-muted: #98a2b3;
@@ -47,8 +54,8 @@
   --radius: 20px;
   --radius-sm: 13px;
   --radius-pill: 999px;
-  --shadow: 0 6px 24px rgba(16, 24, 40, 0.10), 0 1px 2px rgba(16, 24, 40, 0.06);
-  --shadow-soft: 0 2px 10px rgba(16, 24, 40, 0.06);
+  --shadow: 0 6px 24px rgba(16, 24, 40, 0.08), 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-soft: 0 2px 10px rgba(16, 24, 40, 0.05);
 
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
@@ -69,6 +76,7 @@
     --surface-solid: #171b22; --surface-2: #1c2129;
     --border: #2a303a; --border-strong: #38404c;
     --glass: rgba(22, 26, 34, 0.34); --glass-strong: rgba(22, 26, 34, 0.46);
+    --glass-sat: 190%;
     --glass-border: rgba(255, 255, 255, 0.10); --glass-hi: rgba(255, 255, 255, 0.06);
     --active-bg: rgba(255, 255, 255, 0.14); --active-hi: rgba(255, 255, 255, 0.18);
     --accent: #4b93ea; --accent-weak: rgba(75, 147, 234, 0.22);
@@ -88,6 +96,7 @@
   --surface-solid: #171b22; --surface-2: #1c2129;
   --border: #2a303a; --border-strong: #38404c;
   --glass: rgba(22, 26, 34, 0.34); --glass-strong: rgba(22, 26, 34, 0.46);
+  --glass-sat: 190%;
   --glass-border: rgba(255, 255, 255, 0.10); --glass-hi: rgba(255, 255, 255, 0.06);
   --active-bg: rgba(255, 255, 255, 0.14); --active-hi: rgba(255, 255, 255, 0.18);
   --accent: #4b93ea; --accent-weak: rgba(75, 147, 234, 0.22);
@@ -137,8 +146,8 @@ a { color: inherit; }
   max-width: 1000px; margin: 0 auto; padding: 7px 10px;
   display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
   background: linear-gradient(180deg, var(--glass-hi), transparent 60%), var(--glass-strong);
-  -webkit-backdrop-filter: blur(calc(var(--blur) + 4px)) saturate(200%);
-  backdrop-filter: blur(calc(var(--blur) + 4px)) saturate(200%);
+  -webkit-backdrop-filter: blur(calc(var(--blur) + 4px)) saturate(var(--glass-sat));
+  backdrop-filter: blur(calc(var(--blur) + 4px)) saturate(var(--glass-sat));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow), inset 0 1px 0 var(--glass-hi);
@@ -179,8 +188,8 @@ a { color: inherit; }
 /* ── Glass cards ────────────────────────────────────────────────────────── */
 .card {
   background: linear-gradient(155deg, var(--glass-hi), transparent 42%), var(--glass);
-  -webkit-backdrop-filter: blur(var(--blur)) saturate(190%);
-  backdrop-filter: blur(var(--blur)) saturate(190%);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--blur)) saturate(var(--glass-sat));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow), inset 0 1px 0 var(--glass-hi);
@@ -205,8 +214,8 @@ a { color: inherit; }
 /* Liquid-glass button */
 .btn-glass {
   background: linear-gradient(180deg, var(--glass-hi), transparent 65%), var(--glass);
-  -webkit-backdrop-filter: blur(14px) saturate(180%);
-  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(var(--glass-sat));
+  backdrop-filter: blur(14px) saturate(var(--glass-sat));
   border: 1px solid var(--glass-border);
   color: var(--text);
   box-shadow: var(--shadow-soft), inset 0 1px 0 var(--glass-hi);
@@ -215,8 +224,8 @@ a { color: inherit; }
 /* Glass, but red-tinted for destructive actions; fills solid red on hover. */
 .btn-danger-glass {
   background: linear-gradient(180deg, var(--glass-hi), transparent 65%), var(--glass);
-  -webkit-backdrop-filter: blur(14px) saturate(180%);
-  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(var(--glass-sat));
+  backdrop-filter: blur(14px) saturate(var(--glass-sat));
   border: 1px solid var(--glass-border);
   color: var(--neg);
   box-shadow: var(--shadow-soft), inset 0 1px 0 var(--glass-hi);
