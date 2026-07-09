@@ -23,6 +23,9 @@ security:
                 check_path: api_login
                 username_path: email
                 password_path: password
+                # Clean JSON errors with a stable `code`; deliberately generic (no user enumeration).
+                # ES: Errores JSON limpios con un `code` estable; genéricos a propósito.
+                failure_handler: App\Security\AuthenticationFailureHandler
 
             logout:
                 path: api_logout

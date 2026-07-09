@@ -29,6 +29,50 @@ jobs:
       - name: Run unit tests
         run: php bin/phpunit
 
+  # Guards the class of bug where an entity changes but its migration is missing: run every migration
+  # against a real PostgreSQL, then assert the resulting schema matches the entity mapping.
+  # ES: Protege contra el fallo de cambiar una entidad y olvidar su migración: ejecuta todas las
+  # migraciones sobre un PostgreSQL real y comprueba que el esquema coincide con las entidades.
+  migrations:
+    name: Migrations (schema in sync)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: cuentia
+          POSTGRES_PASSWORD: cuentia
+          POSTGRES_DB: cuentia
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://cuentia:cuentia@127.0.0.1:5432/cuentia?serverVersion=17&charset=utf8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: intl, mbstring, pdo_pgsql
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run all migrations from scratch
+        run: php bin/console doctrine:migrations:migrate --no-interaction
+
+      - name: Fail if the schema drifted from the entities
+        run: php bin/console doctrine:schema:validate
+
   frontend:
     name: Frontend (Node · build)
     runs-on: ubuntu-latest

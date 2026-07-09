@@ -70,6 +70,33 @@ class ApiIntegrationTest extends WebTestCase
         self::assertSame(401, $status);
     }
 
+    public function testAuthErrorsCarryStableCodesAndDoNotLeakWhetherAUserExists(): void
+    {
+        [$s, $b] = $this->json('POST', '/api/register', ['email' => 'not-an-email', 'password' => 'secret123']);
+        self::assertSame(400, $s);
+        self::assertSame('invalid_email', $b['code']);
+
+        [$s, $b] = $this->json('POST', '/api/register', ['email' => 'weak@test.local', 'password' => 'short']);
+        self::assertSame(400, $s);
+        self::assertSame('weak_password', $b['code']);
+
+        $this->json('POST', '/api/register', ['email' => 'taken@test.local', 'password' => 'secret123']);
+        [$s, $b] = $this->json('POST', '/api/register', ['email' => 'taken@test.local', 'password' => 'secret123']);
+        self::assertSame(409, $s);
+        self::assertSame('email_taken', $b['code']);
+
+        // Existing user + wrong password …
+        [$s1, $b1] = $this->json('POST', '/api/login', ['email' => 'taken@test.local', 'password' => 'wrong-password']);
+        // … and a user that doesn't exist at all.
+        [$s2, $b2] = $this->json('POST', '/api/login', ['email' => 'ghost@test.local', 'password' => 'wrong-password']);
+
+        self::assertSame(401, $s1);
+        self::assertSame(401, $s2);
+        self::assertSame('bad_credentials', $b1['code']);
+        // Identical response ⇒ an attacker can't tell which emails are registered (no user enumeration).
+        self::assertSame($b1, $b2);
+    }
+
     public function testRegisterRejectsDuplicateEmail(): void
     {
         $this->json('POST', '/api/register', ['email' => 'dup@test.local', 'password' => 'secret123']);

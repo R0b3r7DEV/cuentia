@@ -20,24 +20,37 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false))
   }, [])
 
+  /** POST a JSON body; on failure throw an Error carrying the HTTP status and the backend's `code`. */
+  const post = async (url, body) => {
+    let r
+    try {
+      r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+    } catch {
+      const err = new Error('network')
+      err.code = 'network_error'
+      throw err
+    }
+    if (!r.ok) {
+      const data = await r.json().catch(() => ({}))
+      const err = new Error(data.error || 'error')
+      err.status = r.status
+      err.code = data.code
+      throw err
+    }
+    return r
+  }
+
   const login = async (email, password) => {
-    const r = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    })
-    if (!r.ok) throw new Error('invalid')
+    const r = await post('/api/login', { email, password })
     setUser(await r.json())
   }
 
   const register = async (email, password) => {
-    const r = await fetch('/api/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    })
-    const data = await r.json().catch(() => ({}))
-    if (!r.ok) throw new Error(data.error || 'error')
+    await post('/api/register', { email, password })
     await login(email, password) // auto-login after registering
   }
 

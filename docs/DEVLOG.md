@@ -12,6 +12,34 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-09 — Entry 045: Production login broke — a missing migration, a CI guard, and better auth errors
+**What happened**
+- Login (and register) returned **500 in production**. Not a password problem: `/api/health` was fine, but a
+  fake login returned 500 instead of 401. Cause: the BYOK feature added three encrypted columns to
+  `app_user`, **but the migration was never generated** — `make:migration` had failed silently because the
+  local PostgreSQL was down, and I only checked the test output. Doctrine then queried columns that didn't
+  exist in the production database.
+- **Why the tests didn't catch it:** the test schema is built from the *entity metadata* (SchemaTool on
+  in-memory SQLite), never from the *migrations*. 59 green tests with a broken database. A real blind spot.
+
+**Fixed**
+- Confirmed the drift with `doctrine:schema:update --dump-sql`, generated + applied the missing migration
+  (`Version20260709094713`, three nullable columns — safe on existing rows), pushed; Render applied it on
+  boot. Verified against production: login now answers **401** (invalid credentials), not 500.
+
+**The real fix — a CI guard**
+- New CI job **"Migrations (schema in sync)"**: spins up a real PostgreSQL, runs **every migration from
+  scratch**, then `doctrine:schema:validate`. If an entity changes without its migration, **CI goes red**
+  before it can reach production. This is the class of bug the unit tests structurally cannot see.
+
+**Also: professional auth errors**
+- Failures now carry a stable machine-readable `code` the frontend translates: `bad_credentials`,
+  `email_taken`, `invalid_email`, `weak_password`, `too_many_attempts`, plus server/network fallbacks. A
+  custom `AuthenticationFailureHandler` returns clean JSON. **Login stays deliberately generic** — the same
+  401 whether the account exists or the password is wrong, so nobody can enumerate registered emails; a test
+  asserts the two responses are byte-identical. Minimum password raised to 8 characters (registration only,
+  so existing accounts keep working). Suite now **60 tests, 273 assertions**.
+
 ### 2026-07-08 — Entry 044: Bring-your-own-key integrations (encrypted, per user)
 **Done**
 - Users can now enable AI and open banking from **Account → Integrations** by pasting their **own** keys —
@@ -724,6 +752,35 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-09 — Entrada 045: Se rompió el login en producción — migración ausente, guardián de CI y errores de auth mejores
+**Qué pasó**
+- El login (y el registro) devolvían **500 en producción**. No era la contraseña: `/api/health` respondía
+  bien, pero un login con credenciales falsas daba 500 en vez de 401. Causa: la función BYOK añadió tres
+  columnas cifradas a `app_user`, **pero la migración nunca se generó** — `make:migration` había fallado en
+  silencio porque el PostgreSQL local estaba caído, y solo revisé la salida de los tests. Doctrine
+  consultaba entonces columnas inexistentes en la base de datos de producción.
+- **Por qué los tests no lo cazaron:** el esquema de test se construye desde los *metadatos de las
+  entidades* (SchemaTool sobre SQLite en memoria), nunca desde las *migraciones*. 59 tests en verde con la
+  base de datos rota. Un punto ciego real.
+
+**Arreglado**
+- Confirmado el desajuste con `doctrine:schema:update --dump-sql`, generada y aplicada la migración que
+  faltaba (`Version20260709094713`, tres columnas nullable — segura sobre filas existentes), push; Render la
+  aplicó al arrancar. Verificado contra producción: el login responde ya **401**, no 500.
+
+**El arreglo de verdad — un guardián en CI**
+- Nuevo job **«Migrations (schema in sync)»**: levanta un PostgreSQL real, ejecuta **todas las migraciones
+  desde cero** y luego `doctrine:schema:validate`. Si una entidad cambia sin su migración, **el CI se pone
+  en rojo** antes de llegar a producción. Es justo la clase de fallo que los tests unitarios no pueden ver.
+
+**Además: errores de autenticación profesionales**
+- Los fallos llevan ahora un `code` estable que el frontend traduce: `bad_credentials`, `email_taken`,
+  `invalid_email`, `weak_password`, `too_many_attempts`, más los casos de servidor/red. Un
+  `AuthenticationFailureHandler` propio devuelve JSON limpio. **El login sigue siendo genérico a propósito**
+  — el mismo 401 exista o no la cuenta, para que nadie pueda enumerar emails registrados; un test comprueba
+  que ambas respuestas son idénticas. Contraseña mínima subida a 8 caracteres (solo en el registro, para no
+  romper cuentas existentes). Suite: **60 tests, 273 aserciones**.
 
 ### 2026-07-08 — Entrada 044: Integraciones "trae tu propia clave" (cifradas, por usuario)
 **Hecho**
