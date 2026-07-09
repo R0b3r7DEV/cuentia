@@ -202,6 +202,10 @@ export const translations = {
     'inst.plan.tool.light': 'Light',
     'inst.plan.tool.panel': 'Panel',
     'inst.plan.tool.delete': 'Delete',
+    'inst.plan.view3d': '🧊 View in 3D',
+    'inst.plan.hide3d': 'Hide 3D',
+    'inst.plan.loading3d': 'Loading 3D…',
+    'inst.plan.d3hint': 'Rotate: drag · Zoom: wheel · Pan: right-drag',
 
     'qt.subtitle': 'Quotes (presupuestos) — non-fiscal offers you can convert into a real invoice.',
     'qt.new': '＋ New quote',
@@ -542,6 +546,10 @@ export const translations = {
     'inst.plan.tool.light': 'Luz',
     'inst.plan.tool.panel': 'Cuadro',
     'inst.plan.tool.delete': 'Borrar',
+    'inst.plan.view3d': '🧊 Ver en 3D',
+    'inst.plan.hide3d': 'Ocultar 3D',
+    'inst.plan.loading3d': 'Cargando 3D…',
+    'inst.plan.d3hint': 'Girar: arrastra · Zoom: rueda · Mover: clic derecho',
 
     'qt.subtitle': 'Presupuestos — ofertas no fiscales que puedes convertir en factura real.',
     'qt.new': '＋ Nuevo presupuesto',

@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { useTranslation } from '../../i18n/LanguageContext'
 import FloorPlanEditor from './FloorPlanEditor'
+
+// Three.js is heavy, so the 3D view is loaded only when the user opens it (its own chunk).
+const FloorPlan3D = lazy(() => import('./FloorPlan3D'))
 
 const ROOM_TYPES = ['salon', 'comedor', 'dormitorio', 'cocina', 'bano', 'pasillo', 'vestibulo', 'terraza', 'garaje', 'trastero']
 const LOADS = ['cocina', 'lavadora', 'calefaccion', 'aire', 'secadora', 'domotica', 'vehiculo']
@@ -60,6 +63,7 @@ export default function InstallationTab({ onNavigate }) {
   const [currentId, setCurrentId] = useState(null)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState(null)
+  const [show3d, setShow3d] = useState(false)
 
   const loadSaved = async () => {
     const r = await fetch('/api/installations')
@@ -235,7 +239,12 @@ export default function InstallationTab({ onNavigate }) {
           </div>
 
           <div className="card">
-            <div className="form-sec">{t('inst.plan.title')}</div>
+            <div className="verify-bar" style={{ justifyContent: 'space-between' }}>
+              <div className="form-sec" style={{ margin: 0, border: 0 }}>{t('inst.plan.title')}</div>
+              <button className="btn btn-glass btn-sm" onClick={() => setShow3d((s) => !s)}>
+                {show3d ? t('inst.plan.hide3d') : t('inst.plan.view3d')}
+              </button>
+            </div>
             <FloorPlanEditor
               layout={form.layout}
               onChange={(l) => set({ layout: l })}
@@ -243,6 +252,14 @@ export default function InstallationTab({ onNavigate }) {
               resultRooms={result.rooms}
               t={t}
             />
+            {show3d && (
+              <>
+                <p className="muted" style={{ fontSize: 12, margin: '12px 0 6px' }}>{t('inst.plan.d3hint')}</p>
+                <Suspense fallback={<p className="muted">{t('inst.plan.loading3d')}</p>}>
+                  <FloorPlan3D layout={form.layout} />
+                </Suspense>
+              </>
+            )}
           </div>
 
           <div className="card table-scroll" style={{ padding: 0 }}>

@@ -12,6 +12,23 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-08 — Entry 042: Installation designer — Phase 3 (3D floor-plan view)
+**Done**
+- `FloorPlan3D` (react-three-fiber): extrudes the 2D layout into semi-transparent walls, places devices at
+  realistic heights (socket 0.3 / switch 1.1 / light 2.4 emissive / panel 1.2 m) and the panel, with a
+  floor + grid and **OrbitControls** (rotate/zoom/pan). Reads the same `layout` as the 2D editor. It's
+  **lazy-loaded** behind a "View in 3D" toggle — the build confirms it splits into its own chunk
+  (`FloorPlan3D-*.js` ≈ 900 kB), so Three.js only downloads on demand and the main bundle is unchanged.
+  Added `three` + `@react-three/fiber@9` + `@react-three/drei@10` (React 19 compatible). No backend change.
+
+**Why**
+- This is Phase 3 of the designer (enfoque B): a useful 2D model with an optional 3D presentation layer.
+  The whole electrician flow now runs design → 2D plan → 3D view → CIE → quote → invoice.
+
+**Next**
+- Agentic AI + OCR (need an Anthropic key). Designer could later gain textured/first-person 3D, but that's
+  a separate product.
+
 ### 2026-07-08 — Entry 041: Installation designer — Phase 2 (2D floor-plan editor)
 **Done**
 - Added `FloorPlanEditor`: an SVG floor-plan canvas (metric grid) where rooms are draggable rectangles and
@@ -677,6 +694,24 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-08 — Entrada 042: Diseñador de instalación — Fase 3 (vista 3D de la planta)
+**Hecho**
+- `FloorPlan3D` (react-three-fiber): levanta la planta 2D a paredes semitransparentes, coloca los
+  dispositivos a alturas realistas (enchufe 0.3 / interruptor 1.1 / luz 2.4 emisiva / cuadro 1.2 m) y el
+  cuadro, con suelo + rejilla y **OrbitControls** (girar/zoom/mover). Lee el mismo `layout` que el editor
+  2D. Va **cargado en diferido** tras un botón «Ver en 3D» — el build confirma que se separa en su propio
+  chunk (`FloorPlan3D-*.js` ≈ 900 kB), así que Three.js solo se descarga bajo demanda y el bundle principal
+  no cambia. Añadidos `three` + `@react-three/fiber@9` + `@react-three/drei@10` (compatibles con React 19).
+  Sin cambios de backend.
+
+**Por qué**
+- Es la Fase 3 del diseñador (enfoque B): un modelo 2D útil con una capa de presentación 3D opcional. El
+  flujo del electricista ya corre diseño → plano 2D → vista 3D → CIE → presupuesto → factura.
+
+**Siguiente**
+- IA agéntica + OCR (necesitan una key de Anthropic). El diseñador podría ganar 3D texturizado/primera
+  persona, pero eso es otro producto.
 
 ### 2026-07-08 — Entrada 041: Diseñador de instalación — Fase 2 (editor 2D de planta)
 **Hecho**
