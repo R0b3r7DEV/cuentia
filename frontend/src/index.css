@@ -172,6 +172,9 @@ a { color: inherit; }
 .nav-user { font-size: 13px; color: var(--text-muted); white-space: nowrap; text-decoration: none; padding: 4px 10px; border-radius: var(--radius-pill); }
 .nav-user:hover { color: var(--text); background: var(--surface-2); }
 .nav-logout { font-size: 13px; padding: 6px 12px; }
+/* Nav items show their text label on desktop and a compact icon on mobile. */
+.nav-ico { display: none; }
+.nav-label { display: inline; }
 
 /* ── Glass cards ────────────────────────────────────────────────────────── */
 .card {
@@ -378,10 +381,18 @@ label.btn { display: inline-block; }
   .chart-grid { grid-template-columns: 1fr; }
   .app-main { padding: 1rem 1rem 3rem; }
   .navbar { padding: 10px 10px 0; }
-  .navbar-inner { padding: 7px 8px; }
+  .navbar-inner { padding: 6px 8px; gap: 4px; border-radius: 22px; }
+  .navbar-inner::before { font-size: 30px; letter-spacing: 8px; }
   .brand { margin-left: 4px; }
-  .navlink { padding: 7px 11px; }
-  .nav-actions { margin-left: 0; width: 100%; }
+  /* Compact icon nav: hide text labels, show icons. */
+  .nav-ico { display: inline; font-size: 17px; line-height: 1; }
+  .nav-label { display: none; }
+  .nav-links { gap: 4px; }
+  .nav-actions { margin-left: auto; width: auto; gap: 4px; }
+  .navlink { padding: 8px 10px; }
+  .nav-user { padding: 7px 9px; }
+  .nav-actions .btn-sm { padding: 7px 9px; }
+  .nav-actions .icon-btn { min-width: 36px; }
   .stat-row { gap: 1.25rem; }
   .card { padding: 1rem 1.15rem; }
   h1 { font-size: 22px; }

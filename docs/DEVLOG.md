@@ -12,6 +12,17 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-08 — Entry 043: Mobile navbar — icons instead of labels
+**Done**
+- Fixed the navbar overflowing/overlapping on phones. Each nav item now has an icon + a text label: desktop
+  shows the **label** (unchanged look), mobile (≤820px) shows just the **icon**. The long user email
+  collapses to a 👤 icon and logout to 🚪, so everything fits in a compact row. Tightened mobile paddings and
+  the watermark size. Frontend/CSS only.
+
+**Why**
+- On a phone the five link names + the full email + three buttons wrapped and overlapped; icons keep it
+  legible and small without touching the desktop layout.
+
 ### 2026-07-08 — Entry 042: Installation designer — Phase 3 (3D floor-plan view)
 **Done**
 - `FloorPlan3D` (react-three-fiber): extrudes the 2D layout into semi-transparent walls, places devices at
@@ -694,6 +705,17 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-08 — Entrada 043: Navbar en móvil — iconos en vez de nombres
+**Hecho**
+- Arreglado el navbar que se salía/solapaba en el móvil. Cada elemento tiene ahora icono + etiqueta: en
+  escritorio se ve la **etiqueta** (aspecto igual) y en móvil (≤820px) solo el **icono**. El email largo se
+  reduce a un icono 👤 y salir a 🚪, así todo cabe en una fila compacta. Ajustados los paddings móviles y el
+  tamaño de la marca de agua. Solo frontend/CSS.
+
+**Por qué**
+- En el móvil los cinco nombres + el email completo + tres botones se envolvían y se solapaban; los iconos
+  lo mantienen legible y pequeño sin tocar el escritorio.
 
 ### 2026-07-08 — Entrada 042: Diseñador de instalación — Fase 3 (vista 3D de la planta)
 **Hecho**
