@@ -68,6 +68,13 @@ A vertical built on top of the same billing core, because an electrician's paper
 - **Floor plan (2D)** — drop the **real scanned plan** underneath, calibrate its scale against a known
   dimension, and trace each room as a **polygon** (an L-shaped living room, a corridor). Place the panel
   and the devices; cable is then **measured from actual positions**, not estimated from floor area.
+- **Compliance check** — every socket declares the circuit that feeds it, and the plan is contrasted, room
+  by room, against the **minimum points of use of ITC-BT-25 table 2**. Fall short and it says exactly what
+  is missing (*"cocina: 3 more · base 16 A 2p+T (lavadora, lavavajillas, termo)"*) — and **refuses to issue
+  the certificate**.
+- **Main panel (CGMP)** — drawn from the devices actually placed: circuits sized by the points connected and
+  split at the maximum of table 1, the IGA rated from the contracted power, one differential per five
+  circuits, and the DIN modules counted so the enclosure can be ordered.
 - **3D view** — the same layout extruded into walls, with the devices at realistic heights.
 - **Export & chain it** — download the finished plan as a **PNG**, turn the design into an
   **electrical installation certificate (CIE)** ready to sign with AutoFirma, or turn the bill of
@@ -80,6 +87,16 @@ previous one** (the layout of Orden HAC/1177/2024). Altering any past invoice br
 and `GET /api/invoices/verify` walks the chain to prove — or disprove — its integrity. It's the kind of
 correctness-critical, spec-driven feature that shows up in real fintech: exact money in integer cents,
 gapless numbering, and a cryptographic audit trail. See [guide 25](docs/guide/25-verifactu-hash-chain.md).
+
+#### 📕 Engineering highlight — reading the regulation, not a summary of it
+
+The app used to compute "minimum points per room" from a plausible-looking rule someone had invented. Going
+to the Ministry's [Guía Técnica GUÍA-BT-25](https://industria.gob.es/Calidad-Industrial/seguridadindustrial/instalacionesindustriales/baja-tension/Documents/bt/guia_bt_25_jul12R2.pdf)
+and reading **tabla 2** turned up five discrepancies — including a kitchen that required **no sockets at
+all** (the regulation asks for nine, across four circuits), and a rule that promoted a dwelling to
+*electrificación elevada* past five circuits when the text says the opposite: what it needs is an extra
+differential. That one silently raised the customer's contracted power from 5 750 W to 9 200 W. Domain
+software is only as correct as its source. See [guide 37](docs/guide/37-itc-bt-25-compliance-and-panel.md).
 
 #### 📐 Engineering highlight — de-skewing a photo of the plan
 
@@ -119,7 +136,9 @@ What still separates it from a product people pay for is the last mile of **trus
   [guide 27](docs/guide/27-open-banking.md).
 - The installation designer is a **pre-dimensioning aid, not a signed project**, and the CIE is filed by
   the installer at the GVA *sede* — Cuentia never touches the signing certificate. See
-  [guide 32](docs/guide/32-electrical-certificate-cie.md).
+  [guide 32](docs/guide/32-electrical-certificate-cie.md). The compliance check verifies the **number of
+  points of use**, which is all a drawing can prove; sections, earthing and the measurements a certificate
+  also rests on are outside it. **No software can promise a certificate is never returned.**
 - **Filing / accountant integration** — validated with real users first.
 
 The goal was never revenue: it's to demonstrate building **serious business software** at the intersection
@@ -133,8 +152,8 @@ of web development and finance — and knowing exactly where that product line s
 - **e-invoicing:** Verifactu — SHA-256 hash chain · QR (`endroid/qr-code`, SVG) · RegistroAlta XML · PDF (Dompdf)
 - **Open banking:** GoCardless Bank Account Data (PSD2), behind a feature flag
 - **Secrets:** per-user credentials encrypted with AES-256-GCM (bring-your-own-key)
-- **Quality:** PHPUnit (61 unit + integration tests) · GitHub Actions CI — including a job that applies every
-  migration to a clean PostgreSQL and asserts the schema matches the entities · bilingual docs (`docs/guide/` 00→36)
+- **Quality:** PHPUnit (80 unit + integration tests) · GitHub Actions CI — including a job that applies every
+  migration to a clean PostgreSQL and asserts the schema matches the entities · bilingual docs (`docs/guide/` 00→37)
 
 ### Run it locally
 
@@ -159,7 +178,7 @@ and `cd frontend; npm install`) and create the database (see [guide 03](docs/gui
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design and domain model |
 | [docs/DEVLOG.md](docs/DEVLOG.md) | Running log of every step taken |
 | [docs/decisions/](docs/decisions/) | Architecture Decision Records (ADRs) |
-| [docs/guide/](docs/guide/) | 37 step-by-step guides, in English and Spanish |
+| [docs/guide/](docs/guide/) | 38 step-by-step guides, in English and Spanish |
 
 ---
 
@@ -199,6 +218,13 @@ su facturación:
 - **Plano de planta (2D)** — pon debajo el **plano real escaneado**, calibra su escala con una cota
   conocida y calca cada estancia como **polígono** (un salón en L, un pasillo). Coloca el cuadro y los
   dispositivos: el cable se **mide desde las posiciones reales**, no se estima por superficie.
+- **Comprobación de cumplimiento** — cada toma declara el circuito que la alimenta, y el plano se contrasta,
+  estancia por estancia, con los **puntos mínimos de utilización de la tabla 2 de la ITC-BT-25**. Si falta
+  algo lo dice con nombre y apellidos (*"cocina: faltan 3 · base 16 A 2p+T (lavadora, lavavajillas, termo)"*)
+  y **se niega a emitir el certificado**.
+- **Cuadro general (CGMP)** — dibujado a partir de los dispositivos realmente colocados: circuitos
+  dimensionados por los puntos conectados y desdoblados al máximo de la tabla 1, IGA según la potencia
+  contratada, un diferencial por cada cinco circuitos, y los módulos DIN contados para pedir el envolvente.
 - **Vista 3D** — la misma planta extruida en paredes, con los dispositivos a su altura real.
 - **Exportar y encadenar** — descarga el plano acabado en **PNG**, convierte el diseño en un
   **Certificado de Instalación Eléctrica (CIE)** listo para firmar con AutoFirma, o convierte los
@@ -211,6 +237,17 @@ formato de la Orden HAC/1177/2024). Alterar cualquier factura pasada rompe todos
 `GET /api/invoices/verify` recorre la cadena para demostrar — o refutar — su integridad. Es el tipo de
 función crítica y guiada por especificación que aparece en fintech real: dinero exacto en céntimos enteros,
 numeración sin huecos y un rastro de auditoría criptográfico. Ver [guía 25](docs/guide/25-verifactu-hash-chain.md).
+
+#### 📕 Detalle de ingeniería — leer el reglamento, no un resumen del reglamento
+
+La app calculaba los "puntos mínimos por estancia" con una regla de aspecto razonable que alguien se había
+inventado. Ir a la [Guía Técnica GUÍA-BT-25](https://industria.gob.es/Calidad-Industrial/seguridadindustrial/instalacionesindustriales/baja-tension/Documents/bt/guia_bt_25_jul12R2.pdf)
+del Ministerio y leer la **tabla 2** destapó cinco desviaciones — entre ellas una cocina que **no exigía ni
+un enchufe** (la norma pide nueve, en cuatro circuitos) y una regla que pasaba la vivienda a
+*electrificación elevada* al superar cinco circuitos, cuando el texto dice justo lo contrario: lo que hace
+falta es un diferencial adicional. Esa subía en silencio la potencia contratada del cliente de 5 750 W a
+9 200 W. El software de dominio es tan correcto como su fuente.
+Ver [guía 37](docs/guide/37-itc-bt-25-compliance-and-panel.md).
 
 #### 📐 Detalle de ingeniería — enderezar la foto del plano
 
@@ -250,7 +287,10 @@ Lo que aún la separa de un producto de pago es la última milla de **confianza 
   [guía 27](docs/guide/27-open-banking.md).
 - El diseñador es una **ayuda de predimensionado, no un proyecto firmado**, y el CIE lo presenta el
   instalador en la sede de la GVA — Cuentia nunca toca el certificado de firma. Ver
-  [guía 32](docs/guide/32-electrical-certificate-cie.md).
+  [guía 32](docs/guide/32-electrical-certificate-cie.md). La comprobación verifica el **número de puntos de
+  utilización**, que es todo lo que un dibujo puede demostrar; las secciones, las tierras y las mediciones
+  en las que también se apoya un certificado quedan fuera. **Ningún software puede prometer que un
+  certificado no sea devuelto.**
 - **Integración de presentación / gestor** — validado antes con usuarios reales.
 
 El objetivo nunca fue facturar: es demostrar que sé construir **software de negocio serio** en la
@@ -265,9 +305,9 @@ parte de la habilidad.
 - **Factura electrónica:** Verifactu — cadena de hash SHA-256 · QR (`endroid/qr-code`, SVG) · XML RegistroAlta · PDF (Dompdf)
 - **Banca abierta:** GoCardless Bank Account Data (PSD2), tras un flag de función
 - **Secretos:** credenciales por usuario cifradas con AES-256-GCM (*bring your own key*)
-- **Calidad:** PHPUnit (61 tests unitarios + integración) · GitHub Actions CI — con un job que aplica todas
+- **Calidad:** PHPUnit (80 tests unitarios + integración) · GitHub Actions CI — con un job que aplica todas
   las migraciones sobre un PostgreSQL limpio y comprueba que el esquema cuadra con las entidades ·
-  docs bilingües (`docs/guide/` 00→36)
+  docs bilingües (`docs/guide/` 00→37)
 
 ### Ejecutar en local
 
@@ -293,4 +333,4 @@ y `cd frontend; npm install`) y crea la base de datos (ver [guía 03](docs/guide
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Diseño del sistema y modelo de dominio |
 | [docs/DEVLOG.md](docs/DEVLOG.md) | Diario de cada paso dado |
 | [docs/decisions/](docs/decisions/) | Registros de Decisiones de Arquitectura (ADR) |
-| [docs/guide/](docs/guide/) | 37 guías paso a paso, en inglés y español |
+| [docs/guide/](docs/guide/) | 38 guías paso a paso, en inglés y español |

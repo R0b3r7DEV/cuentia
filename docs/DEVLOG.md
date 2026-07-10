@@ -12,6 +12,60 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-10 — Entry 047: The plan is checked against ITC-BT-25, and the panel is drawn from it
+**What happened**
+- The designer computed the minimum points per room **and then ignored them**. You could draw a kitchen with
+  three sockets, export it and generate the CIE. The core promise of the product was unfulfilled.
+- Worse: the minimums themselves were an approximation someone invented. I downloaded the Ministry's
+  [GUÍA-BT-25](https://industria.gob.es/Calidad-Industrial/seguridadindustrial/instalacionesindustriales/baja-tension/Documents/bt/guia_bt_25_jul12R2.pdf),
+  parsed the PDF and read **tabla 2**. Five discrepancies — see [guide 37](guide/37-itc-bt-25-compliance-and-panel.md).
+
+**Done**
+- `roomRequirements()` now *is* tabla 2: the kitchen's nine sockets across four circuits, the "3 sockets or
+  one per 6 m², whichever is greater" floor, corridors ruled by **length** not surface, a terrace with no
+  socket at all.
+- Fixed the grade: more than five circuits requires **an extra differential**, not *electrificación elevada*
+  ("no supondrá el paso a electrificación elevada", 2.3.1). We were raising the contracted power from
+  5 750 W to 9 200 W for nothing — a real bill for the customer. The eight real triggers are implemented.
+- Sockets declare the circuit that feeds them (C2/C3/C4/C5/C10). One that declares none is credited against
+  whatever its room still lacks; one that declares the wrong circuit is not.
+- `validateLayout()` attributes devices by **point-in-polygon**, measures rooms by the **shoelace formula**
+  (an L-shaped salón counts by its real surface), and names each shortfall. **Create CIE is disabled** while
+  the plan falls short.
+- `panelSchedule()` draws the **main panel (CGMP)** from the devices actually placed: circuits sized by the
+  points connected, split at the maximum of tabla 1, IGA from the contracted power, one differential per
+  five circuits, and DIN modules counted so the enclosure can be ordered.
+
+**Why it is built this way**
+- Both readers share one private `tally()`. Counting twice would eventually make the check and the panel
+  disagree about what is installed — a bug that is hell to chase.
+- An empty plan reports `checked: false`: **unchecked, not compliant**. A validator that says "OK" to an
+  empty input is worse than no validator.
+- The app states plainly that a plan can only prove the *number of points of use*. Sections, earthing and
+  measurements are outside a drawing. **No software can promise a certificate is never returned**; what this
+  closes is the commonest family of rejections.
+
+**Next**
+- Frontend tests (there are still none) — starting with the geometry and the homography.
+
+### 2026-07-10 — Entry 046: The real plan underneath, de-skewed; rooms as polygons; the plan downloadable
+**Done**
+- The scanned plan sits under the 2D editor, its scale calibrated against a known dimension.
+- **Four-point rectification.** A phone photo is rotated and keystoned, so a two-point calibration cannot
+  save it: calibration recovers *scale* only, and a metre still measures differently across the sheet. The
+  user marks the four corners; we solve the **homography** by Gaussian elimination and remap the image with
+  bilinear sampling. Verified: corners land within 1e-13 px and straight lines stay straight.
+- A self-intersecting or near-flat quad still yields a **solvable** system while collapsing the image, so
+  convexity is checked separately. The first version of that guard let three collinear points through — a
+  cross product of exactly zero is neither positive nor negative.
+- Rooms are **polygons**: an L-shaped living room, a corridor. Drag an edge midpoint to spawn a vertex.
+  Moving a room carries the devices inside it (members snapshotted at drag start).
+- The finished plan downloads as a **PNG** with backdrop, areas, devices, legend and scale.
+- Navigation regrouped: one *Panel* menu; Certificates and Installation became top-level routes.
+- Production hardening: a rejected backdrop returned **200 with `background: null`** — the user watched their
+  traced plan vanish. It now fails loudly with a stable code. And the container no longer swallows migration
+  failures with `|| true`: serving traffic against a mismatched schema is how a login turns into a 500.
+
 ### 2026-07-09 — Entry 045: Production login broke — a missing migration, a CI guard, and better auth errors
 **What happened**
 - Login (and register) returned **500 in production**. Not a password problem: `/api/health` was fine, but a
@@ -752,6 +806,63 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-10 — Entrada 047: El plano se comprueba contra la ITC-BT-25, y de él sale el cuadro
+**Qué pasaba**
+- El diseñador calculaba los puntos mínimos por estancia **y luego los ignoraba**. Podías dibujar una cocina
+  con tres enchufes, exportarla y generar el CIE. La promesa central del producto estaba sin cumplir.
+- Peor: los propios mínimos eran una aproximación inventada. Descargué la
+  [GUÍA-BT-25](https://industria.gob.es/Calidad-Industrial/seguridadindustrial/instalacionesindustriales/baja-tension/Documents/bt/guia_bt_25_jul12R2.pdf)
+  del Ministerio, parseé el PDF y leí la **tabla 2**. Cinco desviaciones — ver
+  [guía 37](guide/37-itc-bt-25-compliance-and-panel.md).
+
+**Hecho**
+- `roomRequirements()` **es** ya la tabla 2: las nueve tomas de la cocina repartidas en cuatro circuitos, el
+  suelo de "3 tomas o una por cada 6 m², lo que sea mayor", los pasillos regidos por **longitud** y no por
+  superficie, y una terraza que no lleva enchufe.
+- Corregido el grado: más de cinco circuitos exige **un diferencial adicional**, no electrificación elevada
+  ("no supondrá el paso a electrificación elevada", 2.3.1). Subíamos la potencia contratada de 5 750 W a
+  9 200 W sin motivo — una factura real para el cliente. Implementados los ocho supuestos verdaderos.
+- Cada toma declara el circuito que la alimenta (C2/C3/C4/C5/C10). La que no lo declara se imputa a lo que
+  su estancia aún necesite; la que declara el circuito equivocado, no.
+- `validateLayout()` imputa dispositivos por **punto en polígono**, mide las estancias con el **teorema del
+  zapatero** (un salón en L cuenta por su superficie real) y nombra cada carencia. **El botón de crear el
+  CIE se deshabilita** mientras el plano no llegue.
+- `panelSchedule()` dibuja el **cuadro general (CGMP)** con los dispositivos realmente colocados: circuitos
+  dimensionados por los puntos conectados, desdoblados al máximo de la tabla 1, IGA según la potencia
+  contratada, un diferencial por cada cinco circuitos y módulos DIN contados para poder pedir el envolvente.
+
+**Por qué así**
+- Los dos lectores comparten un único `tally()` privado. Contar dos veces acabaría haciendo que la
+  comprobación y el cuadro discrepasen sobre lo instalado — un fallo infernal de perseguir.
+- Un plano vacío informa `checked: false`: **sin comprobar, no conforme**. Un validador que dice "OK" a una
+  entrada vacía es peor que no tener validador.
+- La app dice sin rodeos que un plano solo puede demostrar el *número de puntos de utilización*. Secciones,
+  tierras y mediciones quedan fuera de un dibujo. **Ningún software puede prometer que un certificado no
+  será devuelto**; lo que se cierra es la familia de rechazos más común.
+
+**Siguiente**
+- Tests de frontend (no hay ninguno) — empezando por la geometría y la homografía.
+
+### 2026-07-10 — Entrada 046: El plano real debajo, enderezado; estancias como polígonos; plano descargable
+**Hecho**
+- El plano escaneado va bajo el editor 2D, con su escala calibrada contra una cota conocida.
+- **Rectificación de cuatro puntos.** Una foto de móvil sale girada y con perspectiva, y una calibración de
+  dos puntos no la salva: solo recupera la *escala*, y un metro sigue midiendo distinto en cada zona de la
+  hoja. El usuario marca las cuatro esquinas; resolvemos la **homografía** por eliminación gaussiana y
+  remapeamos con muestreo bilineal. Verificado: las esquinas caen con error de 1e-13 px y las rectas siguen
+  rectas.
+- Un cuadrilátero cruzado o casi plano todavía da un sistema **resoluble** mientras colapsa la imagen, así
+  que la convexidad se comprueba aparte. La primera versión de ese guardián dejaba pasar tres puntos
+  colineales: un producto cruzado exactamente cero no es ni positivo ni negativo.
+- Las estancias son **polígonos**: un salón en L, un pasillo. Arrastra el punto medio de un lado para crear
+  un vértice. Mover una estancia arrastra los dispositivos que contiene.
+- El plano acabado se descarga en **PNG** con fondo, áreas, dispositivos, leyenda y escala.
+- Navegación reagrupada: un único menú *Panel*; Certificados e Instalación pasan a rutas propias.
+- Endurecido para producción: un fondo rechazado devolvía **200 con `background: null`** y el usuario veía
+  desaparecer su plano calcado. Ahora falla en voz alta con un código estable. Y el contenedor ya no se traga
+  los errores de migración con `|| true`: servir tráfico contra un esquema que no cuadra es justo como un
+  login acaba en 500.
 
 ### 2026-07-09 — Entrada 045: Se rompió el login en producción — migración ausente, guardián de CI y errores de auth mejores
 **Qué pasó**

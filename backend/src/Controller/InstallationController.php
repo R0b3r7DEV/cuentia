@@ -36,6 +36,9 @@ class InstallationController extends AbstractController
             if ($layoutCable !== null) {
                 $result['layoutCable'] = $layoutCable;
             }
+            $loads = is_array($data['loads'] ?? null) ? $data['loads'] : [];
+            $result['validation'] = $calc->validateLayout($data['layout'], $loads);
+            $result['board'] = $calc->panelSchedule($data['layout'], $loads, $result['contractedPower']);
         }
 
         return $this->json($result);
@@ -221,11 +224,19 @@ class InstallationController extends AbstractController
                 ];
             }
         }
+        // A socket may declare the circuit it hangs from (ITC-BT-25); anything else is dropped, and a socket
+        // without one is still valid — the validator credits it against whatever the room lacks.
         $out['devices'] = [];
         foreach ((is_array($layout['devices'] ?? null) ? $layout['devices'] : []) as $d) {
-            if (is_array($d) && isset($d['type'])) {
-                $out['devices'][] = ['type' => (string) $d['type'], 'x' => $num($d['x'] ?? 0), 'y' => $num($d['y'] ?? 0)];
+            if (!is_array($d) || !isset($d['type'])) {
+                continue;
             }
+            $device = ['type' => (string) $d['type'], 'x' => $num($d['x'] ?? 0), 'y' => $num($d['y'] ?? 0)];
+            $circuit = strtoupper((string) ($d['circuit'] ?? ''));
+            if (in_array($circuit, ['C2', 'C3', 'C4', 'C5', 'C10'], true)) {
+                $device['circuit'] = $circuit;
+            }
+            $out['devices'][] = $device;
         }
 
         return $out;
@@ -277,6 +288,8 @@ class InstallationController extends AbstractController
         if ($layoutCable !== null) {
             $result['layoutCable'] = $layoutCable;
         }
+        $result['validation'] = $calc->validateLayout($i->getLayout(), $i->getLoads());
+        $result['board'] = $calc->panelSchedule($i->getLayout(), $i->getLoads(), $result['contractedPower']);
 
         return [
             'id'         => $i->getId(),

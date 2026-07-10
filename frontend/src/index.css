@@ -412,6 +412,24 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 0
 .plan-room-dim { fill: var(--text-muted); font-size: 10px; pointer-events: none; }
 .plan-vertex { fill: var(--surface-solid); stroke: var(--accent); stroke-width: 2; cursor: grab; }
 .plan-vertex:hover { fill: var(--accent); r: 7; }
+/* ── Main panel (CGMP) ──────────────────────────────────────────────────── */
+.panel-board svg { display: block; margin: 0 auto 14px; }
+.board-case { fill: var(--surface-2); stroke: var(--border-strong); stroke-width: 2; }
+.board-rail { fill: var(--border); }
+.din rect { stroke-width: 1.5; }
+.din-iga rect { fill: var(--surface-solid); stroke: var(--text); }
+.din-id rect { fill: color-mix(in srgb, var(--pos) 14%, var(--surface-solid)); stroke: var(--pos); }
+.din-pia rect { fill: color-mix(in srgb, var(--accent) 12%, var(--surface-solid)); stroke: var(--accent); }
+.din-lever { fill: var(--text-muted); stroke: none; }
+.din text { text-anchor: middle; }
+.din-top { fill: var(--text); font-size: 12px; font-weight: 800; }
+.din-bottom { fill: var(--text-muted); font-size: 10px; }
+
+/* The circuit letter on a socket that is not plain C2 — the ones an inspector actually counts. */
+.dev-socket-tag { fill: var(--accent); font-size: 8px; font-weight: 800; text-anchor: middle; pointer-events: none; }
+.check-miss { padding: 2px 0; font-size: 13px; }
+.check-miss + .check-miss { border-top: 1px dashed var(--border); }
+
 /* Faint dot at the middle of each edge: drag it to spawn a vertex there. */
 .plan-mid { fill: var(--accent); opacity: 0.35; cursor: copy; }
 .plan-mid:hover { opacity: 1; r: 6; }

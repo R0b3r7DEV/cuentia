@@ -7,6 +7,9 @@ const CLOSE_DIST = 0.4        // click this close to the first vertex to close t
 const snap = (v) => Math.round(v * 4) / 4
 
 const DEVICE_TOOLS = ['socket', 'switch', 'light']
+// The circuit a socket hangs from (ITC-BT-25). A socket without one is still accepted: the validator
+// credits it against whatever its room still lacks.
+const SOCKET_CIRCUITS = ['C2', 'C5', 'C3', 'C4', 'C10']
 const ROOM_TYPES = ['salon', 'comedor', 'dormitorio', 'cocina', 'bano', 'pasillo', 'vestibulo', 'terraza', 'garaje', 'trastero']
 
 // ── geometry ────────────────────────────────────────────────────────────────
@@ -75,6 +78,7 @@ export default function FloorPlanEditor({ layout, background, planTitle, onChang
   const suppressClick = useRef(false)
   const [tool, setTool] = useState('drag')
   const [newRoomType, setNewRoomType] = useState('dormitorio')
+  const [socketCircuit, setSocketCircuit] = useState('C2')
   const [scale, setScale] = useState(SCALES[1])
   const [calib, setCalib] = useState(null)
   const [realInput, setRealInput] = useState('')
@@ -200,7 +204,11 @@ export default function FloorPlanEditor({ layout, background, planTitle, onChang
       const rect = [{ x: p.x, y: p.y }, { x: p.x + 4, y: p.y }, { x: p.x + 4, y: p.y + 3 }, { x: p.x, y: p.y + 3 }]
       return emit({ rooms: [...lo.rooms, { type: newRoomType, points: rect }] }, true)
     }
-    if (DEVICE_TOOLS.includes(tool)) return emit({ devices: [...lo.devices, { type: tool, x: p.x, y: p.y }] })
+    if (DEVICE_TOOLS.includes(tool)) {
+      const device = { type: tool, x: p.x, y: p.y }
+      if (tool === 'socket') device.circuit = socketCircuit
+      return emit({ devices: [...lo.devices, device] })
+    }
   }
 
   const startDrag = (e, kind, index, vertexIndex) => {
@@ -282,9 +290,20 @@ export default function FloorPlanEditor({ layout, background, planTitle, onChang
       if (x + w > WM - 1) { x = 1.5; y += rowH + 1; rowH = 0 }
       out.push({ type: dr.type, points: [{ x, y }, { x: x + w, y }, { x: x + w, y: y + h }, { x, y: y + h }] })
       const pts = resultRooms?.[idx] || { lights: 1, socketsGeneral: 1, socketsC5: 0, switches: 1 }
-      const spread = (n, fx) => { for (let k = 0; k < n; k++) fx(x + (w * (k + 1)) / (n + 1)) }
+      const spread = (n, fx) => { for (let k = 0; k < n; k++) fx(x + (w * (k + 1)) / (n + 1), k) }
       spread(pts.lights, (px) => devices.push({ type: 'light', x: snap(px), y: snap(y + h * 0.45) }))
-      spread((pts.socketsGeneral || 0) + (pts.socketsC5 || 0), (px) => devices.push({ type: 'socket', x: snap(px), y: snap(y + h - 0.4) }))
+
+      // Every socket the regulation asks of this room, each tagged with the circuit that feeds it.
+      // ES: Cada toma que la norma exige a esta estancia, etiquetada con el circuito que la alimenta.
+      const sockets = []
+      const add = (n, circuit) => { for (let k = 0; k < (n || 0); k++) sockets.push(circuit) }
+      add(pts.socketsGeneral, 'C2')
+      add(pts.socketsC5, 'C5')
+      add(pts.socketsC3, 'C3')
+      add(pts.socketsC4, 'C4')
+      add(pts.socketsC10, 'C10')
+      spread(sockets.length, (px, k) => devices.push({ type: 'socket', circuit: sockets[k], x: snap(px), y: snap(y + h - 0.4) }))
+
       for (let k = 0; k < pts.switches; k++) devices.push({ type: 'switch', x: snap(x + 0.5 + k * 0.5), y: snap(y + h - 0.5) })
       x += w + 1
       rowH = Math.max(rowH, h)
@@ -440,6 +459,12 @@ export default function FloorPlanEditor({ layout, background, planTitle, onChang
             {ROOM_TYPES.map((rt) => <option key={rt} value={rt}>{t('inst.room.' + rt)}</option>)}
           </select>
         )}
+        {tool === 'socket' && (
+          <select className="bank-select" value={socketCircuit} onChange={(e) => setSocketCircuit(e.target.value)}
+            title={t('inst.plan.socketCircuit')}>
+            {SOCKET_CIRCUITS.map((c) => <option key={c} value={c}>{c} — {t('inst.circuit.' + c)}</option>)}
+          </select>
+        )}
         {tool === 'poly' && drawing && (
           <>
             <button type="button" className="btn btn-primary btn-sm" onClick={closeDraw} disabled={drawing.length < 3}>{t('inst.plan.polyClose')}</button>
@@ -551,7 +576,16 @@ export default function FloorPlanEditor({ layout, background, planTitle, onChang
 
           {lo.devices.map((d, i) => (
             <g key={`d${i}`} onPointerDown={(e) => startDrag(e, 'device', i)} style={{ cursor: tool === 'delete' ? 'not-allowed' : 'move' }}>
-              {d.type === 'socket' && <circle cx={d.x * scale} cy={d.y * scale} r="7" className="dev-socket" />}
+              {d.type === 'socket' && (
+                <>
+                  <circle cx={d.x * scale} cy={d.y * scale} r="7" className="dev-socket">
+                    <title>{d.circuit ? `${d.circuit} — ${t('inst.circuit.' + d.circuit)}` : t('inst.plan.socketNoCircuit')}</title>
+                  </circle>
+                  {d.circuit && d.circuit !== 'C2' && (
+                    <text x={d.x * scale} y={d.y * scale + 3} className="dev-socket-tag">{d.circuit.slice(1)}</text>
+                  )}
+                </>
+              )}
               {d.type === 'switch' && <rect x={d.x * scale - 6} y={d.y * scale - 6} width="12" height="12" rx="2" className="dev-switch" />}
               {d.type === 'light' && (
                 <g className="dev-light">

@@ -446,6 +446,38 @@ class ApiIntegrationTest extends WebTestCase
         self::assertArrayHasKey('layoutCable', $d['result']);
     }
 
+    public function testComputeReportsWhichPointsOfUseTheDrawnPlanIsMissing(): void
+    {
+        $this->registerAndLogin('elec5@test.local');
+        $kitchen = ['type' => 'cocina', 'points' => [
+            ['x' => 0, 'y' => 0], ['x' => 4, 'y' => 0], ['x' => 4, 'y' => 3], ['x' => 0, 'y' => 3],
+        ]];
+
+        // a kitchen with a single light and nothing else cannot comply with tabla 2
+        [$s, $r] = $this->json('POST', '/api/installations/compute', [
+            'rooms' => [['type' => 'cocina', 'area' => 12]],
+            'layout' => ['panel' => ['x' => 0, 'y' => 0], 'rooms' => [$kitchen], 'devices' => [
+                ['type' => 'light', 'x' => 2, 'y' => 1.5],
+            ]],
+        ]);
+        self::assertSame(200, $s);
+        self::assertTrue($r['validation']['checked']);
+        self::assertFalse($r['validation']['compliant']);
+        self::assertGreaterThan(0, $r['validation']['missingTotal']);
+
+        // the circuit a socket belongs to survives the round-trip and is honoured by the validator
+        [, $inst] = $this->json('POST', '/api/installations', [
+            'name' => 'Cocina', 'rooms' => [['type' => 'bano', 'area' => 4]],
+            'layout' => ['panel' => ['x' => 0, 'y' => 0], 'devices' => [
+                ['type' => 'socket', 'x' => 1, 'y' => 1, 'circuit' => 'C5'],
+                ['type' => 'socket', 'x' => 2, 'y' => 1, 'circuit' => 'nope'],
+            ], 'rooms' => []],
+        ]);
+        [, $d] = $this->json('GET', "/api/installations/{$inst['id']}");
+        self::assertSame('C5', $d['layout']['devices'][0]['circuit']);
+        self::assertArrayNotHasKey('circuit', $d['layout']['devices'][1], 'an unknown circuit is dropped');
+    }
+
     public function testInstallationBackgroundPlanIsStoredAndSanitised(): void
     {
         $this->registerAndLogin('elec4@test.local');

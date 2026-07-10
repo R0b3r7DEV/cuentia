@@ -1,6 +1,8 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { useTranslation } from '../../i18n/LanguageContext'
 import FloorPlanEditor from './FloorPlanEditor'
+import CompliancePanel from './CompliancePanel'
+import PanelBoard from './PanelBoard'
 
 // Three.js is heavy, so the 3D view is loaded only when the user opens it (its own chunk).
 const FloorPlan3D = lazy(() => import('./FloorPlan3D'))
@@ -133,6 +135,12 @@ export default function InstallationTab({ onNavigate }) {
     await loadSaved()
   }
 
+  // A plan that falls short of ITC-BT-25 tabla 2 must not become a certificate. The check only runs once
+  // there is something drawn: an empty plan is unchecked, not compliant.
+  // ES: Un plano por debajo de la tabla 2 no puede convertirse en certificado. Solo se juzga lo dibujado.
+  const validation = result?.validation
+  const blocked = Boolean(validation?.checked && !validation.compliant)
+
   // Hand the computed design to another tab: prefill a CIE, or a quote from the materials.
   const toCertificate = () => onNavigate?.('certificates', {
     installationType: 'nueva',
@@ -228,16 +236,28 @@ export default function InstallationTab({ onNavigate }) {
             {result.notes?.map((n, i) => <p key={i} className="msg" style={{ color: 'var(--warn-text)' }}>⚠️ {n}</p>)}
             {onNavigate && (
               <div className="verify-bar" style={{ marginTop: 12 }}>
-                <button className="btn btn-glass btn-sm" onClick={toCertificate}>{t('inst.createCie')}</button>
+                <button className="btn btn-glass btn-sm" onClick={toCertificate} disabled={blocked}
+                  title={blocked ? t('inst.check.blocked') : undefined}>{t('inst.createCie')}</button>
                 <button className="btn btn-glass btn-sm" onClick={toQuote}>{t('inst.createQuote')}</button>
               </div>
             )}
+            {blocked && <p className="msg" style={{ color: 'var(--neg)', marginBottom: 0 }}>🚫 {t('inst.check.blocked')}</p>}
           </div>
+
+          <CompliancePanel validation={validation} t={t} />
 
           <div className="card">
             <div className="form-sec">{t('inst.unifilar')}</div>
             <Unifilar result={result} t={t} />
           </div>
+
+          {result.board && (
+            <div className="card">
+              <div className="form-sec">{t('inst.board.title')}</div>
+              <p className="muted" style={{ fontSize: 13, marginTop: 0 }}>{t('inst.board.subtitle')}</p>
+              <PanelBoard board={result.board} t={t} />
+            </div>
+          )}
 
           <div className="card">
             <div className="verify-bar" style={{ justifyContent: 'space-between' }}>
