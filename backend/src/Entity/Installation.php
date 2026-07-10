@@ -46,6 +46,16 @@ class Installation
     #[ORM\Column(type: 'json')]
     private array $layout = [];
 
+    /**
+     * Optional scanned floor plan drawn under the canvas: { src (data URI), x, y, w, h, opacity }.
+     * x/y/w/h are in METRES, so once calibrated the image shares the canvas' metric space.
+     * ES: Plano escaneado opcional bajo el lienzo; x/y/w/h en METROS, así que una vez calibrado comparte
+     * el espacio métrico del lienzo. Nullable a propósito: añadir una columna NOT NULL a una tabla con
+     * filas rompe la migración en producción.
+     */
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $background = null;
+
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
@@ -80,6 +90,9 @@ class Installation
 
     public function getLayout(): array { return $this->layout; }
     public function setLayout(array $layout): self { $this->layout = $layout; return $this; }
+
+    public function getBackground(): ?array { return $this->background; }
+    public function setBackground(?array $background): self { $this->background = $background; return $this; }
 
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
 

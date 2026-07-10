@@ -111,6 +111,38 @@ class InstallationController extends AbstractController
         $i->setLoads($this->cleanLoads($data['loads'] ?? []));
         $i->setRooms($this->cleanRooms($data['rooms'] ?? []));
         $i->setLayout($this->cleanLayout($data['layout'] ?? []));
+        $i->setBackground($this->cleanBackground($data['background'] ?? null));
+    }
+
+    /** Max ~6 MB of base64 image; the client downscales before sending. */
+    private const MAX_BACKGROUND_BYTES = 6_000_000;
+
+    /**
+     * Sanitise the optional scanned floor plan: it must be an inline image, within a size budget, and its
+     * placement is stored in metres. / Sanea el plano escaneado: debe ser una imagen embebida, dentro de
+     * un límite de tamaño, y su colocación se guarda en metros.
+     *
+     * @return array<string,mixed>|null
+     */
+    private function cleanBackground(mixed $bg): ?array
+    {
+        if (!is_array($bg) || !is_string($bg['src'] ?? null)) {
+            return null;
+        }
+        $src = $bg['src'];
+        if (!str_starts_with($src, 'data:image/') || strlen($src) > self::MAX_BACKGROUND_BYTES) {
+            return null;
+        }
+        $num = static fn ($v, float $d): float => round(is_numeric($v) ? (float) $v : $d, 3);
+
+        return [
+            'src'     => $src,
+            'x'       => $num($bg['x'] ?? 0, 0),
+            'y'       => $num($bg['y'] ?? 0, 0),
+            'w'       => max(0.5, $num($bg['w'] ?? 12, 12)),
+            'h'       => max(0.5, $num($bg['h'] ?? 9, 9)),
+            'opacity' => min(1, max(0.05, $num($bg['opacity'] ?? 0.6, 0.6))),
+        ];
     }
 
     /** @return array<string,mixed> */
@@ -124,11 +156,28 @@ class InstallationController extends AbstractController
         if (is_array($layout['panel'] ?? null)) {
             $out['panel'] = ['x' => $num($layout['panel']['x'] ?? 0), 'y' => $num($layout['panel']['y'] ?? 0)];
         }
+        // A room is a polygon (so an L-shaped living room is possible). Legacy rectangles are still
+        // accepted and converted by the client. / Una estancia es un polígono; se aceptan los
+        // rectángulos antiguos y el cliente los convierte.
         $out['rooms'] = [];
         foreach ((is_array($layout['rooms'] ?? null) ? $layout['rooms'] : []) as $r) {
-            if (is_array($r)) {
+            if (!is_array($r)) {
+                continue;
+            }
+            $type = (string) ($r['type'] ?? 'otros');
+            if (is_array($r['points'] ?? null) && count($r['points']) >= 3) {
+                $points = [];
+                foreach (array_slice($r['points'], 0, 64) as $p) {
+                    if (is_array($p)) {
+                        $points[] = ['x' => $num($p['x'] ?? 0), 'y' => $num($p['y'] ?? 0)];
+                    }
+                }
+                if (count($points) >= 3) {
+                    $out['rooms'][] = ['type' => $type, 'points' => $points];
+                }
+            } elseif (isset($r['w'], $r['h'])) {
                 $out['rooms'][] = [
-                    'type' => (string) ($r['type'] ?? 'otros'),
+                    'type' => $type,
                     'x' => $num($r['x'] ?? 0), 'y' => $num($r['y'] ?? 0),
                     'w' => $num($r['w'] ?? 2), 'h' => $num($r['h'] ?? 2),
                 ];
@@ -199,6 +248,7 @@ class InstallationController extends AbstractController
             'loads'      => $i->getLoads(),
             'rooms'      => $i->getRooms(),
             'layout'     => $i->getLayout(),
+            'background' => $i->getBackground(),
             'result'     => $result,
         ];
     }

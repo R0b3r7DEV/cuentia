@@ -6,14 +6,16 @@ import { OrbitControls } from '@react-three/drei'
 
 const WALL_H = 2.5, WALL_T = 0.1
 const HEIGHTS = { socket: 0.3, switch: 1.1, light: 2.4, panel: 1.2 }
-const COLORS = { socket: '#2a78d6', switch: '#12a150', light: '#e8a13a', panel: '#5b6472' }
+// Matches the app palette: indigo accent, teal "positive", ochre for the lit points.
+// ES: Coincide con la paleta de la app: índigo, verde-azulado y ocre para los puntos de luz.
+const COLORS = { socket: '#443ea8', switch: '#0f6b54', light: '#d09853', panel: '#56506e' }
 
 function Walls({ room }) {
   const { x, y, w, h } = room
   const wall = (cx, cz, sx, sz, key) => (
     <mesh key={key} position={[cx, WALL_H / 2, cz]}>
       <boxGeometry args={[sx, WALL_H, sz]} />
-      <meshStandardMaterial color="#c9d2df" transparent opacity={0.3} />
+      <meshStandardMaterial color="#d3cde0" transparent opacity={0.3} />
     </mesh>
   )
   return (
@@ -58,9 +60,9 @@ export default function FloorPlan3D({ layout }) {
         <directionalLight position={[cx + 6, 14, cz + 4]} intensity={1.1} />
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[cx, 0, cz]}>
           <planeGeometry args={[maxX + 4, maxZ + 4]} />
-          <meshStandardMaterial color="#eef2f8" />
+          <meshStandardMaterial color="#f0ecf6" />
         </mesh>
-        <gridHelper args={[grid, grid, '#a9b4c6', '#d3dae6']} position={[cx, 0.02, cz]} />
+        <gridHelper args={[grid, grid, '#b6acc9', '#ddd6e8']} position={[cx, 0.02, cz]} />
         {rooms.map((r, i) => <Walls key={i} room={r} />)}
         {devices.map((d, i) => <Device key={i} d={d} />)}
         {panel && <Device d={{ ...panel, type: 'panel' }} />}

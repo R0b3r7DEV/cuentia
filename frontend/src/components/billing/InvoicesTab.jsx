@@ -221,7 +221,7 @@ export default function InvoicesTab() {
               <span className="muted num">{t('inv.previewTotal', { total: eur(previewTotal(lines)) })}</span>
             </div>
 
-            <button className="btn btn-glass" type="submit" disabled={submitting}>
+            <button className="btn btn-primary" type="submit" disabled={submitting}>
               {submitting ? t('inv.creating') : t('inv.create')}
             </button>
           </form>

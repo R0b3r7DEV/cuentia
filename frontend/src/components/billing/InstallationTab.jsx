@@ -8,7 +8,7 @@ const FloorPlan3D = lazy(() => import('./FloorPlan3D'))
 const ROOM_TYPES = ['salon', 'comedor', 'dormitorio', 'cocina', 'bano', 'pasillo', 'vestibulo', 'terraza', 'garaje', 'trastero']
 const LOADS = ['cocina', 'lavadora', 'calefaccion', 'aire', 'secadora', 'domotica', 'vehiculo']
 const emptyLayout = () => ({ panel: { x: 0.5, y: 0.5 }, rooms: [], devices: [] })
-const blank = () => ({ name: '', grade: 'auto', supplyType: 'monofasico', loads: {}, rooms: [{ type: 'salon', area: 20 }], layout: emptyLayout() })
+const blank = () => ({ name: '', grade: 'auto', supplyType: 'monofasico', loads: {}, rooms: [{ type: 'salon', area: 20 }], layout: emptyLayout(), background: null })
 
 /** Single-line diagram: IGA → one row per differential → its circuits as breaker boxes. */
 function Unifilar({ result, t }) {
@@ -120,6 +120,7 @@ export default function InstallationTab({ onNavigate }) {
       name: d.name, grade: d.grade, supplyType: d.supplyType, loads: d.loads || {},
       rooms: d.rooms.length ? d.rooms : blank().rooms,
       layout: d.layout && d.layout.panel ? { rooms: [], devices: [], ...d.layout } : emptyLayout(),
+      background: d.background || null,
     })
     setCurrentId(id)
     setMessage(null)
@@ -206,7 +207,7 @@ export default function InstallationTab({ onNavigate }) {
         </div>
 
         <div className="verify-bar" style={{ marginTop: 14 }}>
-          <button className="btn btn-glass btn-sm" onClick={save} disabled={saving}>{saving ? t('inst.saving') : t('inst.save')}</button>
+          <button className="btn btn-primary btn-sm" onClick={save} disabled={saving}>{saving ? t('inst.saving') : t('inst.save')}</button>
           <button type="button" className="link-btn" onClick={() => { setForm(blank()); setCurrentId(null) }}>{t('inst.new')}</button>
         </div>
         {message && <p className="msg">{message}</p>}
@@ -247,7 +248,11 @@ export default function InstallationTab({ onNavigate }) {
             </div>
             <FloorPlanEditor
               layout={form.layout}
+              background={form.background}
+              planTitle={form.name}
               onChange={(l) => set({ layout: l })}
+              onBackgroundChange={(b) => set({ background: b })}
+              onRoomsChange={(rooms) => set({ rooms })}
               designRooms={form.rooms}
               resultRooms={result.rooms}
               t={t}

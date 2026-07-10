@@ -4,11 +4,11 @@ import { eur } from '../lib/format'
 import { useTranslation } from '../i18n/LanguageContext'
 
 function useChartColors() {
-  const [c, setC] = useState({ blue: '#2a78d6', grid: '#e1e0d9', muted: '#898781' })
+  const [c, setC] = useState({ blue: '#443ea8', grid: '#e1e0d9', muted: '#6b6480' })
   useEffect(() => {
     const s = getComputedStyle(document.documentElement)
     const g = (n, fb) => (s.getPropertyValue(n).trim() || fb)
-    setC({ blue: g('--chart-1', '#2a78d6'), grid: g('--chart-grid', '#e1e0d9'), muted: g('--chart-muted', '#898781') })
+    setC({ blue: g('--chart-1', '#443ea8'), grid: g('--chart-grid', '#e1e0d9'), muted: g('--chart-muted', '#6b6480') })
   }, [])
   return c
 }

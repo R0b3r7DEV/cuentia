@@ -82,7 +82,7 @@ export default function BankConnect({ onImported }) {
         <p className="muted" style={{ fontSize: 13, marginTop: 10 }}>{t('bank.disabled')}</p>
       ) : requisitionId ? (
         <div className="verify-bar" style={{ marginTop: 12 }}>
-          <button className="btn btn-glass btn-sm" onClick={runImport} disabled={busy}>
+          <button className="btn btn-primary btn-sm" onClick={runImport} disabled={busy}>
             {busy ? t('bank.importing') : t('bank.import')}
           </button>
         </div>
@@ -92,7 +92,7 @@ export default function BankConnect({ onImported }) {
             <option value="">{t('bank.choose')}</option>
             {institutions.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
           </select>
-          <button className="btn btn-glass btn-sm" onClick={connect} disabled={busy || !institutionId}>
+          <button className="btn btn-primary btn-sm" onClick={connect} disabled={busy || !institutionId}>
             {busy ? t('bank.connecting') : t('bank.connect')}
           </button>
         </div>

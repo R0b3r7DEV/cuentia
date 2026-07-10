@@ -61,7 +61,7 @@ export default function AccountIntegrations() {
           <input type="password" autoComplete="off" placeholder="sk-ant-…" value={aiKey} onChange={(e) => setAiKey(e.target.value)} /></label>
       </div>
       <div className="verify-bar">
-        <button className="btn btn-glass btn-sm" onClick={saveAi} disabled={busy === 'ai' || !aiKey.trim()}>{busy === 'ai' ? t('int.saving') : t('int.save')}</button>
+        <button className="btn btn-primary btn-sm" onClick={saveAi} disabled={busy === 'ai' || !aiKey.trim()}>{busy === 'ai' ? t('int.saving') : t('int.save')}</button>
         {status.anthropic.configured && <button className="link-btn danger-link" onClick={removeAi}>{t('int.remove')}</button>}
       </div>
 
@@ -77,7 +77,7 @@ export default function AccountIntegrations() {
           <input type="password" autoComplete="off" value={gcKey} onChange={(e) => setGcKey(e.target.value)} /></label>
       </div>
       <div className="verify-bar">
-        <button className="btn btn-glass btn-sm" onClick={saveGc} disabled={busy === 'gc' || !gcId.trim() || !gcKey.trim()}>{busy === 'gc' ? t('int.saving') : t('int.save')}</button>
+        <button className="btn btn-primary btn-sm" onClick={saveGc} disabled={busy === 'gc' || !gcId.trim() || !gcKey.trim()}>{busy === 'gc' ? t('int.saving') : t('int.save')}</button>
         {status.gocardless.configured && <button className="link-btn danger-link" onClick={removeGc}>{t('int.remove')}</button>}
       </div>
 

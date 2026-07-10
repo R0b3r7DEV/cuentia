@@ -80,7 +80,7 @@ export default function CustomersTab() {
               </label>
             </div>
             <div className="verify-bar">
-              <button className="btn btn-glass btn-sm" type="submit" disabled={saving}>
+              <button className="btn btn-primary btn-sm" type="submit" disabled={saving}>
                 {saving ? t('cust.saving') : t('cust.save')}
               </button>
               <button type="button" className="link-btn" onClick={() => setForm(null)}>{t('cust.cancel')}</button>

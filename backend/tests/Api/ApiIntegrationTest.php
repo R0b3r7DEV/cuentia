@@ -446,6 +446,28 @@ class ApiIntegrationTest extends WebTestCase
         self::assertArrayHasKey('layoutCable', $d['result']);
     }
 
+    public function testInstallationBackgroundPlanIsStoredAndSanitised(): void
+    {
+        $this->registerAndLogin('elec4@test.local');
+        $png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUg==';
+
+        // a calibrated background survives the round-trip, in metres
+        [, $inst] = $this->json('POST', '/api/installations', [
+            'name' => 'Con plano real', 'rooms' => [],
+            'background' => ['src' => $png, 'x' => 1, 'y' => 1.5, 'w' => 8.19, 'h' => 6.2, 'opacity' => 0.6],
+        ]);
+        [, $d] = $this->json('GET', "/api/installations/{$inst['id']}");
+        self::assertSame($png, $d['background']['src']);
+        self::assertSame(8.19, $d['background']['w']);
+
+        // anything that isn't an inline image is rejected (no arbitrary URLs stored)
+        [, $bad] = $this->json('POST', '/api/installations', [
+            'name' => 'Sin plano', 'rooms' => [],
+            'background' => ['src' => 'https://evil.example/track.png'],
+        ]);
+        self::assertNull($bad['background']);
+    }
+
     public function testPerUserApiCredentialsByok(): void
     {
         $this->registerAndLogin('byok@test.local');

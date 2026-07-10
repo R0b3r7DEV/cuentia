@@ -10,50 +10,64 @@
      Ratios vs white: text 17:1 · muted 7.7:1 · accent 6.7:1 (WCAG AA needs 4.5:1).
      ES: Paleta slate neutra. El color se reserva para el significado; el resto es escala de grises,
      así el contraste es alto y estable y la vista no pelea contra un degradado. */
-  --text: #101828;
-  --text-muted: #475467;
+  --text: #1a1630;
+  --text-muted: #56506e;
   --surface-solid: #ffffff;
-  --surface-2: #f2f4f7;
-  --border: #dfe3ea;
-  --border-strong: #c8cedb;
+  --surface-2: #f1edf7;
+  --border: #e2deea;
+  --border-strong: #cbc4db;
+  /* Form controls need their own fill: cards are near-white, so a white input would vanish.
+     ES: Los campos necesitan su propio relleno: las tarjetas son casi blancas y un input blanco
+     desaparecería. */
+  --field-bg: #f4f1fa;
+  --field-border: #bfb5d4;
+  --field-shadow: inset 0 1px 2px rgba(26, 22, 48, 0.08);
+  --on-accent: #ffffff;   /* text on a filled accent button — 8.4:1 on #443EA8 */
 
   /* "Glass" is now mostly opaque: the frosted blur stays, the unreadable translucency doesn't.
      ES: El cristal es casi opaco: se queda el desenfoque, se va la transparencia ilegible. */
-  --glass: rgba(255, 255, 255, 0.86);
-  --glass-strong: rgba(255, 255, 255, 0.93);
-  --glass-border: rgba(16, 24, 40, 0.08);
+  --glass: rgba(255, 255, 255, 0.92);
+  --glass-strong: rgba(255, 255, 255, 0.96);
+  --glass-border: rgba(26, 22, 48, 0.14);
   --glass-hi: rgba(255, 255, 255, 0.55);
-  --active-bg: rgba(29, 78, 216, 0.10);
+  --active-bg: rgba(68, 62, 168, 0.10);
   --active-hi: rgba(255, 255, 255, 0.55);
   --blur: 28px;
   /* Saturation behind the glass. High values amplify the background's colour — the main cause of eye
      fatigue in light mode. / Saturación tras el cristal: los valores altos amplifican el color del fondo. */
   --glass-sat: 110%;
 
-  /* page background — neutral, no colour tint */
-  --page-bg: linear-gradient(180deg, #edeff3 0%, #f5f6f9 100%);
+  /* Page background — deliberately darker than the cards. White cards on an almost-white page have no
+     edge, no matter how strong the border is; the separation has to come from luminance.
+     ES: Fondo a propósito más oscuro que las tarjetas. Sobre un fondo casi blanco no hay borde que valga:
+     la separación tiene que venir de la luminosidad. */
+  --page-bg: linear-gradient(180deg, #d9d2e8 0%, #e6e1f0 100%);
 
-  /* brand & semantics (all AA-compliant on white) */
-  --accent: #1d4ed8;
-  --accent-weak: rgba(29, 78, 216, 0.10);
-  --pos: #107a3f;
-  --neg: #c0362b;
-  --warn-bg: rgba(234, 130, 40, 0.12);
-  --warn-border: rgba(234, 130, 40, 0.35);
-  --warn-text: #b1500f;
+  /* Brand & semantics. The source palette (E9DBF5 / D09490 / D09853 / 443EA8) is a mood board: only
+     #443EA8 has enough contrast to be ink (8.4:1). The two warm tones are ~2.5:1 — fills, never text —
+     so their darkened variants are used for the negative and warning families instead.
+     ES: De la paleta original solo #443EA8 sirve como tinta; los dos tonos cálidos (~2.5:1) solo valen
+     como relleno, así que uso sus variantes oscurecidas para "negativo" y "aviso". */
+  --accent: #443ea8;                        /* 8.4:1 on white  */
+  --accent-weak: rgba(68, 62, 168, 0.10);
+  --pos: #0f6b54;                           /* 6.5:1 — deep teal-green, harmonises with the indigo */
+  --neg: #9b3f3a;                           /* 6.6:1 — darkened #D09490 */
+  --warn-bg: rgba(208, 152, 83, 0.16);      /* #D09853 as a fill */
+  --warn-border: rgba(208, 152, 83, 0.50);
+  --warn-text: #8a5a16;                     /* 5.9:1 — darkened #D09853 */
 
-  /* charts — income (blue) vs expenses (red); same hues as the brand/semantic colours */
-  --chart-1: #1d4ed8;
-  --chart-2: #c0362b;
+  /* charts — income vs expenses. Validated: CVD ΔE 70.6, both ≥ 3:1 vs the surface. */
+  --chart-1: #443ea8;
+  --chart-2: #9b3f3a;
   --chart-grid: rgba(120, 130, 150, 0.18);
-  --chart-muted: #667085;
+  --chart-muted: #6b6480;
 
   /* shape & depth */
   --radius: 20px;
   --radius-sm: 13px;
   --radius-pill: 999px;
-  --shadow: 0 6px 24px rgba(16, 24, 40, 0.08), 0 1px 2px rgba(16, 24, 40, 0.05);
-  --shadow-soft: 0 2px 10px rgba(16, 24, 40, 0.05);
+  --shadow: 0 6px 22px rgba(26, 22, 48, 0.12), 0 1px 2px rgba(26, 22, 48, 0.07);
+  --shadow-soft: 0 2px 8px rgba(26, 22, 48, 0.08);
 
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
@@ -73,19 +87,22 @@
     --text: #eef1f6; --text-muted: #9aa4b2;
     --surface-solid: #171b22; --surface-2: #1c2129;
     --border: #2a303a; --border-strong: #38404c;
+    --field-bg: #1c2129; --field-border: #434c59;
+    --field-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+    --on-accent: #14112a;   /* dark ink on the light indigo — 5.9:1 */
     --glass: rgba(22, 26, 34, 0.34); --glass-strong: rgba(22, 26, 34, 0.46);
     --glass-sat: 190%;
     --glass-border: rgba(255, 255, 255, 0.10); --glass-hi: rgba(255, 255, 255, 0.06);
     --active-bg: rgba(255, 255, 255, 0.14); --active-hi: rgba(255, 255, 255, 0.18);
-    --accent: #4b93ea; --accent-weak: rgba(75, 147, 234, 0.22);
+    --accent: #8e88ee; --accent-weak: rgba(142, 136, 238, 0.22);
     --pos: #34c471; --neg: #f2685c;
     --warn-bg: rgba(234, 130, 40, 0.16); --warn-border: rgba(234, 130, 40, 0.4); --warn-text: #f0b47a;
-    --chart-1: #4b93ea; --chart-2: #f2685c; --chart-grid: rgba(150, 160, 180, 0.16); --chart-muted: #8b97a8;
+    --chart-1: #8e88ee; --chart-2: #f2685c; --chart-grid: rgba(150, 160, 180, 0.16); --chart-muted: #8b97a8;
     --shadow: 0 8px 30px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.45);
     --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.45);
     --page-bg:
-      radial-gradient(1000px 600px at 12% -12%, rgba(42, 120, 214, 0.24), transparent 60%),
-      radial-gradient(900px 620px at 100% 0%, rgba(18, 161, 80, 0.16), transparent 55%),
+      radial-gradient(1000px 600px at 12% -12%, rgba(110, 102, 230, 0.22), transparent 60%),
+      radial-gradient(900px 620px at 100% 0%, rgba(208, 148, 144, 0.12), transparent 55%),
       linear-gradient(180deg, #0b0d12 0%, #08090c 100%);
   }
 }
@@ -93,19 +110,22 @@
   --text: #eef1f6; --text-muted: #9aa4b2;
   --surface-solid: #171b22; --surface-2: #1c2129;
   --border: #2a303a; --border-strong: #38404c;
+  --field-bg: #1c2129; --field-border: #434c59;
+    --field-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+    --on-accent: #14112a;   /* dark ink on the light indigo — 5.9:1 */
   --glass: rgba(22, 26, 34, 0.34); --glass-strong: rgba(22, 26, 34, 0.46);
   --glass-sat: 190%;
   --glass-border: rgba(255, 255, 255, 0.10); --glass-hi: rgba(255, 255, 255, 0.06);
   --active-bg: rgba(255, 255, 255, 0.14); --active-hi: rgba(255, 255, 255, 0.18);
-  --accent: #4b93ea; --accent-weak: rgba(75, 147, 234, 0.22);
+  --accent: #8e88ee; --accent-weak: rgba(142, 136, 238, 0.22);
   --pos: #34c471; --neg: #f2685c;
   --warn-bg: rgba(234, 130, 40, 0.16); --warn-border: rgba(234, 130, 40, 0.4); --warn-text: #f0b47a;
-  --chart-1: #4b93ea; --chart-2: #f2685c; --chart-grid: rgba(150, 160, 180, 0.16); --chart-muted: #8b97a8;
+  --chart-1: #8e88ee; --chart-2: #f2685c; --chart-grid: rgba(150, 160, 180, 0.16); --chart-muted: #8b97a8;
   --shadow: 0 8px 30px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.45);
   --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.45);
   --page-bg:
-    radial-gradient(1000px 600px at 12% -12%, rgba(42, 120, 214, 0.24), transparent 60%),
-    radial-gradient(900px 620px at 100% 0%, rgba(18, 161, 80, 0.16), transparent 55%),
+    radial-gradient(1000px 600px at 12% -12%, rgba(110, 102, 230, 0.22), transparent 60%),
+    radial-gradient(900px 620px at 100% 0%, rgba(208, 148, 144, 0.12), transparent 55%),
     linear-gradient(180deg, #0b0d12 0%, #08090c 100%);
 }
 
@@ -140,7 +160,9 @@ a { color: inherit; }
 /* ── Floating glass navbar ──────────────────────────────────────────────── */
 .navbar { position: sticky; top: 0; z-index: 30; padding: 12px 16px 0; }
 .navbar-inner {
-  position: relative; overflow: hidden;
+  /* No `overflow: hidden` here: it would clip the Panel dropdown. The watermark clips itself instead. */
+  /* ES: Sin `overflow: hidden` aquí: recortaría el desplegable de Panel. La marca de agua se recorta sola. */
+  position: relative;
   max-width: 1000px; margin: 0 auto; padding: 7px 10px;
   display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
   background: linear-gradient(180deg, var(--glass-hi), transparent 60%), var(--glass-strong);
@@ -158,6 +180,7 @@ a { color: inherit; }
   display: flex; align-items: center; justify-content: center;
   font-weight: 800; font-size: 46px; letter-spacing: 12px;
   color: var(--text); opacity: 0.07; white-space: nowrap;
+  overflow: hidden; border-radius: var(--radius-pill);
 }
 .navbar-inner > * { position: relative; z-index: 1; }
 .brand { font-weight: 800; font-size: 18px; margin: 0 8px 0 8px; letter-spacing: -0.3px; }
@@ -172,6 +195,37 @@ a { color: inherit; }
   box-shadow: inset 0 1px 0 var(--active-hi), inset 0 -1px 2px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(16, 24, 40, 0.10);
   border: 1px solid var(--glass-border);
 }
+/* ── Panel dropdown ─────────────────────────────────────────────────────── */
+.nav-group { position: relative; display: flex; }
+.nav-trigger {
+  font: inherit; font-size: 14px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 5px;
+  border: 1px solid transparent; background: transparent; cursor: pointer;
+}
+.nav-caret { font-size: 10px; line-height: 1; opacity: 0.7; transition: transform 0.15s; }
+.nav-group:has(.nav-menu) .nav-caret { transform: rotate(180deg); }
+/* A menu floats over live content, so it is opaque: glass here would let the page bleed through the labels. */
+/* ES: Un menú flota sobre contenido vivo, así que es opaco: el cristal dejaría traslucir la página. */
+.nav-menu {
+  position: absolute; top: calc(100% + 8px); left: 0; z-index: 40;
+  min-width: 190px; padding: 6px;
+  display: flex; flex-direction: column; gap: 2px;
+  background: var(--surface-solid);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 12px 32px rgba(16, 24, 40, 0.18), 0 2px 6px rgba(16, 24, 40, 0.10);
+  animation: nav-menu-in 0.13s ease-out;
+}
+@keyframes nav-menu-in { from { opacity: 0; transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .nav-menu { animation: none; } }
+.nav-menu-item {
+  display: block;
+  padding: 9px 12px; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 600; color: var(--text-muted); text-decoration: none; white-space: nowrap;
+}
+.nav-menu-item:hover { background: var(--surface-2); color: var(--text); }
+.nav-menu-item.active { color: var(--text); background: var(--active-bg); }
+
 .lang-btn { font: inherit; font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: var(--radius-pill); border: 1px solid var(--border-strong); background: transparent; color: var(--text-muted); cursor: pointer; }
 .lang-btn:hover { background: var(--surface-2); color: var(--text); }
 .nav-links { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -205,8 +259,10 @@ a { color: inherit; }
 .btn:hover:not(:disabled) { background: var(--surface-2); }
 .btn:active:not(:disabled) { transform: scale(0.97); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
-.btn-primary { background: var(--accent); border-color: transparent; color: #fff; }
-.btn-primary:hover:not(:disabled) { filter: brightness(1.05); background: var(--accent); }
+/* Primary action: a filled accent button. A translucent button on a white card is invisible.
+   ES: Acción primaria: botón relleno. Un botón translúcido sobre tarjeta blanca no se ve. */
+.btn-primary { background: var(--accent); border-color: transparent; color: var(--on-accent); box-shadow: 0 2px 10px rgba(68, 62, 168, 0.28); }
+.btn-primary:hover:not(:disabled) { filter: brightness(1.08); background: var(--accent); }
 .btn-danger { background: var(--neg); border-color: transparent; color: #fff; }
 .btn-danger:hover:not(:disabled) { filter: brightness(1.05); background: var(--neg); }
 /* Liquid-glass button */
@@ -267,7 +323,7 @@ label.btn { display: inline-block; }
 .chat-text { white-space: pre-wrap; }
 .chat-note { margin-top: 6px; font-size: 12px; color: var(--warn-text); }
 .chat-form { display: flex; gap: 8px; }
-.chat-input { flex: 1; font: inherit; font-size: 14px; padding: 11px 16px; border: 1px solid var(--border-strong); border-radius: var(--radius-pill); background: var(--surface-solid); color: var(--text); }
+.chat-input { flex: 1; font: inherit; font-size: 14px; padding: 11px 16px; border: 1px solid var(--field-border); border-radius: var(--radius-pill); background: var(--field-bg); color: var(--text); box-shadow: var(--field-shadow); }
 .chat-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-weak); }
 
 /* ── Auth screen ────────────────────────────────────────────────────────── */
@@ -313,10 +369,13 @@ label.btn { display: inline-block; }
 .field.field-sm { flex: 0 0 120px; min-width: 100px; }
 .field > span { font-size: 12px; font-weight: 600; color: var(--text-muted); }
 .field input, .lines-table input {
-  font: inherit; font-size: 14px; padding: 9px 13px; border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm); background: var(--surface-solid); color: var(--text); width: 100%;
+  font: inherit; font-size: 14px; padding: 9px 13px; border: 1px solid var(--field-border);
+  border-radius: var(--radius-sm); background: var(--field-bg); color: var(--text); width: 100%;
+  box-shadow: var(--field-shadow);
 }
 .field input:focus, .lines-table input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-weak); }
+/* Placeholders default to a barely-visible grey; pin them to a legible tone. */
+input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 0.7; }
 .lines-table { min-width: 0; }
 .lines-table td { padding: 6px 6px; border-bottom: none; }
 .lines-table th { padding: 4px 6px; border-bottom: 1px solid var(--border); }
@@ -341,24 +400,61 @@ label.btn { display: inline-block; }
 
 /* 2D floor-plan editor */
 .plan-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 4px; }
-.plan-tool { font: inherit; font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: var(--radius-pill); border: 1px solid var(--border-strong); background: var(--surface-solid); color: var(--text-muted); cursor: pointer; }
+.plan-tool { font: inherit; font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: var(--radius-pill); border: 1px solid var(--field-border); background: var(--field-bg); color: var(--text-muted); cursor: pointer; }
 .plan-tool:hover { background: var(--surface-2); color: var(--text); }
 .plan-tool.active { background: var(--accent-weak); color: var(--accent); border-color: var(--accent); }
 .plan-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
 .floorplan { display: block; background: var(--surface-solid); border: 1px solid var(--border); border-radius: var(--radius-sm); touch-action: none; }
 .grid-line { stroke: var(--border); stroke-width: 1; }
-.plan-room { fill: color-mix(in srgb, var(--accent) 8%, transparent); stroke: var(--accent); stroke-width: 1.5; }
-.plan-room-label { fill: var(--text); font-size: 11px; font-weight: 600; pointer-events: none; }
+/* Rooms read like walls on a plan: thick outline, faint fill. */
+.plan-room { fill: color-mix(in srgb, var(--accent) 6%, transparent); stroke: var(--text); stroke-width: 3; }
+.plan-room-label { fill: var(--text); font-size: 12px; font-weight: 700; pointer-events: none; }
+.plan-room-dim { fill: var(--text-muted); font-size: 10px; pointer-events: none; }
+.plan-vertex { fill: var(--surface-solid); stroke: var(--accent); stroke-width: 2; cursor: grab; }
+.plan-vertex:hover { fill: var(--accent); r: 7; }
+/* Faint dot at the middle of each edge: drag it to spawn a vertex there. */
+.plan-mid { fill: var(--accent); opacity: 0.35; cursor: copy; }
+.plan-mid:hover { opacity: 1; r: 6; }
+.poly-draft polyline { fill: none; stroke: var(--accent); stroke-width: 2; stroke-dasharray: 5 4; }
+.poly-draft circle { fill: var(--accent); }
+
+/* Four-point rectifier — de-skew a phone photo of the plan before it becomes the backdrop. */
+.rectify-overlay {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(10, 8, 24, 0.62);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; overflow: auto;
+}
+.rectify-card { max-width: 820px; width: 100%; }
+.rectify-box { position: relative; margin: 0 auto; max-width: 100%; touch-action: none; user-select: none; }
+.rectify-box img { display: block; width: 100%; height: 100%; border-radius: 8px; }
+.rectify-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.rectify-svg polygon { fill: color-mix(in srgb, var(--accent) 14%, transparent); stroke: var(--accent); stroke-width: 2; stroke-dasharray: 6 4; }
+.rectify-svg polygon.invalid { fill: color-mix(in srgb, var(--neg) 16%, transparent); stroke: var(--neg); }
+.rectify-svg circle { fill: var(--surface-solid); stroke: var(--accent); stroke-width: 3; cursor: grab; }
+.rectify-svg circle:active { cursor: grabbing; }
+.rectify-svg text { fill: var(--accent); font-size: 13px; font-weight: 700; paint-order: stroke; stroke: var(--surface-solid); stroke-width: 3px; }
+.plan-opacity { display: flex; align-items: center; }
+.plan-opacity input { width: 90px; accent-color: var(--accent); cursor: pointer; }
+.calib-mark line { stroke: var(--neg); stroke-width: 2; }
+.calib-mark .calib-line { stroke-dasharray: 6 4; stroke-width: 2; }
+.calib-tag { fill: var(--neg); font-size: 12px; font-weight: 700; }
+/* transparent (not `none`) so it still receives the pointer */
+.calib-grab { fill: transparent; cursor: grab; }
+.calib-grab:active { cursor: grabbing; }
+.calib-panel { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; padding: 10px 12px; margin-bottom: 10px;
+  background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
 .dev-socket { fill: color-mix(in srgb, var(--accent) 30%, var(--surface-solid)); stroke: var(--accent); stroke-width: 2; }
 .dev-switch { fill: color-mix(in srgb, var(--pos) 30%, var(--surface-solid)); stroke: var(--pos); stroke-width: 2; }
 .dev-light circle { fill: var(--surface-solid); stroke: var(--warn-text); stroke-width: 2; }
 .dev-light path { stroke: var(--warn-text); stroke-width: 1.5; }
 .plan-panel { fill: var(--accent); }
 .plan-panel-label { fill: #fff; font-size: 9px; font-weight: 700; pointer-events: none; }
-.floorplan3d { width: 100%; height: 440px; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; background: #edeff3; }
-.cie-textarea { font: inherit; font-size: 14px; padding: 9px 13px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-solid); color: var(--text); width: 100%; min-height: 60px; resize: vertical; }
+.floorplan3d { width: 100%; height: 440px; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; background: #efeaf6; }
+.cie-textarea { font: inherit; font-size: 14px; padding: 9px 13px; border: 1px solid var(--field-border); border-radius: var(--radius-sm); background: var(--field-bg); color: var(--text); width: 100%; min-height: 60px; resize: vertical; box-shadow: var(--field-shadow); }
 .cie-textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-weak); }
-.bank-select { font: inherit; font-size: 14px; padding: 9px 13px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-solid); color: var(--text); min-width: 200px; max-width: 100%; box-sizing: border-box; }
+.bank-select { font: inherit; font-size: 14px; padding: 9px 13px; border: 1px solid var(--field-border); border-radius: var(--radius-sm); background: var(--field-bg); color: var(--text); min-width: 200px; max-width: 100%; box-sizing: border-box; box-shadow: var(--field-shadow); }
 /* Inside a form field or table cell the select fills its container (never overflows on mobile). */
 .field .bank-select, .field-sm .bank-select, td .bank-select { width: 100%; min-width: 0; }
 .bank-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-weak); }

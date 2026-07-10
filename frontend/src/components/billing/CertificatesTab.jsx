@@ -145,7 +145,7 @@ export default function CertificatesTab({ prefill }) {
             </label>
 
             <div className="verify-bar">
-              <button className="btn btn-glass btn-sm" type="submit" disabled={saving}>{saving ? t('cie.saving') : t('cie.save')}</button>
+              <button className="btn btn-primary btn-sm" type="submit" disabled={saving}>{saving ? t('cie.saving') : t('cie.save')}</button>
               <button type="button" className="link-btn" onClick={() => setForm(null)}>{t('cie.cancel')}</button>
             </div>
           </form>

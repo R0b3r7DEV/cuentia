@@ -74,7 +74,7 @@ export default function AuthPage() {
             value={password} onChange={(e) => setPassword(e.target.value)}
             autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
           {error && <p className="msg error">{error}</p>}
-          <button className="btn btn-glass" type="submit" disabled={busy}>
+          <button className="btn btn-primary" type="submit" disabled={busy}>
             {mode === 'login' ? t('auth.login') : t('auth.register')}
           </button>
         </form>
