@@ -20,6 +20,11 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
  */
 class InstallationController extends AbstractController
 {
+    private const BACKGROUND_MESSAGES = [
+        'background_not_inline_image' => 'The floor plan must be an uploaded image.',
+        'background_too_large'        => 'The floor plan image is too large. Use a smaller photo or scan.',
+    ];
+
     /** Compute the installation from an input payload, without saving. */
     #[Route('/api/installations/compute', name: 'api_installations_compute', methods: ['POST'])]
     public function compute(Request $request, InstallationCalculator $calc): JsonResponse
@@ -55,6 +60,9 @@ class InstallationController extends AbstractController
         if (!is_array($data) || trim((string) ($data['name'] ?? '')) === '') {
             return $this->json(['error' => 'name is required'], 400);
         }
+        if (($error = $this->backgroundError($data['background'] ?? null)) !== null) {
+            return $this->json(['error' => self::BACKGROUND_MESSAGES[$error], 'code' => $error], 400);
+        }
 
         $installation = (new Installation())->setUser($user);
         $this->apply($installation, $data);
@@ -82,6 +90,9 @@ class InstallationController extends AbstractController
         $data = json_decode($request->getContent(), true);
         if (!is_array($data) || trim((string) ($data['name'] ?? '')) === '') {
             return $this->json(['error' => 'name is required'], 400);
+        }
+        if (($error = $this->backgroundError($data['background'] ?? null)) !== null) {
+            return $this->json(['error' => self::BACKGROUND_MESSAGES[$error], 'code' => $error], 400);
         }
         $this->apply($installation, $data);
         $em->flush();
@@ -114,13 +125,40 @@ class InstallationController extends AbstractController
         $i->setBackground($this->cleanBackground($data['background'] ?? null));
     }
 
-    /** Max ~6 MB of base64 image; the client downscales before sending. */
-    private const MAX_BACKGROUND_BYTES = 6_000_000;
+    /**
+     * 3 MB of base64 image. The client already downscales to 1800 px, which lands well under; the ceiling
+     * leaves headroom under the edge proxy's request-body limit, which would reject the save with an
+     * opaque 413 before it ever reached PHP.
+     * ES: 3 MB de imagen en base64. El cliente ya reduce a 1800 px y se queda muy por debajo; el techo
+     * deja margen bajo el límite de cuerpo del proxy, que rechazaría el guardado con un 413 opaco.
+     */
+    private const MAX_BACKGROUND_BYTES = 3_000_000;
+
+    /**
+     * Why a background can't be accepted, or null when it's fine (including when none was sent).
+     * Rejecting it silently would store `background: null` behind a 200 and the user would watch their
+     * traced plan vanish on the next load.
+     * ES: Por qué no se puede aceptar un fondo, o null si está bien (incluido «no se envió ninguno»).
+     * Rechazarlo en silencio guardaría `background: null` tras un 200 y el usuario vería desaparecer su
+     * plano al recargar.
+     */
+    private function backgroundError(mixed $bg): ?string
+    {
+        if ($bg === null || $bg === []) {
+            return null;
+        }
+        if (!is_array($bg) || !is_string($bg['src'] ?? null) || !str_starts_with($bg['src'], 'data:image/')) {
+            return 'background_not_inline_image';
+        }
+
+        return strlen($bg['src']) > self::MAX_BACKGROUND_BYTES ? 'background_too_large' : null;
+    }
 
     /**
      * Sanitise the optional scanned floor plan: it must be an inline image, within a size budget, and its
-     * placement is stored in metres. / Sanea el plano escaneado: debe ser una imagen embebida, dentro de
-     * un límite de tamaño, y su colocación se guarda en metros.
+     * placement is stored in metres. Callers validate with backgroundError() first.
+     * ES: Sanea el plano escaneado: debe ser una imagen embebida, dentro de un límite de tamaño, y su
+     * colocación se guarda en metros. Quien llama valida antes con backgroundError().
      *
      * @return array<string,mixed>|null
      */

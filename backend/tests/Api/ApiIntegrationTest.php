@@ -460,12 +460,26 @@ class ApiIntegrationTest extends WebTestCase
         self::assertSame($png, $d['background']['src']);
         self::assertSame(8.19, $d['background']['w']);
 
-        // anything that isn't an inline image is rejected (no arbitrary URLs stored)
-        [, $bad] = $this->json('POST', '/api/installations', [
-            'name' => 'Sin plano', 'rooms' => [],
+        // no background at all is fine
+        [$s, $none] = $this->json('POST', '/api/installations', ['name' => 'Sin plano', 'rooms' => []]);
+        self::assertSame(201, $s);
+        self::assertNull($none['background']);
+
+        // anything that isn't an inline image is rejected loudly — never stored, never silently dropped
+        [$s, $bad] = $this->json('POST', '/api/installations', [
+            'name' => 'Con URL', 'rooms' => [],
             'background' => ['src' => 'https://evil.example/track.png'],
         ]);
-        self::assertNull($bad['background']);
+        self::assertSame(400, $s);
+        self::assertSame('background_not_inline_image', $bad['code']);
+
+        // and so is an oversize image: a silent null would make the traced plan vanish on reload
+        [$s, $big] = $this->json('POST', '/api/installations', [
+            'name' => 'Plano enorme', 'rooms' => [],
+            'background' => ['src' => 'data:image/png;base64,'.str_repeat('A', 3_000_001)],
+        ]);
+        self::assertSame(400, $s);
+        self::assertSame('background_too_large', $big['code']);
     }
 
     public function testPerUserApiCredentialsByok(): void

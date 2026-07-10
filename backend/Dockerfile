@@ -35,11 +35,21 @@ RUN composer dump-autoload --no-dev --optimize --classmap-authoritative \
 
 # On boot: make Apache listen on the platform's $PORT (Render/Koyeb/Fly/Railway all
 # inject it; default 8080), run DB migrations, then start Apache in the foreground.
-# ES: Al arrancar: que Apache escuche en el $PORT de la plataforma (Render/Koyeb/Fly/Railway
-# lo inyectan; por defecto 8080), ejecuta las migraciones e inicia Apache en primer plano.
+#
+# A failing migration must abort the boot. Serving traffic against a schema that does not match the
+# entities is how a login turns into a 500: the platform keeps the previous release live when the new
+# one fails its health check, which is exactly what we want.
+#
+# ES: Al arrancar: que Apache escuche en el $PORT de la plataforma (lo inyectan Render/Koyeb/Fly/Railway;
+# por defecto 8080), ejecuta las migraciones e inicia Apache en primer plano.
+#
+# Una migración fallida debe abortar el arranque. Servir tráfico con un esquema que no cuadra con las
+# entidades es justo como un login acaba en 500: la plataforma mantiene viva la versión anterior cuando
+# la nueva no pasa el health check, que es lo que queremos.
 CMD ["sh", "-c", "\
+    set -e; \
     PORT=${PORT:-8080}; \
     sed -ri \"s!Listen 80!Listen $PORT!\" /etc/apache2/ports.conf; \
     sed -ri \"s!:80>!:$PORT>!\" /etc/apache2/sites-available/000-default.conf; \
-    php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration || true; \
+    php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration; \
     apache2-foreground"]
