@@ -10,20 +10,33 @@ const HEIGHTS = { socket: 0.3, switch: 1.1, light: 2.4, panel: 1.2 }
 // ES: Coincide con la paleta de la app: índigo, verde-azulado y ocre para los puntos de luz.
 const COLORS = { socket: '#443ea8', switch: '#0f6b54', light: '#d09853', panel: '#56506e' }
 
-function Walls({ room }) {
-  const { x, y, w, h } = room
-  const wall = (cx, cz, sx, sz, key) => (
-    <mesh key={key} position={[cx, WALL_H / 2, cz]}>
-      <boxGeometry args={[sx, WALL_H, sz]} />
-      <meshStandardMaterial color="#d3cde0" transparent opacity={0.3} />
-    </mesh>
-  )
+const finite = (p) => p && Number.isFinite(p.x) && Number.isFinite(p.y)
+
+/** Rooms are polygons; a legacy rectangle is just its four corners. */
+/** ES: Las estancias son polígonos; un rectángulo antiguo son sus cuatro esquinas. */
+const toPoints = (r) => {
+  if (Array.isArray(r?.points) && r.points.length >= 3) return r.points.filter(finite)
+  if (!Number.isFinite(r?.x) || !Number.isFinite(r?.w)) return []
+  return [{ x: r.x, y: r.y }, { x: r.x + r.w, y: r.y }, { x: r.x + r.w, y: r.y + r.h }, { x: r.x, y: r.y + r.h }]
+}
+
+/** One wall per polygon edge: a box of the edge's length, spun about Y to lie along it. */
+/** ES: Un muro por arista: una caja del largo de la arista, girada sobre Y para tumbarse sobre ella. */
+function Walls({ points }) {
   return (
     <group>
-      {wall(x + w / 2, y, w, WALL_T, 'n')}
-      {wall(x + w / 2, y + h, w, WALL_T, 's')}
-      {wall(x, y + h / 2, WALL_T, h, 'w')}
-      {wall(x + w, y + h / 2, WALL_T, h, 'e')}
+      {points.map((a, i) => {
+        const b = points[(i + 1) % points.length]
+        const dx = b.x - a.x, dz = b.y - a.y
+        const len = Math.hypot(dx, dz)
+        if (len < 0.01) return null
+        return (
+          <mesh key={i} position={[(a.x + b.x) / 2, WALL_H / 2, (a.y + b.y) / 2]} rotation={[0, Math.atan2(-dz, dx), 0]}>
+            <boxGeometry args={[len, WALL_H, WALL_T]} />
+            <meshStandardMaterial color="#d3cde0" transparent opacity={0.3} />
+          </mesh>
+        )
+      })}
     </group>
   )
 }
@@ -42,12 +55,16 @@ function Device({ d }) {
 }
 
 export default function FloorPlan3D({ layout }) {
-  const rooms = layout?.rooms || []
-  const devices = layout?.devices || []
-  const panel = layout?.panel
+  const polys = (layout?.rooms || []).map(toPoints).filter((p) => p.length >= 3)
+  const devices = (layout?.devices || []).filter(finite)
+  const panel = finite(layout?.panel) ? layout.panel : null
 
+  // Every coordinate is screened for NaN before it reaches the bounds. A single NaN here propagates to the
+  // camera position and Three.js renders nothing at all — a blank canvas, not a missing wall.
+  // ES: Se filtra todo NaN antes de los límites. Uno solo llega a la cámara y Three.js no dibuja NADA:
+  // el lienzo sale en blanco, no un muro de menos.
   let maxX = 8, maxZ = 6
-  rooms.forEach((r) => { maxX = Math.max(maxX, r.x + r.w); maxZ = Math.max(maxZ, r.y + r.h) })
+  polys.forEach((p) => p.forEach((q) => { maxX = Math.max(maxX, q.x); maxZ = Math.max(maxZ, q.y) }))
   devices.forEach((d) => { maxX = Math.max(maxX, d.x); maxZ = Math.max(maxZ, d.y) })
   const cx = maxX / 2, cz = maxZ / 2
   const span = Math.max(maxX, maxZ)
@@ -63,7 +80,7 @@ export default function FloorPlan3D({ layout }) {
           <meshStandardMaterial color="#f0ecf6" />
         </mesh>
         <gridHelper args={[grid, grid, '#b6acc9', '#ddd6e8']} position={[cx, 0.02, cz]} />
-        {rooms.map((r, i) => <Walls key={i} room={r} />)}
+        {polys.map((p, i) => <Walls key={i} points={p} />)}
         {devices.map((d, i) => <Device key={i} d={d} />)}
         {panel && <Device d={{ ...panel, type: 'panel' }} />}
         <OrbitControls target={[cx, 1, cz]} makeDefault />
