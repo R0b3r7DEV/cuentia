@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import { useTranslation } from '../i18n/LanguageContext'
 import { useTheme } from '../theme/ThemeContext'
+// Background: office scene by George Bakos on Unsplash (free license). Optimised to ~2000px / 142 KB.
+import authScene from '../assets/auth-scene.jpg'
 
 /**
  * The login / register screen shown when nobody is logged in.
@@ -23,6 +25,27 @@ export default function AuthPage() {
   const { t, lang, setLang } = useTranslation()
   const { theme, toggle } = useTheme()
   const [mode, setMode] = useState('login') // 'login' | 'register'
+  const cardRef = useRef(null)
+
+  // Subtle 3D parallax: the card tilts toward the cursor so it reads as a layer floating above the static
+  // photo, not part of it. Motion is the depth cue, so it is disabled under prefers-reduced-motion.
+  // ES: Paralaje 3D sutil: la tarjeta se inclina hacia el cursor y se lee como una capa sobre la foto.
+  const tilt = (e) => {
+    const el = cardRef.current
+    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const r = el.getBoundingClientRect()
+    const clamp = (v) => Math.max(-0.6, Math.min(0.6, v))
+    const dx = clamp((e.clientX - (r.left + r.width / 2)) / r.width)
+    const dy = clamp((e.clientY - (r.top + r.height / 2)) / r.height)
+    el.style.setProperty('--rx', `${dx * 5}deg`)
+    el.style.setProperty('--ry', `${-dy * 5}deg`)
+  }
+  const untilt = () => {
+    const el = cardRef.current
+    if (!el) return
+    el.style.setProperty('--rx', '0deg')
+    el.style.setProperty('--ry', '0deg')
+  }
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
@@ -53,12 +76,24 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="auth-wrap">
-      <div className="card auth-card">
+    <div className="auth-wrap" onPointerMove={tilt} onPointerLeave={untilt}>
+      {/* The scene behind the card: a warm lamp-lit room, warmed or dimmed by the theme. */}
+      <div className="auth-scene" aria-hidden="true" style={{ backgroundImage: `url(${authScene})` }} />
+      <div className="auth-scene-tint" aria-hidden="true" />
+      {/* The lamp itself is the theme switch: click it (or focus + Enter) to turn the room's light on/off.
+          A real, labelled, keyboard-focusable control — it is the only theme toggle on this page. */}
+      <button
+        type="button"
+        className="auth-lamp-switch"
+        onClick={toggle}
+        aria-pressed={theme === 'light'}
+        aria-label={theme === 'dark' ? t('auth.lightOn') : t('auth.lightOff')}
+        title={theme === 'dark' ? t('auth.lightOn') : t('auth.lightOff')}
+      />
+
+      <div className="card auth-card" ref={cardRef}>
+        <div className="auth-glow" aria-hidden="true" />
         <div className="auth-topbar">
-          <button className="btn btn-glass btn-sm icon-btn" onClick={toggle} title="Light / dark" aria-label="Toggle theme">
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
           <button className="btn btn-glass btn-sm icon-btn" onClick={() => setLang(lang === 'es' ? 'en' : 'es')}>
             {lang === 'es' ? 'EN' : 'ES'}
           </button>

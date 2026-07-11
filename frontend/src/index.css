@@ -344,6 +344,90 @@ label.btn { display: inline-block; }
 .auth-form .chat-input { padding: 12px 16px; }
 .auth-form .btn { width: 100%; padding: 12px; font-size: 15px; }
 
+/* ── Auth scene: a warm lamp-lit room behind the login (auth page only) ─────
+   A theme-driven tint warms or dims the photo: light = the room's lamp is on, dark = off. The lamp sits on
+   the LEFT of the photo, so the warm pool of light is anchored there. The card floats opaque over the calm
+   right-hand wall; a wall switch (top-right of the card) is the theme toggle.
+   ES: Un tinte según el tema calienta o atenúa la foto: claro = lámpara encendida, oscuro = apagada. La
+   lámpara está a la IZQUIERDA, así que ahí se ancla el charco de luz. La tarjeta flota sobre la pared
+   derecha; un interruptor de pared (arriba a la derecha) es el conmutador de tema. */
+.auth-wrap::before, .auth-wrap::after { display: none; }   /* drop the old decorative blobs behind the photo */
+
+.auth-scene {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: var(--auth-scene, none);
+  background-size: cover; background-position: 32% center;
+  background-color: #2a2118;   /* fallback while the image loads */
+}
+/* theme tint: a warm pool over the lamp (on) or a cool dim over everything (off) */
+.auth-scene-tint {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 46% 60% at 17% 34%, rgba(255, 190, 110, 0) 0%, transparent 58%),
+    linear-gradient(180deg, rgba(8, 10, 20, 0.48), rgba(8, 10, 20, 0.72));
+  transition: background 640ms ease-out;
+}
+:root[data-theme='light'] .auth-scene-tint {
+  background:
+    radial-gradient(ellipse 52% 66% at 17% 32%, rgba(255, 176, 92, 0.50) 0%, rgba(255, 180, 100, 0.10) 40%, transparent 66%),
+    linear-gradient(180deg, rgba(20, 16, 8, 0.08), rgba(20, 16, 8, 0.30));
+}
+
+/* the lamp is the theme switch: a hotspot over its position in the photo. Focus/hover lights a soft ring,
+   and a faint idle glow hints it can be clicked; keyboard-focusable, so it is a real accessible control. */
+.auth-lamp-switch {
+  position: absolute; z-index: 1; left: 2%; top: 10%; width: 26%; height: 48%;
+  background: radial-gradient(ellipse at 45% 40%, rgba(255, 200, 120, 0.05), transparent 60%);
+  border: 0; padding: 0; cursor: pointer; border-radius: 40% 40% 30% 30%;
+  transition: background 300ms ease;
+}
+.auth-lamp-switch:hover { background: radial-gradient(ellipse at 45% 40%, rgba(255, 200, 120, 0.18), transparent 62%); }
+.auth-lamp-switch:focus-visible { outline: 2px solid #ffcf6e; outline-offset: 4px; }
+
+/* the card sits above the scene; nearly opaque + a deep shadow so it floats over the photo.
+   A subtle cursor-driven 3D tilt (--rx/--ry set in JS) makes it read as a separate floating layer. */
+.auth-card {
+  position: relative; z-index: 2; max-width: 360px;
+  padding: 1.5rem 1.5rem 1.25rem;
+  background: color-mix(in srgb, var(--surface-solid) 93%, transparent);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45), 0 4px 14px rgba(0, 0, 0, 0.25);
+  transform: perspective(1000px) rotateY(var(--rx, 0deg)) rotateX(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 320ms ease-out;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) { .auth-card { transform: none; } }
+
+/* In dark mode the card is near-black on a near-black dimmed photo, so it barely reads. Lift it: a clearly
+   elevated surface, a hairline of light on the edge and a top inner highlight — a panel that floats.
+   ES: En oscuro la tarjeta casi se funde con la penumbra; la elevamos con superficie más clara, un canto de
+   luz y un brillo interior superior para que se despegue. */
+:root[data-theme='dark'] .auth-card {
+  background: #242b38;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 34px 76px rgba(0, 0, 0, 0.60), 0 6px 18px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.auth-brand { font-size: 32px; margin: 0 0 2px; }
+.auth-form { gap: 9px; margin: 14px 0; }
+.auth-form .chat-input { padding: 10px 14px; }
+.auth-form .btn { padding: 11px; }
+.auth-topbar { position: relative; z-index: 3; align-items: center; }
+.auth-brand, .auth-tagline, .auth-form, .auth-card > .msg { position: relative; z-index: 2; }
+
+/* a faint warm bloom on the card's top-left edge (toward the lamp) when the light is on */
+.auth-glow {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none; border-radius: inherit;
+  background: radial-gradient(ellipse 70% 42% at 22% -6%, rgba(255, 176, 84, 0.24), transparent 60%);
+  opacity: 0; transition: opacity 520ms ease-out;
+}
+:root[data-theme='light'] .auth-glow { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-scene-tint, .auth-glow, .auth-lamp-switch { transition: none; }
+}
+
 /* ── Charts ─────────────────────────────────────────────────────────────── */
 .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 .figure { margin: 0; }

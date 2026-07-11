@@ -10,6 +10,8 @@ export const translations = {
     'nav.assistant': 'Assistant',
 
     'auth.tagline': 'AI cash-flow & tax copilot for freelancers.',
+    'auth.lightOn': 'Turn the light on — light mode',
+    'auth.lightOff': 'Turn the light off — dark mode',
     'auth.loginTitle': 'Log in',
     'auth.registerTitle': 'Create your account',
     'auth.email': 'Email',
@@ -432,6 +434,8 @@ export const translations = {
     'nav.assistant': 'Asistente',
 
     'auth.tagline': 'Copiloto financiero con IA para autónomos.',
+    'auth.lightOn': 'Encender la luz — modo claro',
+    'auth.lightOff': 'Apagar la luz — modo oscuro',
     'auth.loginTitle': 'Iniciar sesión',
     'auth.registerTitle': 'Crea tu cuenta',
     'auth.email': 'Email',
