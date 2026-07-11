@@ -1,6 +1,5 @@
 const MOD_W = 26          // width of one DIN module, in px
 const DEV_MODULES = 2     // a 2P / 1P+N device takes two modules
-const ROW_MODULES = 12
 const DEV_W = MOD_W * DEV_MODULES
 const DEV_H = 74
 const ROW_GAP = 16

@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react'
 import PlanRectifier from './PlanRectifier'
+import { snap, dist, asPolygon, polyArea, centroid, pointInPoly, projectOnSegment } from '../../lib/geometry'
 
 const SCALES = [30, 42, 58]   // px per metre — zoom steps
 const WM = 24, HM = 17        // canvas size in metres
 const CLOSE_DIST = 0.4        // click this close to the first vertex to close the polygon (metres)
-const snap = (v) => Math.round(v * 4) / 4
 
 const DEVICE_TOOLS = ['socket', 'switch', 'light']
 // The circuit a socket hangs from (ITC-BT-25). A socket without one is still accepted: the validator
@@ -12,48 +12,6 @@ const DEVICE_TOOLS = ['socket', 'switch', 'light']
 const SOCKET_CIRCUITS = ['C2', 'C5', 'C3', 'C4', 'C10']
 const ROOM_TYPES = ['salon', 'comedor', 'dormitorio', 'cocina', 'bano', 'pasillo', 'vestibulo', 'terraza', 'garaje', 'trastero']
 
-// ── geometry ────────────────────────────────────────────────────────────────
-/** Rooms are polygons. Rectangles saved by older versions are converted on the fly. */
-const asPolygon = (r) => (r.points ? r : {
-  ...r,
-  points: [{ x: r.x, y: r.y }, { x: r.x + r.w, y: r.y }, { x: r.x + r.w, y: r.y + r.h }, { x: r.x, y: r.y + r.h }],
-})
-
-/** Shoelace formula — the signed area of any simple polygon. */
-const polyArea = (pts) => {
-  let s = 0
-  for (let i = 0, n = pts.length; i < n; i++) {
-    const a = pts[i], b = pts[(i + 1) % n]
-    s += a.x * b.y - b.x * a.y
-  }
-  return Math.round(Math.abs(s / 2) * 10) / 10
-}
-
-const centroid = (pts) => ({
-  x: pts.reduce((s, p) => s + p.x, 0) / pts.length,
-  y: pts.reduce((s, p) => s + p.y, 0) / pts.length,
-})
-
-/** Ray casting: is the point inside the polygon? Used to know what a room carries when it moves. */
-const pointInPoly = (p, pts) => {
-  let inside = false
-  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
-    const a = pts[i], b = pts[j]
-    if ((a.y > p.y) !== (b.y > p.y) && p.x < ((b.x - a.x) * (p.y - a.y)) / (b.y - a.y) + a.x) inside = !inside
-  }
-  return inside
-}
-
-/** Closest point on segment AB to P, and its squared distance — used to insert a vertex on an edge. */
-const projectOnSegment = (p, a, b) => {
-  const vx = b.x - a.x, vy = b.y - a.y
-  const len2 = vx * vx + vy * vy
-  const t = len2 === 0 ? 0 : Math.max(0, Math.min(1, ((p.x - a.x) * vx + (p.y - a.y) * vy) / len2))
-  const q = { x: a.x + t * vx, y: a.y + t * vy }
-  return { q, d2: (p.x - q.x) ** 2 + (p.y - q.y) ** 2 }
-}
-
-const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y)
 const svgPoints = (pts, scale) => pts.map((p) => `${p.x * scale},${p.y * scale}`).join(' ')
 
 // ── image helpers ───────────────────────────────────────────────────────────

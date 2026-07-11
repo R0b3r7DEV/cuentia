@@ -1,70 +1,8 @@
 import { useRef, useState } from 'react'
+import { dist, homography, isConvexQuad } from '../../lib/geometry'
 
 const MAX_SOURCE = 2400   // cap the pixels we read, a phone photo can be 12 Mpx
 const MAX_OUTPUT = 1800   // cap the rectified image we store
-
-/** Solve a dense linear system by Gaussian elimination with partial pivoting. Returns null if singular. */
-function solveLinear(A, b) {
-  const n = b.length
-  const M = A.map((row, i) => [...row, b[i]])
-  for (let col = 0; col < n; col++) {
-    let piv = col
-    for (let r = col + 1; r < n; r++) if (Math.abs(M[r][col]) > Math.abs(M[piv][col])) piv = r
-    if (Math.abs(M[piv][col]) < 1e-12) return null
-    ;[M[col], M[piv]] = [M[piv], M[col]]
-    const d = M[col][col]
-    for (let c = col; c <= n; c++) M[col][c] /= d
-    for (let r = 0; r < n; r++) {
-      if (r === col) continue
-      const f = M[r][col]
-      if (f === 0) continue
-      for (let c = col; c <= n; c++) M[r][c] -= f * M[col][c]
-    }
-  }
-  return M.map((row) => row[n])
-}
-
-/**
- * The projective transform (homography) taking the destination rectangle's corners onto the source quad.
- * We solve it in that direction on purpose: to fill each output pixel we need to know where to *read* from
- * in the source (inverse mapping), which leaves no holes.
- *
- * ES: La homografía que lleva las esquinas del rectángulo destino al cuadrilátero de origen. Se resuelve en
- * ese sentido a propósito: para rellenar cada píxel de salida hay que saber de dónde *leer* en el origen
- * (mapeo inverso), y así no quedan huecos.
- */
-function homography(dst, src) {
-  const A = [], b = []
-  for (let i = 0; i < 4; i++) {
-    const { x, y } = dst[i]
-    const { x: u, y: v } = src[i]
-    A.push([x, y, 1, 0, 0, 0, -x * u, -y * u]); b.push(u)
-    A.push([0, 0, 0, x, y, 1, -x * v, -y * v]); b.push(v)
-  }
-  return solveLinear(A, b) // [a, b, c, d, e, f, g, h]
-}
-
-const dist = (p, q) => Math.hypot(p.x - q.x, p.y - q.y)
-
-/**
- * A self-intersecting or near-flat quad still yields a solvable 8x8 system, but the warp it describes
- * collapses the image. Convexity + a minimum area is the cheap guard.
- * ES: Un cuadrilátero cruzado o casi plano todavía da un sistema resoluble, pero el warp colapsa la imagen.
- */
-export function isConvexQuad(p) {
-  let pos = 0, neg = 0, area2 = 0
-  for (let i = 0; i < 4; i++) {
-    const a = p[i], b = p[(i + 1) % 4], c = p[(i + 2) % 4]
-    const cross = (b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x)
-    // a flat corner (three vertices in a line) is neither positive nor negative, so it would slip
-    // through the sign test — reject it outright, a real sheet has no flat corner
-    if (Math.abs(cross) < 1e-3) return false
-    if (cross > 0) pos++; else neg++
-    area2 += a.x * b.y - b.x * a.y
-  }
-  // coords are fractions of the image, so the area is a fraction too: demand at least 2 % of the sheet
-  return (pos === 0 || neg === 0) && Math.abs(area2 / 2) > 0.02
-}
 
 /** Warp the quad (fractions of the image, TL·TR·BR·BL) into a straight rectangle. */
 function rectify(img, quadFrac) {

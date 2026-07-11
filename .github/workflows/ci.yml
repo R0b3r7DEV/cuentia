@@ -74,7 +74,7 @@ jobs:
         run: php bin/console doctrine:schema:validate
 
   frontend:
-    name: Frontend (Node · build)
+    name: Frontend (Node · test + build)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -91,6 +91,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      # The pure geometry — polygon area, ray casting and the plan-de-skew homography — is unit-tested.
+      # ES: La geometría pura (área de polígonos, lanzamiento de rayos y la homografía) está testeada.
+      - name: Run unit tests
+        run: npm test
 
       - name: Build
         run: npm run build

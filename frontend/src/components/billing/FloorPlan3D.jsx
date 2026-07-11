@@ -1,5 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
+import { isFinitePoint as finite, toPolygonPoints as toPoints } from '../../lib/geometry'
 
 // Lazy-loaded on purpose (Three.js is heavy): this whole module becomes its own chunk.
 // ES: Cargado en diferido a propósito (Three.js pesa): este módulo es su propio chunk.
@@ -9,16 +10,6 @@ const HEIGHTS = { socket: 0.3, switch: 1.1, light: 2.4, panel: 1.2 }
 // Matches the app palette: indigo accent, teal "positive", ochre for the lit points.
 // ES: Coincide con la paleta de la app: índigo, verde-azulado y ocre para los puntos de luz.
 const COLORS = { socket: '#443ea8', switch: '#0f6b54', light: '#d09853', panel: '#56506e' }
-
-const finite = (p) => p && Number.isFinite(p.x) && Number.isFinite(p.y)
-
-/** Rooms are polygons; a legacy rectangle is just its four corners. */
-/** ES: Las estancias son polígonos; un rectángulo antiguo son sus cuatro esquinas. */
-const toPoints = (r) => {
-  if (Array.isArray(r?.points) && r.points.length >= 3) return r.points.filter(finite)
-  if (!Number.isFinite(r?.x) || !Number.isFinite(r?.w)) return []
-  return [{ x: r.x, y: r.y }, { x: r.x + r.w, y: r.y }, { x: r.x + r.w, y: r.y + r.h }, { x: r.x, y: r.y + r.h }]
-}
 
 /** One wall per polygon edge: a box of the edge's length, spun about Y to lie along it. */
 /** ES: Un muro por arista: una caja del largo de la arista, girada sobre Y para tumbarse sobre ella. */

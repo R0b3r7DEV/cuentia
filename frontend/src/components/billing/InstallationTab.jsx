@@ -13,7 +13,7 @@ const emptyLayout = () => ({ panel: { x: 0.5, y: 0.5 }, rooms: [], devices: [] }
 const blank = () => ({ name: '', grade: 'auto', supplyType: 'monofasico', loads: {}, rooms: [{ type: 'salon', area: 20 }], layout: emptyLayout(), background: null })
 
 /** Single-line diagram: IGA → one row per differential → its circuits as breaker boxes. */
-function Unifilar({ result, t }) {
+function Unifilar({ result }) {
   const groups = {}
   result.circuits.forEach((c) => { (groups[c.differential] ??= []).push(c) })
   const diffs = Object.keys(groups).map(Number).sort((a, b) => a - b)
@@ -248,7 +248,7 @@ export default function InstallationTab({ onNavigate }) {
 
           <div className="card">
             <div className="form-sec">{t('inst.unifilar')}</div>
-            <Unifilar result={result} t={t} />
+            <Unifilar result={result} />
           </div>
 
           {result.board && (
