@@ -271,6 +271,62 @@ class ApiIntegrationTest extends WebTestCase
         self::assertSame('standard', $d2['billingMode']);
     }
 
+    public function testWorkOrderConvertsToInvoiceIdempotently(): void
+    {
+        $this->registerAndLogin('parte@test.local');
+
+        [$sc, $wo] = $this->json('POST', '/api/work-orders', [
+            'title'      => 'Avería en cuadro',
+            'customer'   => ['name' => 'Comunidad Sol', 'taxId' => 'H1'],
+            'laborHours' => '2', 'laborRate' => '35',
+            'lines'      => [['description' => 'Magnetotérmico 16A', 'quantity' => 2, 'unitPrice' => '12.00', 'vatRate' => '21.00']],
+        ]);
+        self::assertSame(201, $sc);
+        self::assertSame('pendiente', $wo['status']);
+        $id = $wo['id'];
+
+        // convert once → a real invoice; the order becomes 'facturado'
+        [$c1, $inv1] = $this->json('POST', "/api/work-orders/$id/convert");
+        self::assertSame(201, $c1);
+        $invoiceId = $inv1['invoiceId'];
+
+        // converting again returns the SAME invoice and never duplicates
+        [$c2, $inv2] = $this->json('POST', "/api/work-orders/$id/convert");
+        self::assertSame(201, $c2);
+        self::assertSame($invoiceId, $inv2['invoiceId'], 'a work order converts to exactly one invoice');
+
+        [, $invoices] = $this->json('GET', '/api/invoices');
+        self::assertCount(1, $invoices, 'converting twice must not create two invoices');
+
+        // the invoice carries materials (2 × 12.00 = 24.00 + 21% = 29.04) + labour (2h × 35 = 70.00 + 21% = 84.70)
+        [, $detail] = $this->json('GET', "/api/invoices/$invoiceId");
+        self::assertCount(2, $detail['lines']);
+        self::assertSame('113.74', $detail['total']);
+
+        // an invoiced order is immutable
+        [$us] = $this->json('PUT', "/api/work-orders/$id", ['title' => 'x']);
+        self::assertSame(409, $us);
+        [$ds] = $this->json('DELETE', "/api/work-orders/$id");
+        self::assertSame(409, $ds);
+    }
+
+    public function testWorkOrdersAreScopedPerUser(): void
+    {
+        $this->registerAndLogin('woA@test.local');
+        [, $wo] = $this->json('POST', '/api/work-orders', [
+            'title' => 'Mío', 'customer' => ['name' => 'C', 'taxId' => 'B1'],
+            'lines' => [['description' => 'x', 'unitPrice' => '10.00', 'vatRate' => '21.00']],
+        ]);
+        $id = $wo['id'];
+
+        $this->json('POST', '/api/logout');
+        $this->registerAndLogin('woB@test.local');
+        [, $list] = $this->json('GET', '/api/work-orders');
+        self::assertCount(0, $list, 'a user never sees another user\'s work orders');
+        [$gs] = $this->json('GET', "/api/work-orders/$id");
+        self::assertSame(404, $gs);
+    }
+
     public function testOpenBankingReportsDisabledWithoutCredentials(): void
     {
         $this->registerAndLogin('bank@test.local');
