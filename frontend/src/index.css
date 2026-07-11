@@ -428,6 +428,27 @@ label.btn { display: inline-block; }
   .auth-scene-tint, .auth-glow, .auth-lamp-switch { transition: none; }
 }
 
+/* ── Billing mode selector (Account) ────────────────────────────────────── */
+.mode-choice { display: flex; flex-direction: column; gap: 10px; margin: 8px 0 4px; }
+.mode-option {
+  display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.mode-option.active { border-color: var(--accent); background: var(--accent-weak); }
+.mode-option input { margin-top: 3px; }
+.mode-option strong { display: block; }
+.mode-option .muted { display: block; font-size: 13px; margin-top: 2px; }
+.demo-badge {
+  display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+  padding: 1px 6px; border-radius: 6px; vertical-align: middle;
+  background: var(--warn-bg); color: var(--warn-text); border: 1px solid var(--warn-border);
+}
+.demo-note {
+  margin: 0 0 10px; padding: 9px 12px; font-size: 13px; border-radius: var(--radius-sm);
+  background: var(--warn-bg); color: var(--warn-text); border: 1px solid var(--warn-border);
+}
+
 /* ── Charts ─────────────────────────────────────────────────────────────── */
 .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 .figure { margin: 0; }

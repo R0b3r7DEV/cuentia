@@ -126,6 +126,8 @@ class ApiIntegrationTest extends WebTestCase
     public function testInvoicingChainIsVerifiableEndToEnd(): void
     {
         $this->registerAndLogin('inv@test.local');
+        // This test exercises the full Verifactu artefacts, so put the issuer in demo mode.
+        $this->json('PUT', '/api/account/settings', ['billingMode' => 'verifactu']);
 
         [$s1, $inv1] = $this->json('POST', '/api/invoices', [
             'series' => '2026',
@@ -184,6 +186,89 @@ class ApiIntegrationTest extends WebTestCase
         [, $vr] = $this->json('GET', '/api/invoices/verify');
         self::assertTrue($vr['ok']);
         self::assertSame(0, $vr['count']);
+    }
+
+    public function testStandardModeIssuesInvoicesWithoutVerifactuArtefacts(): void
+    {
+        $this->registerAndLogin('std@test.local');
+
+        // default mode is standard
+        [$ss, $settings] = $this->json('GET', '/api/account/settings');
+        self::assertSame(200, $ss);
+        self::assertSame('standard', $settings['billingMode']);
+
+        [$s1, $inv] = $this->json('POST', '/api/invoices', [
+            'customer' => ['name' => 'Vecino', 'taxId' => 'B1'],
+            'lines' => [['description' => 'Reparación cuadro', 'unitPrice' => '100.00', 'vatRate' => '21.00']],
+        ]);
+        self::assertSame(201, $s1);
+        // no demonstration artefacts are surfaced
+        self::assertFalse($inv['demoMode']);
+        self::assertNull($inv['verifactu']);
+
+        // but the hash chain still runs underneath — verify is OK over the record just created
+        [$vs, $vr] = $this->json('GET', '/api/invoices/verify');
+        self::assertSame(200, $vs);
+        self::assertTrue($vr['ok']);
+        self::assertSame(1, $vr['count']);
+
+        // QR and XML are refused in standard mode; the invoice PDF is still downloadable
+        $id = $inv['id'];
+        $this->client->request('GET', "/api/invoices/$id/qr");
+        self::assertSame(403, $this->client->getResponse()->getStatusCode());
+        $this->client->request('GET', "/api/invoices/$id/xml");
+        self::assertSame(403, $this->client->getResponse()->getStatusCode());
+        $this->client->request('GET', "/api/invoices/$id/pdf");
+        $pdf = $this->client->getResponse();
+        self::assertSame(200, $pdf->getStatusCode());
+        self::assertStringStartsWith('%PDF', (string) $pdf->getContent());
+    }
+
+    public function testChangingBillingModeDoesNotBreakTheChainOverPreexistingInvoices(): void
+    {
+        // The required guarantee: the fingerprint does not depend on the billing mode, so invoices issued
+        // BEFORE a mode switch still verify afterwards.
+        $this->registerAndLogin('switch@test.local');
+        foreach (['10.00', '20.00', '30.00'] as $p) {
+            $this->json('POST', '/api/invoices', [
+                'customer' => ['name' => 'C', 'taxId' => 'B1'],
+                'lines' => [['description' => 'x', 'unitPrice' => $p, 'vatRate' => '21.00']],
+            ]);
+        }
+        [, $before] = $this->json('GET', '/api/invoices/verify');
+        self::assertTrue($before['ok']);
+        self::assertSame(3, $before['count']);
+
+        [$s] = $this->json('PUT', '/api/account/settings', ['billingMode' => 'verifactu']);
+        self::assertSame(200, $s);
+
+        [, $after] = $this->json('GET', '/api/invoices/verify');
+        self::assertTrue($after['ok'], 'the chain must survive a billing-mode change');
+        self::assertSame(3, $after['count']);
+
+        // the artefacts are now exposed for those same invoices
+        [, $list] = $this->json('GET', '/api/invoices');
+        $id = $list[0]['id'];
+        $this->client->request('GET', "/api/invoices/$id/qr");
+        self::assertSame(200, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testBillingSettingsPersistIssuerProfileAndRejectBadMode(): void
+    {
+        $this->registerAndLogin('issuer@test.local');
+        [$s, $d] = $this->json('PUT', '/api/account/settings', [
+            'billingMode'   => 'standard',
+            'businessName'  => 'Instalaciones Pérez SL',
+            'fiscalAddress' => 'C/ Major 1, València',
+            'taxId'         => 'B99999999',
+        ]);
+        self::assertSame(200, $s);
+        self::assertSame('Instalaciones Pérez SL', $d['businessName']);
+        self::assertSame('B99999999', $d['taxId']);
+
+        // an unknown mode falls back to standard, never persists garbage
+        [, $d2] = $this->json('PUT', '/api/account/settings', ['billingMode' => 'nonsense']);
+        self::assertSame('standard', $d2['billingMode']);
     }
 
     public function testOpenBankingReportsDisabledWithoutCredentials(): void

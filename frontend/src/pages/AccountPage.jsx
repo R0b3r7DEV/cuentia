@@ -3,6 +3,7 @@ import { useOutletContext } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { useTranslation } from '../i18n/LanguageContext'
 import AccountIntegrations from '../components/AccountIntegrations'
+import BillingSettings from '../components/BillingSettings'
 
 export default function AccountPage() {
   const { reload } = useOutletContext()
@@ -36,6 +37,8 @@ export default function AccountPage() {
     <>
       <h1 className="page-title">{t('account.title')}</h1>
       <p className="page-subtitle">{user?.email}</p>
+
+      <BillingSettings />
 
       <AccountIntegrations />
 

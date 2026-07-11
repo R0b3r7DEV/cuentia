@@ -18,6 +18,7 @@ function previewTotal(lines) {
 export default function InvoicesTab() {
   const { t } = useTranslation()
   const [invoices, setInvoices] = useState([])
+  const [demoMode, setDemoMode] = useState(false) // Verifactu demo mode → show QR/XML/chain
   const [customers, setCustomers] = useState([])
   const [services, setServices] = useState([])
   const [verify, setVerify] = useState(null)
@@ -45,7 +46,12 @@ export default function InvoicesTab() {
     if (res.ok) setServices(await res.json())
   }
 
-  useEffect(() => { loadInvoices(); loadCustomers(); loadServices() }, [])
+  const loadMode = async () => {
+    const res = await fetch('/api/account/settings')
+    if (res.ok) setDemoMode((await res.json()).billingMode === 'verifactu')
+  }
+
+  useEffect(() => { loadInvoices(); loadCustomers(); loadServices(); loadMode() }, [])
 
   // Append a line prefilled from a catalog service. / Añade una línea prellenada desde un servicio.
   const addFromService = (id) => {
@@ -86,7 +92,7 @@ export default function InvoicesTab() {
       setMessage(t('inv.createdMsg', { n: data.number }))
       setCustomerId(''); setCustomer({ name: '', taxId: '' }); setSeries(''); setLines([emptyLine()])
       setShowForm(false)
-      await loadInvoices(); await loadCustomers(); await runVerify()
+      await loadInvoices(); await loadCustomers(); if (demoMode) await runVerify()
     } catch (err) {
       setMessage(t('common.errorMsg', { msg: err.message }))
     } finally {
@@ -108,25 +114,28 @@ export default function InvoicesTab() {
     <>
       <p className="page-subtitle">{t('inv.subtitle')}</p>
 
-      {/* Verifactu chain status — the headline "wow": tamper-evident integrity. */}
-      <div className="card">
-        <div className="verify-bar">
-          <button className="btn btn-glass btn-sm" onClick={runVerify} disabled={verifying}>
-            {verifying ? t('inv.verifying') : t('inv.verify')}
-          </button>
-          {verify && (
-            verify.count === 0 ? (
-              <span className="chain-badge chain-empty">{t('inv.chainEmpty')}</span>
-            ) : verify.ok ? (
-              <span className="chain-badge chain-ok">🔒 {t('inv.chainOk', { n: verify.count })}</span>
-            ) : (
-              <span className="chain-badge chain-broken">
-                ⚠️ {t('inv.chainBroken', { at: verify.brokenAt, reason: reasonText(verify.reason) })}
-              </span>
-            )
-          )}
+      {/* Verifactu chain status — only in demo mode. In standard mode the chain runs silently underneath. */}
+      {demoMode && (
+        <div className="card">
+          <p className="demo-note">⚠️ {t('inv.demoBanner')}</p>
+          <div className="verify-bar">
+            <button className="btn btn-glass btn-sm" onClick={runVerify} disabled={verifying}>
+              {verifying ? t('inv.verifying') : t('inv.verify')}
+            </button>
+            {verify && (
+              verify.count === 0 ? (
+                <span className="chain-badge chain-empty">{t('inv.chainEmpty')}</span>
+              ) : verify.ok ? (
+                <span className="chain-badge chain-ok">🔒 {t('inv.chainOk', { n: verify.count })}</span>
+              ) : (
+                <span className="chain-badge chain-broken">
+                  ⚠️ {t('inv.chainBroken', { at: verify.brokenAt, reason: reasonText(verify.reason) })}
+                </span>
+              )
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="card">
         <button className="btn btn-glass btn-sm" onClick={() => setShowForm((s) => !s)}>
@@ -248,7 +257,7 @@ export default function InvoicesTab() {
                   <td>{inv.customer}</td>
                   <td className="muted" style={{ whiteSpace: 'nowrap' }}>{inv.issuedAt}</td>
                   <td className="right num">{eur(inv.total)}</td>
-                  <td><span className="tag tag-sealed">{t('inv.sealed')}</span></td>
+                  <td><span className="tag tag-sealed">{demoMode ? t('inv.sealed') : t('inv.issued')}</span></td>
                 </tr>
                 {expanded?.id === inv.id && expanded.detail && (
                   <tr className="detail-row">
@@ -264,6 +273,10 @@ export default function InvoicesTab() {
                             </li>
                           ))}
                         </ul>
+                        {/* The invoice PDF is always available; QR/XML/fingerprint only in Verifactu demo. */}
+                        <div className="doc-links" style={{ marginTop: 6 }}>
+                          <a className="link-btn" href={`/api/invoices/${inv.id}/pdf`}>{t('inv.downloadPdf')}</a>
+                        </div>
                         {expanded.detail.verifactu && (
                           <>
                             <div className="detail-verifactu">
@@ -281,7 +294,6 @@ export default function InvoicesTab() {
                                 <img className="qr-img" width="150" height="150"
                                   src={`/api/invoices/${inv.id}/qr`} alt={t('inv.qrAlt')} />
                                 <div className="doc-links">
-                                  <a className="link-btn" href={`/api/invoices/${inv.id}/pdf`}>{t('inv.downloadPdf')}</a>
                                   <a className="link-btn" href={`/api/invoices/${inv.id}/xml`}>{t('inv.downloadXml')}</a>
                                 </div>
                               </div>

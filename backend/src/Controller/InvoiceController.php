@@ -73,10 +73,13 @@ class InvoiceController extends AbstractController
         return $this->json($this->detail($invoice, $records));
     }
 
-    /** The Verifactu QR (SVG) pointing at the AEAT validation service. */
+    /** The Verifactu QR (SVG). Only exposed in Verifactu demo mode — a standard invoice carries no QR. */
     #[Route('/api/invoices/{id}/qr', name: 'api_invoices_qr', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function qr(int $id, InvoiceRepository $repo, InvoiceRecordRepository $records, VerifactuQr $qr, #[CurrentUser] User $user): Response
     {
+        if ($user->getBillingMode() !== 'verifactu') {
+            return $this->json(['error' => 'verifactu_mode_only', 'message' => 'El QR solo existe en modo Verifactu (demostración).'], 403);
+        }
         $record = $this->ownedRecord($id, $repo, $records, $user);
         if ($record === null) {
             return $this->json(['error' => 'Not found'], 404);
@@ -85,10 +88,13 @@ class InvoiceController extends AbstractController
         return new Response($qr->svg($record), 200, ['Content-Type' => 'image/svg+xml']);
     }
 
-    /** The invoice record as a Verifactu RegistroAlta XML (download). */
+    /** The Verifactu RegistroAlta XML. Only in Verifactu demo mode — a standard invoice has no XML record. */
     #[Route('/api/invoices/{id}/xml', name: 'api_invoices_xml', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function xml(int $id, InvoiceRepository $repo, InvoiceRecordRepository $records, VerifactuXml $xml, #[CurrentUser] User $user): Response
     {
+        if ($user->getBillingMode() !== 'verifactu') {
+            return $this->json(['error' => 'verifactu_mode_only', 'message' => 'El XML solo existe en modo Verifactu (demostración).'], 403);
+        }
         $record = $this->ownedRecord($id, $repo, $records, $user);
         if ($record === null) {
             return $this->json(['error' => 'Not found'], 404);
@@ -112,8 +118,9 @@ class InvoiceController extends AbstractController
         }
         $record = $records->findOneBy(['invoice' => $invoice]);
         $filename = 'factura-' . str_replace('/', '-', $invoice->getFullNumber()) . '.pdf';
+        $showVerifactu = $user->getBillingMode() === 'verifactu';
 
-        return new Response($pdf->build($invoice, $record), 200, [
+        return new Response($pdf->build($invoice, $record, $showVerifactu), 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
@@ -132,6 +139,8 @@ class InvoiceController extends AbstractController
     private function detail(Invoice $i, InvoiceRecordRepository $records): array
     {
         $record = $records->findOneBy(['invoice' => $i]);
+        // The fingerprint/QR are demonstration artefacts — only surface them in Verifactu mode.
+        $demoMode = $i->getUser()?->getBillingMode() === 'verifactu';
 
         return [
             'id'       => $i->getId(),
@@ -152,7 +161,8 @@ class InvoiceController extends AbstractController
             'baseTotal' => $i->getBaseTotal(),
             'vatTotal'  => $i->getVatTotal(),
             'total'     => $i->getTotal(),
-            'verifactu' => $record === null ? null : [
+            'demoMode'  => $demoMode,
+            'verifactu' => ($record === null || !$demoMode) ? null : [
                 'hash'         => $record->getHash(),
                 'previousHash' => $record->getPreviousHash(),
                 'generatedAt'  => $record->getGeneratedAt(),
