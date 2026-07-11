@@ -12,6 +12,30 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-11 — Entry 048: Dual billing mode — real invoices by default, Verifactu as a demo
+**What happened**
+- Every invoice carried an AEAT **test-host QR** and a "Verifactu" legend, because `InvoiceService` always
+  writes a record and the PDF printed the QR whenever one existed. A real invoice for the pilot's real
+  client would ship a pre-production QR. Wrong for real use.
+
+**Done (P0 of [PLAN-v2](../PLAN-v2.md))**
+- Per-user `User.billingMode` (`standard` default / `verifactu` demo) + issuer fiscal profile
+  (`businessName`, `fiscalAddress`) so a standard **RD 1619/2012** invoice is complete. Migration backfills
+  existing rows to `standard`.
+- `InvoicePdf::build(..., bool $showVerifactu)`: QR + legend only in demo mode; the standard PDF is an
+  ordinary invoice. `/qr` and `/xml` return **403** in standard mode.
+- **The hash chain runs in both modes.** `VerifactuHasher::fingerprint()` does not include the mode, so
+  switching mode never breaks `GET /api/invoices/verify` over pre-existing invoices — asserted by a
+  regression test.
+- Account UI: a plain-language mode selector + issuer form; invoices UI hides the QR/XML/chain in standard
+  mode and shows a DEMO banner in Verifactu mode. Spanish, non-technical.
+- Verified the obligation date against the BOE: autónomos from **1 July 2027** (RD-ley 15/2025); optional in
+  2026. See [ADR 0004](../decisions/0004-dual-billing-mode.md), [guide 38](guide/38-dual-billing-mode.md).
+- 85 tests, 379 assertions.
+
+**Next**
+- P1 — work orders (partes de trabajo).
+
 ### 2026-07-10 — Entry 047: The plan is checked against ITC-BT-25, and the panel is drawn from it
 **What happened**
 - The designer computed the minimum points per room **and then ignored them**. You could draw a kitchen with
@@ -806,6 +830,30 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-11 — Entrada 048: Modo dual de facturación — facturas reales por defecto, Verifactu como demo
+**Qué pasaba**
+- Toda factura llevaba un **QR del host de pruebas** de la AEAT y una leyenda «Verifactu», porque
+  `InvoiceService` siempre escribe un registro y el PDF imprimía el QR cuando existía. Una factura real del
+  piloto para su cliente saldría con un QR de preproducción. Mal para uso real.
+
+**Hecho (P0 del [PLAN-v2](../PLAN-v2.md))**
+- `User.billingMode` por usuario (`standard` por defecto / `verifactu` demo) + perfil fiscal del emisor
+  (`businessName`, `fiscalAddress`) para que una factura estándar **RD 1619/2012** esté completa. La
+  migración rellena las filas existentes a `standard`.
+- `InvoicePdf::build(..., bool $showVerifactu)`: QR + leyenda solo en demo; el PDF estándar es una factura
+  ordinaria. `/qr` y `/xml` devuelven **403** en modo estándar.
+- **La cadena de hash vive en ambos modos.** La huella no incluye el modo, así que cambiar de modo nunca
+  rompe `GET /api/invoices/verify` sobre facturas preexistentes — comprobado con un test de regresión.
+- UI de cuenta: selector de modo en lenguaje claro + formulario de emisor; la UI de facturas oculta
+  QR/XML/cadena en estándar y muestra un aviso DEMO en Verifactu. En español, no técnico.
+- Fecha de obligación verificada contra el BOE: autónomos desde el **1 de julio de 2027** (RD-ley 15/2025);
+  opcional en 2026. Ver [ADR 0004](../decisions/0004-dual-billing-mode.md),
+  [guía 38](guide/38-dual-billing-mode.md).
+- 85 tests, 379 aserciones.
+
+**Siguiente**
+- P1 — partes de trabajo.
 
 ### 2026-07-10 — Entrada 047: El plano se comprueba contra la ITC-BT-25, y de él sale el cuadro
 **Qué pasaba**

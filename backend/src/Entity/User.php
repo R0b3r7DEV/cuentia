@@ -35,6 +35,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $taxId = null;
 
+    /**
+     * Billing mode: 'standard' issues ordinary RD 1619/2012 invoices (no QR / XML / Verifactu legend);
+     * 'verifactu' shows the full anti-fraud demo artefacts. The internal hash chain runs in BOTH modes.
+     * ES: Modo de facturación: 'standard' emite facturas ordinarias (sin QR/XML/leyenda Verifactu);
+     * 'verifactu' muestra los artefactos de demostración. La cadena de hash interna vive en AMBOS modos.
+     */
+    #[ORM\Column(length: 12, options: ['default' => 'standard'])]
+    private string $billingMode = 'standard';
+
+    /** Issuer legal/business name (razón social) — RD 1619/2012 art. 6 requires it on an invoice. */
+    #[ORM\Column(length: 150, nullable: true)]
+    private ?string $businessName = null;
+
+    /** Issuer fiscal address (domicilio fiscal) — RD 1619/2012 art. 6. */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $fiscalAddress = null;
+
     // Per-user API credentials (BYOK), stored ENCRYPTED (never plaintext). / Credenciales cifradas.
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $anthropicKey = null;
@@ -52,6 +69,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getTaxId(): ?string { return $this->taxId; }
     public function setTaxId(?string $taxId): self { $this->taxId = $taxId; return $this; }
+
+    public function getBillingMode(): string { return $this->billingMode; }
+    public function setBillingMode(string $mode): self
+    {
+        $this->billingMode = in_array($mode, ['standard', 'verifactu'], true) ? $mode : 'standard';
+        return $this;
+    }
+
+    public function getBusinessName(): ?string { return $this->businessName; }
+    public function setBusinessName(?string $v): self { $this->businessName = $v; return $this; }
+
+    public function getFiscalAddress(): ?string { return $this->fiscalAddress; }
+    public function setFiscalAddress(?string $v): self { $this->fiscalAddress = $v; return $this; }
 
     public function getAnthropicKey(): ?string { return $this->anthropicKey; }
     public function setAnthropicKey(?string $v): self { $this->anthropicKey = $v; return $this; }

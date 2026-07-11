@@ -41,6 +41,52 @@ class AccountController extends AbstractController
         return $this->json(['deleted' => true]);
     }
 
+    /** The user's billing settings: mode (standard/verifactu) + issuer fiscal profile. */
+    #[Route('/api/account/settings', name: 'api_account_settings', methods: ['GET'])]
+    public function settings(#[CurrentUser] User $user): JsonResponse
+    {
+        return $this->json($this->settingsPayload($user));
+    }
+
+    /** Update the billing mode and/or issuer fiscal profile. */
+    #[Route('/api/account/settings', name: 'api_account_settings_save', methods: ['PUT'])]
+    public function saveSettings(Request $request, EntityManagerInterface $em, #[CurrentUser] User $user): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        if (!is_array($data)) {
+            return $this->json(['error' => 'Invalid JSON'], 400);
+        }
+        if (array_key_exists('billingMode', $data)) {
+            $user->setBillingMode((string) $data['billingMode']);
+        }
+        if (array_key_exists('businessName', $data)) {
+            $v = trim((string) $data['businessName']);
+            $user->setBusinessName($v !== '' ? $v : null);
+        }
+        if (array_key_exists('fiscalAddress', $data)) {
+            $v = trim((string) $data['fiscalAddress']);
+            $user->setFiscalAddress($v !== '' ? $v : null);
+        }
+        if (array_key_exists('taxId', $data)) {
+            $v = trim((string) $data['taxId']);
+            $user->setTaxId($v !== '' ? $v : null);
+        }
+        $em->flush();
+
+        return $this->json($this->settingsPayload($user));
+    }
+
+    /** @return array<string,mixed> */
+    private function settingsPayload(User $user): array
+    {
+        return [
+            'billingMode'   => $user->getBillingMode(),
+            'businessName'  => $user->getBusinessName(),
+            'fiscalAddress' => $user->getFiscalAddress(),
+            'taxId'         => $user->getTaxId(),
+        ];
+    }
+
     /** Status of the user's own API integrations (never returns the keys). */
     #[Route('/api/account/integrations', name: 'api_account_integrations', methods: ['GET'])]
     public function integrations(CredentialStore $credentials, #[CurrentUser] User $user): JsonResponse

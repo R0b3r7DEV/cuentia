@@ -9,29 +9,36 @@ use Dompdf\Options;
 
 /**
  * Renders an invoice as a downloadable PDF (HTML → PDF via Dompdf, pure PHP, no gd/imagick).
- * When a Verifactu record exists, its fingerprint and QR are printed on the document.
- * ES: Renderiza una factura como PDF descargable (HTML → PDF con Dompdf, PHP puro). Si existe un
- * registro Verifactu, imprime su huella y su QR en el documento.
+ *
+ * The Verifactu QR + legend are printed ONLY when $showVerifactu is true (i.e. the issuer is in Verifactu
+ * demo mode). In standard mode the document is an ordinary RD 1619/2012 invoice: issuer fiscal profile,
+ * customer, lines, VAT breakdown and totals — no QR, no XML reference, no "verifiable invoice" legend. The
+ * internal hash chain still exists (integrity + gapless numbering); it is simply not surfaced.
+ *
+ * ES: El QR + leyenda Verifactu se imprimen SOLO si $showVerifactu es true (emisor en modo demo). En modo
+ * estándar el documento es una factura ordinaria RD 1619/2012, sin QR ni leyenda. La cadena de hash interna
+ * sigue existiendo; simplemente no se muestra.
  */
 class InvoicePdf
 {
     public function __construct(private VerifactuQr $qr) {}
 
-    public function build(Invoice $invoice, ?InvoiceRecord $record): string
+    public function build(Invoice $invoice, ?InvoiceRecord $record, bool $showVerifactu = false): string
     {
         $options = new Options();
         $options->set('defaultFont', 'DejaVu Sans'); // ships with Dompdf; has € and accents
         $options->set('isRemoteEnabled', true);      // allows the embedded QR (data: URI SVG)
 
         $dompdf = new Dompdf($options);
-        $dompdf->loadHtml($this->html($invoice, $record), 'UTF-8');
+        $dompdf->loadHtml($this->html($invoice, $record, $showVerifactu), 'UTF-8');
         $dompdf->setPaper('A4');
         $dompdf->render();
 
         return $dompdf->output();
     }
 
-    private function html(Invoice $invoice, ?InvoiceRecord $record): string
+    /** Public so the QR/legend gating can be unit-tested without rendering a PDF. */
+    public function html(Invoice $invoice, ?InvoiceRecord $record, bool $showVerifactu = false): string
     {
         $customer = $invoice->getCustomer();
         $issuer = $invoice->getUser();
@@ -49,7 +56,7 @@ class InvoicePdf
         }
 
         $qrBlock = '';
-        if ($record !== null) {
+        if ($showVerifactu && $record !== null) {
             $svg = base64_encode($this->qr->svg($record, 130));
             $qrBlock = sprintf(
                 '<div class="qr"><img src="data:image/svg+xml;base64,%s" width="120" height="120"><div class="fp">
@@ -89,8 +96,9 @@ class InvoicePdf
             </div>
 
             <table class="parties"><tr>
-              <td><div class="label">Emisor</div>' . $this->e((string) $issuer?->getEmail())
-                . '<br><span class="muted">NIF: ' . $this->e($record?->getIssuerNif() ?? ($issuer?->getTaxId() ?: '—')) . '</span></td>
+              <td><div class="label">Emisor</div>' . $this->e($issuer?->getBusinessName() ?: (string) $issuer?->getEmail())
+                . '<br><span class="muted">NIF: ' . $this->e($issuer?->getTaxId() ?: ($record?->getIssuerNif() ?? '—')) . '</span>'
+                . ($issuer?->getFiscalAddress() ? '<br><span class="muted">' . $this->e($issuer->getFiscalAddress()) . '</span>' : '') . '</td>
               <td><div class="label">Cliente</div>' . $this->e((string) $customer?->getName())
                 . '<br><span class="muted">NIF: ' . $this->e((string) $customer?->getTaxId()) . '</span>'
                 . ($customer?->getAddress() ? '<br><span class="muted">' . $this->e($customer->getAddress()) . '</span>' : '') . '</td>
@@ -108,8 +116,8 @@ class InvoicePdf
             </table>
 
             <div class="foot">
-              <div class="note">' . ($record !== null
-                ? 'Factura registrada según el formato Verifactu (Orden HAC/1177/2024). El QR enlaza al servicio de validación de la AEAT (entorno de pruebas — demostración).'
+              <div class="note">' . ($showVerifactu && $record !== null
+                ? 'DEMOSTRACIÓN — sin validez fiscal. Factura en formato Verifactu (Orden HAC/1177/2024); el QR enlaza al entorno de PRUEBAS de la AEAT.'
                 : '') . '</div>
               ' . $qrBlock . '
             </div>

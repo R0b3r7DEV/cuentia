@@ -15,7 +15,8 @@ class InvoicePdfTest extends TestCase
 {
     private function invoice(): Invoice
     {
-        $user = (new User())->setEmail('me@cuentia.local')->setTaxId('B12345678');
+        $user = (new User())->setEmail('me@cuentia.local')->setTaxId('B12345678')
+            ->setBusinessName('Instalaciones Pérez SL')->setFiscalAddress('C/ Major 1, València');
         $customer = (new Customer())->setUser($user)->setName('ACME SL')->setTaxId('B87654321');
 
         $invoice = (new Invoice())
@@ -48,5 +49,28 @@ class InvoicePdfTest extends TestCase
     {
         $pdf = (new InvoicePdf(new VerifactuQr()))->build($this->invoice(), null);
         self::assertStringStartsWith('%PDF', $pdf);
+    }
+
+    /**
+     * P0 gating: with a record present, the QR + Verifactu legend appear ONLY in demo mode; a standard
+     * invoice still carries the issuer's fiscal profile (RD 1619/2012). Asserted on the HTML.
+     */
+    public function testStandardModeHidesTheQrAndLegendButKeepsTheIssuerProfile(): void
+    {
+        $html = (new InvoicePdf(new VerifactuQr()))->html($this->invoice(), $this->record(), false);
+
+        self::assertStringNotContainsString('data:image/svg+xml', $html, 'no QR in standard mode');
+        self::assertStringNotContainsString('Verifactu', $html, 'no Verifactu legend in standard mode');
+        self::assertStringContainsString('Instalaciones Pérez SL', $html);
+        self::assertStringContainsString('C/ Major 1, València', $html);
+    }
+
+    public function testVerifactuModeShowsTheQrAndTheDemoLegend(): void
+    {
+        $html = (new InvoicePdf(new VerifactuQr()))->html($this->invoice(), $this->record(), true);
+
+        self::assertStringContainsString('data:image/svg+xml', $html, 'QR present in demo mode');
+        self::assertStringContainsString('DEMOSTRACIÓN', $html);
+        self::assertStringContainsString('Verifactu', $html);
     }
 }
