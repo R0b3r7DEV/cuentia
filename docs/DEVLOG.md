@@ -12,6 +12,22 @@ recientes van arriba.*
 
 ## English
 
+### 2026-07-11 — Entry 049: Work orders — the electrician's everyday job (P1, backend)
+**Done (P1 of [PLAN-v2](../PLAN-v2.md), backend PR)**
+- `WorkOrder` + `WorkOrderLine` entities: customer, title, description, status
+  (`pendiente→en_curso→terminado→facturado`), scheduled time, labour (hours × rate + VAT) and material
+  lines in exact integer cents. New tables only — the invoice hash chain is untouched.
+- `WorkOrderService::convert()` reuses `QuoteService::convert()` **exactly**: a `convertedInvoice` link makes
+  it idempotent (convert twice ⇒ same invoice). Materials → invoice lines, labour → one "Mano de obra (N h)"
+  line. Issued through `InvoiceService::create()`, so it inherits gapless numbering + the chain record and
+  respects the billing mode (ADR 0004).
+- `WorkOrderController`: CRUD + `/convert`, all user-scoped; an invoiced order is immutable (409).
+- Tests: `WorkOrderServiceTest` + an integration test that **converts twice and asserts a single invoice**
+  (total = materials + labour), isolation, immutability. 91 tests, 401 assertions.
+
+**Next**
+- P1 PR2 — mobile UI, photos and the client signature.
+
 ### 2026-07-11 — Entry 048: Dual billing mode — real invoices by default, Verifactu as a demo
 **What happened**
 - Every invoice carried an AEAT **test-host QR** and a "Verifactu" legend, because `InvoiceService` always
@@ -830,6 +846,22 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-07-11 — Entrada 049: Partes de trabajo — el día a día del electricista (P1, backend)
+**Hecho (P1 del [PLAN-v2](../PLAN-v2.md), PR de backend)**
+- Entidades `WorkOrder` + `WorkOrderLine`: cliente, título, descripción, estado
+  (`pendiente→en_curso→terminado→facturado`), fecha programada, mano de obra (horas × precio + IVA) y líneas
+  de material en céntimos enteros. Solo tablas nuevas — la cadena de hash de facturas queda intacta.
+- `WorkOrderService::convert()` reutiliza `QuoteService::convert()` **igual**: el enlace `convertedInvoice`
+  lo hace idempotente (convertir dos veces ⇒ misma factura). Materiales → líneas; mano de obra → una línea
+  "Mano de obra (N h)". Se emite por `InvoiceService::create()`, así que hereda numeración sin huecos + el
+  registro de la cadena y respeta el modo de facturación (ADR 0004).
+- `WorkOrderController`: CRUD + `/convert`, todo acotado al usuario; un parte facturado es inmutable (409).
+- Tests: `WorkOrderServiceTest` + un test de integración que **convierte dos veces y comprueba una sola
+  factura** (total = materiales + mano de obra), aislamiento e inmutabilidad. 91 tests, 401 aserciones.
+
+**Siguiente**
+- P1 PR2 — UI móvil, fotos y firma del cliente.
 
 ### 2026-07-11 — Entrada 048: Modo dual de facturación — facturas reales por defecto, Verifactu como demo
 **Qué pasaba**
