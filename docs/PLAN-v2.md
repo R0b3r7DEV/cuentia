@@ -22,7 +22,7 @@
 | [#3](https://github.com/R0b3r7DEV/cuentia/pull/3) | Plan al día: aprobado, en ejecución, sección de estado | 2026-11-02 | solo docs · CI verde |
 | [#4](https://github.com/R0b3r7DEV/cuentia/pull/4) | **P1, backend 2** — transiciones obligatorias, mano de obra en céntimos sin `float`, firma, fotos saneadas (ADR 0005), `WorkOrderPdf`, precio por hora por defecto, errores como códigos | 2026-11-02 | 131 tests · 553 aserciones · CI verde |
 | [#5](https://github.com/R0b3r7DEV/cuentia/pull/5) | **P1, frontend** — partes en el móvil: listado, formulario, fotos, firma táctil, barra de acciones; lógica pura con Vitest | 2026-11-02 | 40 tests Vitest · recorrido E2E en móvil · CI verde |
-| `fix/tz` | **Zona horaria** — almacenamiento en UTC, fechas de calendario en Europe/Madrid (`BusinessClock`): fecha de expedición, serie anual, plazos del IRPF, horas del parte y de la firma | 2026-11-02 | 144 tests · 606 aserciones · `verify` ok sobre registros anteriores |
+| [#6](https://github.com/R0b3r7DEV/cuentia/pull/6) | **Zona horaria** — almacenamiento en UTC, fechas de calendario en Europe/Madrid (`BusinessClock`): fecha de expedición, serie anual, plazos del IRPF, horas del parte y de la firma | 2026-11-02 | 144 tests · 606 aserciones · `verify` ok sobre registros anteriores |
 
 Docs entregadas: ADR 0004 y 0005, guías 38 y 39, DEVLOG 048–053.
 
@@ -33,7 +33,7 @@ códigos), salvo la que sigue abajo.
 ### Pendiente
 
 **Producción:**
-- **Reconstruir la imagen del backend** en Render: #4 añadió la extensión GD (`ext-gd`) y `fix/tz` fija
+- **Reconstruir la imagen del backend** en Render: #4 añadió la extensión GD (`ext-gd`) y #6 fija
   `date.timezone = UTC` en el Dockerfile.
 
 **Deuda conocida:**
