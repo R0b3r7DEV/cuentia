@@ -12,6 +12,20 @@ recientes van arriba.*
 
 ## English
 
+### 2026-11-01 — Entry 050: Picking it back up — the plan, brought in line with what actually exists
+**Done**
+- [PLAN-v2](PLAN-v2.md) moves from *draft* to **approved, in progress**, with a new **Estado** (status)
+  section: P0 (#1) and the P1 backend (#2) are merged, and what is still missing.
+- Rereading PR #2's code against the plan turned up gaps to fix or document in P1's PR3: state transitions
+  are not validated (a `PUT` can mark an order `facturado` with no invoice), `/convert` is accepted from any
+  state, labour is computed with `float`, the hourly rate is in decimal euros with no profile default,
+  material quantities are integers only, and 400 errors echo the raw exception message. Photos, signature
+  and `WorkOrderPdf` do not exist yet either.
+
+**Next**
+- P1 PR3 — the mobile work-order frontend + photos, signature and the work-order PDF in the backend. First,
+  a sketch of the screens and flow, reviewed before any code is written.
+
 ### 2026-07-11 — Entry 049: Work orders — the electrician's everyday job (P1, backend)
 **Done (P1 of [PLAN-v2](../PLAN-v2.md), backend PR)**
 - `WorkOrder` + `WorkOrderLine` entities: customer, title, description, status
@@ -846,6 +860,21 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-11-01 — Entrada 050: Retomamos tras la pausa — el plan, al día con lo que hay de verdad
+**Hecho**
+- [PLAN-v2](PLAN-v2.md) pasa de *borrador* a **aprobado, en ejecución**, con una sección **Estado**: P0 (#1)
+  y el backend de P1 (#2) mergeados, y qué falta.
+- Al releer el código del PR #2 frente al plan salieron diferencias que se resolverán o documentarán en el
+  PR3 de P1: las transiciones de estado no se validan (un `PUT` puede marcar `facturado` sin factura),
+  `/convert` se acepta desde cualquier estado, la mano de obra se calcula con `float`, el precio por hora va
+  en euros decimales y sin valor por defecto en el perfil, las cantidades de material solo admiten enteros,
+  y los errores 400 devuelven el mensaje de la excepción tal cual. Tampoco existen todavía fotos, firma ni
+  `WorkOrderPdf`.
+
+**Siguiente**
+- P1 PR3 — frontend móvil de partes + fotos, firma y PDF del parte en el backend. Primero, esquema de
+  pantallas y flujo para revisarlo antes de escribir código.
 
 ### 2026-07-11 — Entrada 049: Partes de trabajo — el día a día del electricista (P1, backend)
 **Hecho (P1 del [PLAN-v2](../PLAN-v2.md), PR de backend)**
