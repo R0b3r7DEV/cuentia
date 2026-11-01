@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\WorkOrder;
+use App\Time\BusinessClock;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
@@ -28,6 +29,11 @@ class WorkOrderPdf
         'terminado' => 'Terminado',
         'facturado' => 'Facturado',
     ];
+
+    public function __construct(private ?BusinessClock $clock = null)
+    {
+        $this->clock ??= new BusinessClock();
+    }
 
     public function build(WorkOrder $wo): string
     {
@@ -88,7 +94,7 @@ class WorkOrderPdf
         if ($wo->hasSignature()) {
             $signature = '<img class="signature" src="data:image/png;base64,' . base64_encode((string) $wo->getSignaturePng()) . '">'
                 . '<div class="muted">Firmado por ' . $this->e((string) $wo->getSignedBy())
-                . ' el ' . $wo->getSignedAt()?->format('d/m/Y \a \l\a\s H:i') . '</div>';
+                . ' el ' . $this->clock->format($wo->getSignedAt(), 'd/m/Y \a \l\a\s H:i') . '</div>';
         } elseif ($wo->isSignatureWaived()) {
             $signature = '<div class="muted">Terminado sin firma: el cliente no estaba presente.</div>';
         } else {
@@ -96,7 +102,8 @@ class WorkOrderPdf
         }
 
         $issuerName = $issuer?->getBusinessName() ?: (string) $issuer?->getEmail();
-        $date = ($wo->getScheduledAt() ?? $wo->getCreatedAt())->format('d/m/Y');
+        // The date in Spain: a job done at 00:30 on the 2nd is not dated the 1st. / La fecha en España.
+        $date = $this->clock->format($wo->getScheduledAt() ?? $wo->getCreatedAt(), 'd/m/Y');
         $invoice = $wo->getConvertedInvoice() !== null
             ? '<div class="muted">Facturado en la factura ' . $this->e($wo->getConvertedInvoice()->getFullNumber()) . '</div>'
             : '';

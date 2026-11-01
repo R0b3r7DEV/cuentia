@@ -62,7 +62,7 @@ class Invoice
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
-        $this->issuedAt = new \DateTimeImmutable();
+        $this->issuedAt = \App\Time\BusinessClock::localToday(); // the date in Spain, not in UTC
         $this->lines = new ArrayCollection();
     }
 

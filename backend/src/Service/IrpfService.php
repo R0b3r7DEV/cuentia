@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\User;
 use App\Repository\TransactionRepository;
+use App\Time\BusinessClock;
 
 /**
  * Estimates the Spanish IRPF quarterly prepayment (modelo 130) for a freelancer in
@@ -29,11 +30,17 @@ class IrpfService
     public function __construct(
         private TransactionRepository $transactions,
         private VatService $vat,
-    ) {}
+        private ?BusinessClock $clock = null,
+    ) {
+        $this->clock ??= new BusinessClock();
+    }
 
     public function summary(User $user, ?\DateTimeImmutable $today = null): array
     {
-        $today ??= new \DateTimeImmutable('today');
+        // "Today" in Spain decides the year and the next deadline (BusinessClock), not UTC.
+        $today ??= $this->clock->today();
+        // A calendar date, whatever zone it came in: deadlines are compared day against day, in Spain.
+        $today = new \DateTimeImmutable($today->format('Y-m-d'), new \DateTimeZone(BusinessClock::ZONE));
 
         $incomeC  = [1 => 0, 2 => 0, 3 => 0, 4 => 0];
         $expenseC = [1 => 0, 2 => 0, 3 => 0, 4 => 0];
@@ -59,11 +66,12 @@ class IrpfService
 
         $year ??= (int) $today->format('Y');
 
+        $madrid = new \DateTimeZone(BusinessClock::ZONE);
         $deadlines = [
-            1 => new \DateTimeImmutable("$year-04-20"),
-            2 => new \DateTimeImmutable("$year-07-20"),
-            3 => new \DateTimeImmutable("$year-10-20"),
-            4 => new \DateTimeImmutable(($year + 1) . '-01-30'),
+            1 => new \DateTimeImmutable("$year-04-20", $madrid),
+            2 => new \DateTimeImmutable("$year-07-20", $madrid),
+            3 => new \DateTimeImmutable("$year-10-20", $madrid),
+            4 => new \DateTimeImmutable(($year + 1) . '-01-30', $madrid),
         ];
 
         $quarters = [];
