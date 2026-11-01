@@ -17,6 +17,7 @@ const PANEL = [
   ['/invoices', 'nav.invoices'],
 ]
 const TOP = [
+  ['/partes', 'nav.workOrders', '🔧'],
   ['/certificates', 'bill.certificates', '📄'],
   ['/installation', 'bill.installation', '⚡'],
   ['/chat', 'nav.assistant', '💬'],

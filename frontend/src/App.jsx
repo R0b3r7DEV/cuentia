@@ -7,6 +7,8 @@ import BillingPage from './pages/BillingPage'
 import CertificatesPage from './pages/CertificatesPage'
 import InstallationPage from './pages/InstallationPage'
 import ChatPage from './pages/ChatPage'
+import WorkOrdersPage from './pages/WorkOrdersPage'
+import WorkOrderPage from './pages/WorkOrderPage'
 import AccountPage from './pages/AccountPage'
 import AuthPage from './pages/AuthPage'
 import { useAuth } from './auth/AuthContext'
@@ -27,6 +29,8 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/taxes" element={<TaxesPage />} />
           <Route path="/invoices" element={<BillingPage />} />
+          <Route path="/partes" element={<WorkOrdersPage />} />
+          <Route path="/partes/:id" element={<WorkOrderPage />} />
           <Route path="/certificates" element={<CertificatesPage />} />
           <Route path="/installation" element={<InstallationPage />} />
           <Route path="/chat" element={<ChatPage />} />

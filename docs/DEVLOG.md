@@ -12,6 +12,23 @@ recientes van arriba.*
 
 ## English
 
+### 2026-11-01 — Entry 052: Work orders on the phone — the frontend (P1)
+**Done (P1 PR3b of [PLAN-v2](PLAN-v2.md))**
+- `/partes`: list with a filter and count per status. `/partes/:id`: client and job, materials from the
+  catalogue, labour in quarter hours, live totals in integer cents, photos from the camera (shrunk on the
+  phone), the client's signature on a touch canvas, and a fixed bottom bar with the next step
+  (start → finish → invoice → PDF). Questions before converting, reopening or deleting.
+- `lib/workOrders.js` (pure, 20 Vitest tests): cents without float drift, the backend's exact rounding, the
+  transition table and the actions per status.
+- Default hourly rate in Account → Billing. **🔧 Partes** in the navbar. ES + EN texts.
+- Checked end to end in a phone-sized headless browser (390 × 844, touch): create → start → photo → sign →
+  finish → invoice (82.77 € on screen, on the invoice and in the PDF) → `verify` ok; and the "client absent"
+  path. Two bugs found and fixed on the way (a crash going from "new" to the saved order, and mixed
+  decimal separators).
+
+**Next**
+- PLAN-v2 P2 (CIE measurements). Known: times are printed in UTC (no app time zone set) — pre-existing.
+
 ### 2026-11-01 — Entry 051: Work orders, part 2 — lifecycle, signature, photos and the PDF (P1, backend)
 **Done (P1 PR3a of [PLAN-v2](PLAN-v2.md))**
 - **Lifecycle enforced**: a transition table; `facturado` is reachable **only** through `convert()`, which in
@@ -883,6 +900,24 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-11-01 — Entrada 052: Los partes en el móvil — el frontend (P1)
+**Hecho (P1 PR3b del [PLAN-v2](PLAN-v2.md))**
+- `/partes`: listado con filtro y contador por estado. `/partes/:id`: cliente y trabajo, materiales del
+  catálogo, mano de obra por cuartos de hora, totales en vivo en céntimos enteros, fotos con la cámara
+  (reducidas en el móvil), firma del cliente en un lienzo táctil y una barra fija abajo con el siguiente paso
+  (empezar → terminar → facturar → PDF). Preguntas antes de convertir, reabrir o borrar.
+- `lib/workOrders.js` (pura, 20 tests de Vitest): céntimos sin errores de coma flotante, el redondeo exacto
+  del backend, la tabla de transiciones y las acciones de cada estado.
+- Precio por hora por defecto en Cuenta → Facturación. **🔧 Partes** en la navbar. Textos ES + EN.
+- Comprobado de punta a punta en un navegador headless con tamaño de móvil (390 × 844, táctil): crear →
+  empezar → foto → firmar → terminar → facturar (82,77 € en pantalla, en la factura y en el PDF) → `verify` ok;
+  y el camino de «cliente ausente». Salieron y se arreglaron dos fallos (un cuelgue al pasar de «nuevo» al
+  parte guardado y separadores decimales mezclados).
+
+**Siguiente**
+- P2 del PLAN-v2 (mediciones del CIE). Pendiente conocido: las horas salen en UTC (la app no fija zona
+  horaria) — ya pasaba antes.
 
 ### 2026-11-01 — Entrada 051: Partes, segunda parte — ciclo de vida, firma, fotos y PDF (P1, backend)
 **Hecho (P1 PR3a del [PLAN-v2](PLAN-v2.md))**
