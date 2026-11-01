@@ -285,6 +285,13 @@ class ApiIntegrationTest extends WebTestCase
         self::assertSame('pendiente', $wo['status']);
         $id = $wo['id'];
 
+        // only a finished order can be invoiced
+        [$early, $err] = $this->json('POST', "/api/work-orders/$id/convert");
+        self::assertSame(409, $early);
+        self::assertSame('not_finished', $err['error']);
+        $this->json('POST', "/api/work-orders/$id/status", ['status' => 'en_curso']);
+        $this->json('POST', "/api/work-orders/$id/status", ['status' => 'terminado', 'withoutSignature' => true]);
+
         // convert once → a real invoice; the order becomes 'facturado'
         [$c1, $inv1] = $this->json('POST', "/api/work-orders/$id/convert");
         self::assertSame(201, $c1);
@@ -325,6 +332,159 @@ class ApiIntegrationTest extends WebTestCase
         self::assertCount(0, $list, 'a user never sees another user\'s work orders');
         [$gs] = $this->json('GET', "/api/work-orders/$id");
         self::assertSame(404, $gs);
+    }
+
+    /** Multipart upload of one photo; returns [status, decoded body]. */
+    private function uploadPhoto(int $id, string $bytes): array
+    {
+        $path = tempnam(sys_get_temp_dir(), 'wo');
+        file_put_contents($path, $bytes);
+        $this->client->request('POST', "/api/work-orders/$id/photos", [], [
+            'photo' => new \Symfony\Component\HttpFoundation\File\UploadedFile($path, 'foto.jpg', 'image/jpeg', null, true),
+        ]);
+        $res = $this->client->getResponse();
+
+        return [$res->getStatusCode(), json_decode($res->getContent() ?: 'null', true)];
+    }
+
+    /**
+     * The whole job at the site: start, photo, signature, finish, PDF, invoice once — and the invoice hash
+     * chain still verifies afterwards.
+     */
+    public function testWorkOrderFullLifecycleAtTheSite(): void
+    {
+        $this->registerAndLogin('obra@test.local');
+        [, $wo] = $this->json('POST', '/api/work-orders', [
+            'title' => 'Enchufe quemado', 'customer' => ['name' => 'María', 'taxId' => '12345678Z'],
+            'laborHours' => '1.5', 'laborRate' => '40',
+            'lines' => [['description' => 'Base schuko', 'quantity' => 1, 'unitPrice' => '6.50', 'vatRate' => '21.00']],
+        ]);
+        $id = $wo['id'];
+        self::assertSame(['en_curso'], $wo['transitions']);
+        // 6.50 + 60.00 = 66.50 base; VAT 1.37 + 12.60 = 13.97; total 80.47
+        self::assertSame(['baseCents' => 6650, 'vatCents' => 1397, 'totalCents' => 8047], $wo['totals']);
+
+        // a PUT cannot move the status: only /status can
+        [, $same] = $this->json('PUT', "/api/work-orders/$id", ['status' => 'facturado']);
+        self::assertSame('pendiente', $same['status']);
+
+        [$bad, $err] = $this->json('POST', "/api/work-orders/$id/status", ['status' => 'terminado']);
+        self::assertSame(409, $bad);
+        self::assertSame('invalid_transition', $err['error']);
+
+        [, $started] = $this->json('POST', "/api/work-orders/$id/status", ['status' => 'en_curso']);
+        self::assertSame('en_curso', $started['status']);
+
+        // a photo: stored re-encoded, served back as a JPEG with nosniff
+        [$ps, $photo] = $this->uploadPhoto($id, \App\Tests\Service\ImageSanitizerTest::jpeg(120, 90));
+        self::assertSame(201, $ps);
+        $this->client->request('GET', $photo['url']);
+        $img = $this->client->getResponse();
+        self::assertSame(200, $img->getStatusCode());
+        self::assertSame('image/jpeg', $img->headers->get('Content-Type'));
+        self::assertSame('nosniff', $img->headers->get('X-Content-Type-Options'));
+
+        // a fake "photo" is refused with a code, not an exception message
+        [$fs, $fake] = $this->uploadPhoto($id, '<?php echo 1; ?>');
+        self::assertSame(400, $fs);
+        self::assertSame('invalid_image', $fake['error']);
+
+        // finishing without signature is refused; with it, accepted
+        [$ns, $nerr] = $this->json('POST', "/api/work-orders/$id/status", ['status' => 'terminado']);
+        self::assertSame(409, $ns);
+        self::assertSame('signature_required', $nerr['error']);
+
+        $png = 'data:image/png;base64,' . base64_encode(\App\Tests\Service\ImageSanitizerTest::png(300, 120, true));
+        [$ss, $signed] = $this->json('PUT', "/api/work-orders/$id/signature", ['png' => $png, 'signedBy' => 'María']);
+        self::assertSame(200, $ss);
+        self::assertTrue($signed['signature']['signed']);
+        self::assertSame('María', $signed['signature']['signedBy']);
+
+        [, $done] = $this->json('POST', "/api/work-orders/$id/status", ['status' => 'terminado']);
+        self::assertSame('terminado', $done['status']);
+        self::assertFalse($done['editable']);
+
+        // finished ⇒ locked: no edits, no new photos
+        [$es] = $this->json('PUT', "/api/work-orders/$id", ['title' => 'otro']);
+        self::assertSame(409, $es);
+        [$lp] = $this->uploadPhoto($id, \App\Tests\Service\ImageSanitizerTest::jpeg());
+        self::assertSame(409, $lp);
+
+        // the signed PDF downloads
+        $this->client->request('GET', "/api/work-orders/$id/pdf");
+        $pdf = $this->client->getResponse();
+        self::assertSame(200, $pdf->getStatusCode());
+        self::assertSame('application/pdf', $pdf->headers->get('Content-Type'));
+        self::assertStringStartsWith('%PDF', (string) $pdf->getContent());
+
+        // invoice it twice → one invoice, with the right total
+        [, $inv1] = $this->json('POST', "/api/work-orders/$id/convert");
+        [, $inv2] = $this->json('POST', "/api/work-orders/$id/convert");
+        self::assertSame($inv1['invoiceId'], $inv2['invoiceId']);
+        [, $invoice] = $this->json('GET', '/api/invoices/' . $inv1['invoiceId']);
+        self::assertSame('80.47', $invoice['total'], 'the invoice matches the work order totals to the cent');
+
+        // the hash chain is intact after all of it
+        [$vs, $vr] = $this->json('GET', '/api/invoices/verify');
+        self::assertSame(200, $vs);
+        self::assertTrue($vr['ok']);
+    }
+
+    public function testReopeningAFinishedOrderDropsItsSignature(): void
+    {
+        $this->registerAndLogin('reabrir@test.local');
+        [, $wo] = $this->json('POST', '/api/work-orders', ['title' => 'x', 'customer' => ['name' => 'C', 'taxId' => 'B1'], 'status' => 'en_curso']);
+        $id = $wo['id'];
+        $png = base64_encode(\App\Tests\Service\ImageSanitizerTest::png());
+        $this->json('PUT', "/api/work-orders/$id/signature", ['png' => $png, 'signedBy' => 'C']);
+        $this->json('POST', "/api/work-orders/$id/status", ['status' => 'terminado']);
+
+        [, $reopened] = $this->json('POST', "/api/work-orders/$id/status", ['status' => 'en_curso']);
+        self::assertSame('en_curso', $reopened['status']);
+        self::assertFalse($reopened['signature']['signed']);
+        [$gs] = $this->json('GET', "/api/work-orders/$id/signature");
+        self::assertSame(404, $gs);
+    }
+
+    /** IDOR: another user's photo, signature, PDF and actions are all 404, even knowing the ids. */
+    public function testPhotosSignatureAndPdfAreScopedPerUser(): void
+    {
+        $this->registerAndLogin('fotoA@test.local');
+        [, $wo] = $this->json('POST', '/api/work-orders', ['title' => 'x', 'customer' => ['name' => 'C', 'taxId' => 'B1'], 'status' => 'en_curso']);
+        $id = $wo['id'];
+        [, $photo] = $this->uploadPhoto($id, \App\Tests\Service\ImageSanitizerTest::jpeg());
+        $this->json('PUT', "/api/work-orders/$id/signature", ['png' => base64_encode(\App\Tests\Service\ImageSanitizerTest::png()), 'signedBy' => 'C']);
+
+        $this->json('POST', '/api/logout');
+        $this->registerAndLogin('fotoB@test.local');
+        [, $mine] = $this->json('POST', '/api/work-orders', ['title' => 'y', 'customer' => ['name' => 'D', 'taxId' => 'B2'], 'status' => 'en_curso']);
+
+        foreach ([$photo['url'], "/api/work-orders/$id/signature", "/api/work-orders/$id/pdf"] as $url) {
+            $this->client->request('GET', $url);
+            self::assertSame(404, $this->client->getResponse()->getStatusCode(), $url);
+        }
+        // the photo id under B's OWN order does not resolve either
+        $this->client->request('GET', sprintf('/api/work-orders/%d/photos/%d', $mine['id'], $photo['id']));
+        self::assertSame(404, $this->client->getResponse()->getStatusCode());
+
+        [$ds] = $this->json('DELETE', $photo['url']);
+        self::assertSame(404, $ds);
+        [$ss] = $this->json('POST', "/api/work-orders/$id/status", ['status' => 'pendiente']);
+        self::assertSame(404, $ss);
+    }
+
+    public function testDefaultLabourRateFromAccountSettings(): void
+    {
+        $this->registerAndLogin('tarifa@test.local');
+        [$s, $settings] = $this->json('PUT', '/api/account/settings', ['defaultLaborRate' => '38,50']);
+        self::assertSame(200, $s);
+        self::assertSame('38.50', $settings['defaultLaborRate']);
+
+        [, $wo] = $this->json('POST', '/api/work-orders', ['title' => 'x', 'customer' => ['name' => 'C', 'taxId' => 'B1']]);
+        self::assertSame('38.50', $wo['laborRate']);
+
+        [$bad] = $this->json('PUT', '/api/account/settings', ['defaultLaborRate' => '-5']);
+        self::assertSame(400, $bad);
     }
 
     public function testOpenBankingReportsDisabledWithoutCredentials(): void

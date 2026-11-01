@@ -3,11 +3,14 @@
 
 FROM php:8.4-apache
 
-# System libs + PHP extensions Symfony/Doctrine need.
-# ES: Librerías del sistema + extensiones PHP que necesitan Symfony/Doctrine.
+# System libs + PHP extensions Symfony/Doctrine need. GD (with JPEG + PNG) re-encodes the work-order
+# photos and signatures (ImageSanitizer).
+# ES: Librerías del sistema + extensiones PHP que necesitan Symfony/Doctrine. GD (con JPEG + PNG)
+# re-codifica las fotos y firmas de los partes (ImageSanitizer).
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        libpq-dev libicu-dev libzip-dev unzip \
-    && docker-php-ext-install pdo_pgsql intl zip opcache \
+        libpq-dev libicu-dev libzip-dev unzip libjpeg62-turbo-dev libpng-dev \
+    && docker-php-ext-configure gd --with-jpeg \
+    && docker-php-ext-install pdo_pgsql intl zip opcache gd \
     && a2enmod rewrite \
     && rm -rf /var/lib/apt/lists/*
 
