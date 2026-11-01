@@ -12,6 +12,29 @@ recientes van arriba.*
 
 ## English
 
+### 2026-11-01 — Entry 051: Work orders, part 2 — lifecycle, signature, photos and the PDF (P1, backend)
+**Done (P1 PR3a of [PLAN-v2](PLAN-v2.md))**
+- **Lifecycle enforced**: a transition table; `facturado` is reachable **only** through `convert()`, which in
+  turn only accepts a `terminado` order. A `PUT` no longer moves the status (before, it could mark an order
+  invoiced with no invoice). Finishing needs the client's signature, or an explicit "client not there".
+  Reopening drops the signature.
+- **Labour in integer cents**, no `float`: hours and rate read as hundredths, multiplied as integers,
+  rounded once; VAT rounded per line like the invoice, so order and invoice match to the cent.
+- **Signature + photos** through a new `ImageSanitizer`: type sniffed from the bytes, pixel count capped from
+  the header (decompression bombs), decoded and **re-encoded with GD — EXIF GPS gone**. Photos as `bytea`,
+  max 6 per order ([ADR 0005](decisions/0005-work-order-photo-storage.md)); always looked up inside the
+  user's own order (no IDOR); served with `nosniff`.
+- **`WorkOrderPdf`** (`QuotePdf` pattern) with photos and signature embedded as `data:` URIs and remote
+  loading **off** (no SSRF from user text).
+- **Default labour rate** per user in the account settings.
+- Errors now come back as fixed codes, never the raw exception message.
+- `ext-gd` required: `composer.json`, CI (both PHP jobs) and the Dockerfile.
+- Tests: 131 tests, 553 assertions (was 91 / 401). The lifecycle test ends with `GET /api/invoices/verify`
+  → `ok:true`.
+
+**Next**
+- P1 PR3b — the mobile frontend for work orders.
+
 ### 2026-11-01 — Entry 050: Picking it back up — the plan, brought in line with what actually exists
 **Done**
 - [PLAN-v2](PLAN-v2.md) moves from *draft* to **approved, in progress**, with a new **Estado** (status)
@@ -860,6 +883,28 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-11-01 — Entrada 051: Partes, segunda parte — ciclo de vida, firma, fotos y PDF (P1, backend)
+**Hecho (P1 PR3a del [PLAN-v2](PLAN-v2.md))**
+- **Ciclo de vida obligatorio**: tabla de transiciones; a `facturado` **solo** se llega con `convert()`, que
+  a su vez solo acepta un parte `terminado`. Un `PUT` ya no cambia el estado (antes podía marcar un parte como
+  facturado sin factura). Terminar exige la firma del cliente o indicar que no estaba. Reabrir quita la firma.
+- **Mano de obra en céntimos enteros**, sin `float`: horas y precio como centésimas, multiplicados como
+  enteros y redondeados una vez; IVA por línea como en la factura, así parte y factura coinciden al céntimo.
+- **Firma y fotos** con un `ImageSanitizer` nuevo: tipo real mirado en los bytes, píxeles limitados desde la
+  cabecera (bombas de descompresión), decodificadas y **re-codificadas con GD — sin el GPS del EXIF**. Fotos en
+  `bytea`, máximo 6 por parte ([ADR 0005](decisions/0005-work-order-photo-storage.md)); siempre buscadas dentro
+  del parte del propio usuario (sin IDOR); servidas con `nosniff`.
+- **`WorkOrderPdf`** (patrón `QuotePdf`) con fotos y firma incrustadas como `data:` y la carga remota
+  **desactivada** (sin SSRF desde el texto del usuario).
+- **Precio por hora por defecto** por usuario en los ajustes de la cuenta.
+- Los errores salen como códigos fijos, nunca con el mensaje de la excepción tal cual.
+- `ext-gd` obligatoria: `composer.json`, CI (los dos jobs de PHP) y Dockerfile.
+- Tests: 131 tests, 553 aserciones (antes 91 / 401). El test del ciclo completo termina con
+  `GET /api/invoices/verify` → `ok:true`.
+
+**Siguiente**
+- P1 PR3b — el frontend móvil de los partes.
 
 ### 2026-11-01 — Entrada 050: Retomamos tras la pausa — el plan, al día con lo que hay de verdad
 **Hecho**

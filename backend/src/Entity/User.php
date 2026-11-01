@@ -52,6 +52,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $fiscalAddress = null;
 
+    /**
+     * Default labour rate in euros/hour, pre-filled in every new work order.
+     * ES: Precio por hora por defecto, en euros, que se rellena en cada parte nuevo.
+     */
+    #[ORM\Column(type: 'decimal', precision: 12, scale: 2, nullable: true)]
+    private ?string $defaultLaborRate = null;
+
     // Per-user API credentials (BYOK), stored ENCRYPTED (never plaintext). / Credenciales cifradas.
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $anthropicKey = null;
@@ -82,6 +89,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getFiscalAddress(): ?string { return $this->fiscalAddress; }
     public function setFiscalAddress(?string $v): self { $this->fiscalAddress = $v; return $this; }
+
+    public function getDefaultLaborRate(): ?string { return $this->defaultLaborRate; }
+    public function setDefaultLaborRate(?string $v): self { $this->defaultLaborRate = $v; return $this; }
 
     public function getAnthropicKey(): ?string { return $this->anthropicKey; }
     public function setAnthropicKey(?string $v): self { $this->anthropicKey = $v; return $this; }
