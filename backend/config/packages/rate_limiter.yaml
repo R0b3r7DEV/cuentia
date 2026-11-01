@@ -1,0 +1,21 @@
+# Limits on the public password-reset endpoints: they send e-mail and check secrets, so they must not be
+# usable for spam or brute force. / Límites de los endpoints públicos de recuperación de contraseña: envían
+# correos y comprueban secretos, así que no pueden servir para spam ni fuerza bruta.
+framework:
+    rate_limiter:
+        # per client IP, across all e-mails / por IP del cliente, para todos los emails
+        password_reset_ip:
+            policy: sliding_window
+            limit: 5
+            interval: '15 minutes'
+        # per target e-mail, whatever the IP / por email de destino, sea cual sea la IP
+        password_reset_email:
+            policy: sliding_window
+            limit: 3
+            interval: '1 hour'
+        # tries of a reset token per IP / intentos de canjear un token por IP
+        password_reset_attempt:
+            policy: sliding_window
+            limit: 10
+            interval: '15 minutes'
+

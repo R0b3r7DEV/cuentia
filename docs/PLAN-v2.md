@@ -33,6 +33,8 @@ códigos), salvo la que sigue abajo.
 ### Pendiente
 
 **Producción:**
+- **Correo de recuperación de contraseña** (PR de «He olvidado la contraseña»): poner `MAILER_DSN`
+  (Brevo), `MAILER_FROM` (remitente verificado en Brevo) y `FRONTEND_URL` en Render. Ver guía 42.
 - **Reconstruir la imagen del backend** en Render: #4 añadió la extensión GD (`ext-gd`) y #6 fija
   `date.timezone = UTC` en el Dockerfile.
 

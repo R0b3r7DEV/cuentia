@@ -22,3 +22,9 @@ services:
         sync: false                  # set manually (your Neon/Supabase Postgres URL)
       - key: ANTHROPIC_API_KEY
         sync: false                  # optional: enables AI categorization + chat
+      - key: MAILER_DSN
+        sync: false                  # Brevo: brevo+api://API_KEY@default (password-reset e-mails)
+      - key: MAILER_FROM
+        sync: false                  # a sender verified in Brevo, e.g. "Cuentia <no-reply@yourdomain>"
+      - key: FRONTEND_URL
+        sync: false                  # public URL of the frontend, e.g. https://cuentia.vercel.app
