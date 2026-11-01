@@ -4,7 +4,50 @@
 > piloto). Los artefactos duraderos que produzca (ADR en `docs/decisions/`, guías en `docs/guide/`) se
 > escriben **bilingües** como el resto, según la convención del repo.
 >
-> **Estado: BORRADOR — pendiente de aprobación. No se escribe código hasta el visto bueno.**
+> **Estado: APROBADO — en ejecución.** Aprobado el 2026-07-11. P0 y el backend de P1 están en `master`;
+> el detalle, en la sección [Estado](#estado).
+
+---
+
+## Estado
+
+*Actualizado el 2026-11-01, al retomar el proyecto tras la pausa de verano.*
+
+### Hecho
+
+| PR | Qué | Mergeado | Verificación |
+|----|-----|----------|--------------|
+| [#1](https://github.com/R0b3r7DEV/cuentia/pull/1) | **P0** — Modo dual de facturación (estándar por defecto / Verifactu demo) + perfil fiscal del emisor | 2026-07-11 | 85 tests · 379 aserciones · CI verde |
+| [#2](https://github.com/R0b3r7DEV/cuentia/pull/2) | **P1, backend** — `WorkOrder` + `WorkOrderLine`, `WorkOrderService::convert()` idempotente, CRUD + `/convert`, parte facturado inmutable (409) | 2026-07-11 | 91 tests · 401 aserciones · CI verde |
+
+Docs entregadas: ADR 0004, guías 38 y 39, DEVLOG 048 y 049.
+
+### Pendiente
+
+**P1, PR3 — lo que falta para cerrar los partes** (siguiente trabajo):
+- Frontend móvil: listado con filtro por estado, formulario a pie de obra, acciones de estado, materiales
+  del catálogo, horas, fotos, firma en canvas, «Convertir en factura», descarga del PDF, enlace en la navbar.
+- Backend que el PR #2 dejó fuera: **fotos** (`WorkOrderPhoto` + ADR 0005), **firma** (`signaturePng`),
+  **`WorkOrderPdf`** + `GET /api/work-orders/{id}/pdf`, con sus tests PHPUnit.
+- Guía 39 ampliada con el ciclo completo del parte y DEVLOG.
+
+**Diferencias entre el PR #2 y este plan, detectadas al retomar** (se resuelven o se documentan en el PR3):
+- Las **transiciones de estado no se validan**: `PUT` acepta cualquier estado, incluido `facturado` sin
+  factura, y saltos hacia atrás.
+- **`/convert` se acepta desde cualquier estado**, no solo desde `terminado`.
+- **La mano de obra se calcula con `float`** (`WorkOrder::laborBaseCents()`), contra el principio de
+  céntimos enteros.
+- El precio por hora es `laborRate` en **euros decimales**, no `hourlyRate` en céntimos como decía el plan,
+  y **no hay precio por defecto en el perfil**.
+- **Las cantidades de material son enteros (mínimo 1)**: no admite 2,5 m de cable. Es el mismo criterio que
+  presupuestos y facturas, así que cambiarlo afecta a los tres.
+- Los errores 400 devuelven el **mensaje de la excepción tal cual** al cliente.
+
+**Resto del plan, sin empezar:** P2 (mediciones del CIE), P3 (PWA offline), P4 (tarifas de proveedor),
+P5 (propuesta de verticales VE + FV).
+
+**Decisiones abiertas** (de la sección final): orden de P3 y P4, y CSV solo o también XLSX en P4. Ya está
+decidido trabajar **en ramas con PR** y no sobre `master`.
 
 ---
 
@@ -260,7 +303,8 @@ para cada uno. Se entrega para decidir juntos.
 
 ## Qué necesito de ti para arrancar
 
-1. **Visto bueno al plan** (o ajustes).
-2. Confirmar el **orden** (¿P3 antes o después de P4?).
-3. Para P4: ¿**CSV-solo** en el primer PR o metemos ya **phpspreadsheet** para XLSX?
-4. ¿Creo este `PLAN-v2.md` y cada feature en **ramas** con PR, o trabajamos sobre `master` para el piloto?
+1. ~~**Visto bueno al plan** (o ajustes).~~ ✅ Aprobado el 2026-07-11.
+2. Confirmar el **orden** (¿P3 antes o después de P4?). ⏳ Pendiente.
+3. Para P4: ¿**CSV-solo** en el primer PR o metemos ya **phpspreadsheet** para XLSX? ⏳ Pendiente.
+4. ~~¿Creo este `PLAN-v2.md` y cada feature en **ramas** con PR, o trabajamos sobre `master` para el piloto?~~
+   ✅ Ramas con PR, una por feature.
