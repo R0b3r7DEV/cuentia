@@ -7,8 +7,8 @@ duplicating.
 *Objetivo: modelar el 80 % del trabajo real de un electricista —avisos y reparaciones— como un **parte de
 trabajo** que se rellena a pie de obra y, al terminar, **se convierte en factura real** sin duplicar nunca.*
 
-> This guide covers the **backend**: entities, lifecycle, signature, photos, PDF and API. The mobile UI lands
-> in the next PR. / Esta guía cubre el **backend**; la UI móvil llega en el siguiente PR.
+> Backend (entities, lifecycle, signature, photos, PDF, API) and the mobile frontend (last section).
+> / Backend y frontend móvil (última sección).
 
 ---
 
@@ -121,3 +121,30 @@ something not allowed in the current state (`invalid_transition`, `signature_req
 - Integration: the full site lifecycle (create → start → photo → sign → finish → PDF → convert twice → one
   invoice with the same total → hash chain verifies), reopening, per-user isolation of photos, signature and
   PDF, and the default labour rate.
+
+## Frontend (mobile first) / Frontend (primero el móvil)
+
+- **`/partes`** (`WorkOrdersPage`): a big "＋ Nuevo parte" button, one filter per status with its count
+  (scrolls sideways on a phone), one card per order with its status colour, client and total.
+- **`/partes/nuevo` and `/partes/:id`** (`WorkOrderPage`): one scrolling page — client and job, materials
+  (from the catalogue or typed, quantity with − / +), labour (hours in quarters with − / +, rate pre-filled
+  from Account → Billing), **live totals in cents**, photos, signature — and a **fixed bar at the bottom with
+  the one thing to do next**: *Empezar trabajo → Terminar trabajo → Convertir en factura → Descargar parte*.
+  Unsaved edits are saved before any status change. Finished orders show read-only.
+- **Questions before what is hard to undo** (convert, reopen — which drops the signature —, delete), in plain
+  Spanish. Finishing without a signature asks whether the client is absent.
+- **Photos**: `<input type="file" accept="image/*" capture="environment">` opens the camera;
+  `lib/photo.js` shrinks to ≤ 1600 px JPEG on the phone before uploading (bandwidth; the server re-encodes
+  anyway, ADR 0005).
+- **Signature**: `SignaturePad`, a canvas with pointer events (finger, mouse or pen), `touch-action: none` so
+  the page does not scroll while signing, drawn at screen density and exported as a transparent PNG.
+- Inputs are 16 px and touch targets ≥ 44 px (iOS does not zoom in; easy with work gloves). Every text lives in
+  `i18n/translations.js` (ES + EN); backend error codes map to `wo.err.<code>`.
+- **Pure logic in `lib/workOrders.js`**, tested with Vitest: euros → integer cents without float drift,
+  line/labour/VAT/totals with the backend's exact rounding (the tests reuse the backend's figures), the
+  transition table, the actions per status, list counts/filters.
+- Navbar: **🔧 Partes** stands on its own next to Certificados, like the other electrician tools.
+
+*Listado con filtros por estado y una pantalla por parte con barra fija abajo para el siguiente paso. Fotos
+reducidas en el móvil, firma con el dedo en un lienzo, totales en vivo en céntimos (misma regla que el
+backend, probada con Vitest) y preguntas antes de lo que no se deshace fácilmente.*

@@ -473,12 +473,12 @@ label.btn { display: inline-block; }
 .field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px; }
 .field.field-sm { flex: 0 0 120px; min-width: 100px; }
 .field > span { font-size: 12px; font-weight: 600; color: var(--text-muted); }
-.field input, .lines-table input {
+.field input, .lines-table input, .wo-line-desc, .wo-inline input {
   font: inherit; font-size: 14px; padding: 9px 13px; border: 1px solid var(--field-border);
   border-radius: var(--radius-sm); background: var(--field-bg); color: var(--text); width: 100%;
   box-shadow: var(--field-shadow);
 }
-.field input:focus, .lines-table input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-weak); }
+.field input:focus, .lines-table input:focus, .wo-line-desc:focus, .wo-inline input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-weak); }
 /* Placeholders default to a barely-visible grey; pin them to a legible tone. */
 input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 0.7; }
 .lines-table { min-width: 0; }
@@ -627,3 +627,76 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 0
   .card { padding: 1rem 1.15rem; }
   h1 { font-size: 22px; }
 }
+
+/* ── Work orders (partes) — phone first ───────────────────────────────────────
+   ES: Partes de trabajo — pensado primero para el móvil: objetivos táctiles de
+   al menos 44 px, una columna, y la acción siguiente siempre a mano abajo. */
+.wo-new { width: 100%; padding: 14px 18px; font-size: 16px; margin: 4px 0 14px; }
+.wo-filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+.wo-filters::-webkit-scrollbar { display: none; }
+.wo-filters .subtab { white-space: nowrap; min-height: 40px; }
+.wo-count { display: inline-block; min-width: 1.6em; padding: 0 6px; margin-left: 4px; border-radius: var(--radius-pill); background: var(--surface-2); font-size: 12px; text-align: center; }
+
+.wo-list { list-style: none; margin: 0; padding: 0; }
+.wo-card { display: block; color: inherit; text-decoration: none; margin-bottom: 0.75rem; border-left: 5px solid var(--wo-color, var(--border-strong)); }
+.wo-card:active { transform: scale(0.99); }
+.wo-card-top, .wo-card-bottom { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13px; }
+.wo-card-title { display: block; font-size: 17px; margin: 6px 0; }
+.wo-card-bottom .num { font-weight: 700; color: var(--text); }
+
+/* One colour per status, also used by the badge. Texts never rely on colour alone. */
+.wo-pendiente, .wo-badge-pendiente { --wo-color: var(--warn-text); }
+.wo-en_curso,  .wo-badge-en_curso  { --wo-color: var(--accent); }
+.wo-terminado, .wo-badge-terminado { --wo-color: var(--pos); }
+.wo-facturado, .wo-badge-facturado { --wo-color: var(--text-muted); }
+.wo-badge { display: inline-block; padding: 3px 10px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; color: var(--wo-color); background: color-mix(in srgb, var(--wo-color) 14%, transparent); }
+
+.wo-page { padding-bottom: 7rem; } /* room for the fixed action bar */
+.wo-back { display: inline-block; margin-bottom: 6px; }
+.wo-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.wo-head .page-title { margin-bottom: 0; }
+.wo-invoiced { color: var(--pos); font-weight: 600; }
+.wo-fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.wo-fieldset:disabled { opacity: 0.85; }
+.wo-section h2 { font-size: 17px; margin: 0 0 12px; }
+.wo-section .field { margin-bottom: 12px; }
+.wo-section input, .wo-section select, .wo-textarea { font-size: 16px; min-height: 44px; } /* 16 px: iOS does not zoom in */
+.wo-textarea { font: inherit; width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--field-border); background: var(--field-bg); color: var(--text); resize: vertical; }
+
+.wo-line { padding: 10px 0; border-bottom: 1px solid var(--border); }
+.wo-line-desc { width: 100%; margin-bottom: 8px; }
+.wo-line-row { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+.wo-inline { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.wo-inline .num-input { max-width: 110px; }
+.wo-stepper { display: inline-flex; align-items: center; border: 1px solid var(--field-border); border-radius: var(--radius-pill); background: var(--field-bg); overflow: hidden; }
+.wo-stepper button { font: inherit; font-size: 20px; width: 44px; height: 44px; border: 0; background: transparent; color: var(--text); cursor: pointer; }
+.wo-stepper button:active { background: var(--surface-2); }
+.wo-stepper .num { min-width: 2.2em; text-align: center; font-weight: 700; }
+.wo-hours input { width: 4.2em; text-align: center; border: 0; background: transparent; min-height: 44px; }
+.wo-add-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.wo-add-row .bank-select { flex: 1; min-width: 200px; min-height: 44px; }
+
+.wo-totals > div { display: flex; justify-content: space-between; padding: 4px 0; }
+.wo-grand { border-top: 2px solid var(--accent); margin-top: 6px; padding-top: 8px !important; font-size: 19px; font-weight: 800; color: var(--accent); }
+
+.wo-photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.wo-photo { position: relative; margin: 0; aspect-ratio: 4 / 3; border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-2); }
+.wo-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wo-photo-del { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; border-radius: 50%; border: 0; background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 14px; cursor: pointer; }
+.wo-camera { display: inline-flex; justify-content: center; align-items: center; width: 100%; min-height: 48px; font-size: 16px; position: relative; }
+
+.sig-pad { display: block; width: 100%; height: 180px; touch-action: none; border: 2px dashed var(--field-border); border-radius: var(--radius-sm); background: #fff; cursor: crosshair; }
+.wo-signature { display: block; max-width: 100%; height: 140px; object-fit: contain; background: #fff; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 8px; }
+
+/* The next step, always within thumb's reach. / El siguiente paso, siempre a mano. */
+.wo-actionbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+  background: var(--glass-strong); border-top: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(var(--blur)); backdrop-filter: blur(var(--blur));
+}
+.wo-actionbar > * { max-width: 1000px; width: 100%; margin: 0 auto; }
+.wo-secondary { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.wo-secondary .btn { text-decoration: none; text-align: center; }
+.wo-main { width: 100%; padding: 15px 18px; font-size: 17px; text-align: center; text-decoration: none; }
