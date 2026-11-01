@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from '../i18n/LanguageContext'
+import { toCents } from '../lib/workOrders'
 
 /**
  * Billing settings: choose the invoice mode (standard vs Verifactu demo) and fill the issuer fiscal
@@ -20,6 +21,8 @@ export default function BillingSettings() {
       businessName: d.businessName || '',
       fiscalAddress: d.fiscalAddress || '',
       taxId: d.taxId || '',
+      // "35.00" → "35", the way a person types it
+      defaultLaborRate: d.defaultLaborRate ? String(Number(d.defaultLaborRate)).replace('.', ',') : '',
     }))
   }, [])
 
@@ -28,6 +31,7 @@ export default function BillingSettings() {
   const set = (patch) => setForm((f) => ({ ...f, ...patch }))
 
   const save = async () => {
+    if (toCents(form.defaultLaborRate) === null) { setMessage(t('billset.rateInvalid')); return }
     setSaving(true); setMessage(null)
     try {
       const res = await fetch('/api/account/settings', {
@@ -80,6 +84,12 @@ export default function BillingSettings() {
       </div>
       <label className="field"><span>{t('billset.fiscalAddress')}</span>
         <input value={form.fiscalAddress} onChange={(e) => set({ fiscalAddress: e.target.value })} /></label>
+
+      <div className="form-sec">{t('billset.workOrders')}</div>
+      <label className="field field-sm"><span>{t('billset.defaultLaborRate')}</span>
+        <input inputMode="decimal" value={form.defaultLaborRate} placeholder="0,00"
+          onChange={(e) => set({ defaultLaborRate: e.target.value })} /></label>
+      <p className="msg" style={{ marginTop: 4 }}>{t('billset.defaultLaborRateDesc')}</p>
 
       <button className="btn btn-primary btn-sm" style={{ marginTop: '0.9rem' }} onClick={save} disabled={saving}>
         {saving ? t('billset.saving') : t('billset.save')}
