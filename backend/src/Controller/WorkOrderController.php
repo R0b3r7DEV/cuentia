@@ -8,6 +8,7 @@ use App\Entity\WorkOrderPhoto;
 use App\Repository\WorkOrderRepository;
 use App\Service\WorkOrderPdf;
 use App\Service\WorkOrderService;
+use App\Time\BusinessClock;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -28,16 +29,19 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
  */
 class WorkOrderController extends AbstractController
 {
+    /** Times go out as Spanish wall-clock time, the same the person typed. / Horas en hora de España. */
+    public function __construct(private BusinessClock $clock) {}
+
     #[Route('/api/work-orders', name: 'api_work_orders_list', methods: ['GET'])]
     public function list(WorkOrderRepository $repo, #[CurrentUser] User $user): JsonResponse
     {
-        $rows = array_map(static fn (WorkOrder $w): array => [
+        $rows = array_map(fn (WorkOrder $w): array => [
             'id'          => $w->getId(),
             'title'       => $w->getTitle(),
             'customer'    => $w->getCustomer()?->getName(),
             'status'      => $w->getStatus(),
-            'scheduledAt' => $w->getScheduledAt()?->format('Y-m-d H:i'),
-            'createdAt'   => $w->getCreatedAt()->format('Y-m-d H:i'),
+            'scheduledAt' => $this->clock->format($w->getScheduledAt(), 'Y-m-d H:i'),
+            'createdAt'   => $this->clock->format($w->getCreatedAt(), 'Y-m-d H:i'),
             'totalCents'  => $w->totalsCents()['total'],
             'invoiced'    => $w->getConvertedInvoice() !== null,
         ], $repo->findForUser($user));
@@ -300,8 +304,8 @@ class WorkOrderController extends AbstractController
             'status'      => $w->getStatus(),
             'editable'    => $w->isEditable(),
             'transitions' => WorkOrder::TRANSITIONS[$w->getStatus()],
-            'scheduledAt' => $w->getScheduledAt()?->format('Y-m-d H:i'),
-            'createdAt'   => $w->getCreatedAt()->format('Y-m-d H:i'),
+            'scheduledAt' => $this->clock->format($w->getScheduledAt(), 'Y-m-d H:i'),
+            'createdAt'   => $this->clock->format($w->getCreatedAt(), 'Y-m-d H:i'),
             'customer'    => [
                 'id'    => $w->getCustomer()?->getId(),
                 'name'  => $w->getCustomer()?->getName(),
@@ -322,7 +326,7 @@ class WorkOrderController extends AbstractController
             'signature' => [
                 'signed'   => $w->hasSignature(),
                 'signedBy' => $w->getSignedBy(),
-                'signedAt' => $w->getSignedAt()?->format('Y-m-d H:i'),
+                'signedAt' => $this->clock->format($w->getSignedAt(), 'Y-m-d H:i'),
                 'waived'   => $w->isSignatureWaived(),
                 'url'      => $w->hasSignature() ? sprintf('/api/work-orders/%d/signature', $w->getId()) : null,
             ],

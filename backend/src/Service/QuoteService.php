@@ -9,6 +9,7 @@ use App\Entity\QuoteLine;
 use App\Entity\User;
 use App\Repository\CustomerRepository;
 use App\Repository\QuoteRepository;
+use App\Time\BusinessClock;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -22,7 +23,10 @@ class QuoteService
         private QuoteRepository $quotes,
         private CustomerRepository $customers,
         private InvoiceService $invoices,
-    ) {}
+        private ?BusinessClock $clock = null,
+    ) {
+        $this->clock ??= new BusinessClock();
+    }
 
     /**
      * @param array<string,mixed> $data
@@ -33,7 +37,10 @@ class QuoteService
             throw new \InvalidArgumentException('A quote needs at least one line');
         }
 
-        $issuedAt = isset($data['issuedAt']) ? new \DateTimeImmutable((string) $data['issuedAt']) : new \DateTimeImmutable('today');
+        // The date in Spain, as for invoices (BusinessClock). / La fecha en España, como en las facturas.
+        $issuedAt = isset($data['issuedAt'])
+            ? new \DateTimeImmutable((string) $data['issuedAt'], new \DateTimeZone(BusinessClock::ZONE))
+            : $this->clock->today();
         $series = trim((string) ($data['series'] ?? ('P' . $issuedAt->format('Y'))));
         $validUntil = !empty($data['validUntil']) ? new \DateTimeImmutable((string) $data['validUntil']) : null;
         $requested = (string) ($data['status'] ?? 'draft');

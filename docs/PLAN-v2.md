@@ -4,14 +4,14 @@
 > piloto). Los artefactos duraderos que produzca (ADR en `docs/decisions/`, guías en `docs/guide/`) se
 > escriben **bilingües** como el resto, según la convención del repo.
 >
-> **Estado: APROBADO — en ejecución.** Aprobado el 2026-07-11. P0 y el backend de P1 están en `master`;
+> **Estado: APROBADO — en ejecución.** Aprobado el 2026-07-11. P0 y P1 están cerrados y en `master`;
 > el detalle, en la sección [Estado](#estado).
 
 ---
 
 ## Estado
 
-*Actualizado el 2026-11-01, al retomar el proyecto tras la pausa de verano.*
+*Actualizado el 2026-11-02. **P0 y P1 cerrados.***
 
 ### Hecho
 
@@ -19,29 +19,26 @@
 |----|-----|----------|--------------|
 | [#1](https://github.com/R0b3r7DEV/cuentia/pull/1) | **P0** — Modo dual de facturación (estándar por defecto / Verifactu demo) + perfil fiscal del emisor | 2026-07-11 | 85 tests · 379 aserciones · CI verde |
 | [#2](https://github.com/R0b3r7DEV/cuentia/pull/2) | **P1, backend** — `WorkOrder` + `WorkOrderLine`, `WorkOrderService::convert()` idempotente, CRUD + `/convert`, parte facturado inmutable (409) | 2026-07-11 | 91 tests · 401 aserciones · CI verde |
+| [#3](https://github.com/R0b3r7DEV/cuentia/pull/3) | Plan al día: aprobado, en ejecución, sección de estado | 2026-11-02 | solo docs · CI verde |
+| [#4](https://github.com/R0b3r7DEV/cuentia/pull/4) | **P1, backend 2** — transiciones obligatorias, mano de obra en céntimos sin `float`, firma, fotos saneadas (ADR 0005), `WorkOrderPdf`, precio por hora por defecto, errores como códigos | 2026-11-02 | 131 tests · 553 aserciones · CI verde |
+| [#5](https://github.com/R0b3r7DEV/cuentia/pull/5) | **P1, frontend** — partes en el móvil: listado, formulario, fotos, firma táctil, barra de acciones; lógica pura con Vitest | 2026-11-02 | 40 tests Vitest · recorrido E2E en móvil · CI verde |
+| `fix/tz` | **Zona horaria** — almacenamiento en UTC, fechas de calendario en Europe/Madrid (`BusinessClock`): fecha de expedición, serie anual, plazos del IRPF, horas del parte y de la firma | 2026-11-02 | 144 tests · 606 aserciones · `verify` ok sobre registros anteriores |
 
-Docs entregadas: ADR 0004, guías 38 y 39, DEVLOG 048 y 049.
+Docs entregadas: ADR 0004 y 0005, guías 38 y 39, DEVLOG 048–053.
+
+Las diferencias entre el PR #2 y el plan que salieron al retomar quedaron resueltas en #4 (transiciones,
+`/convert` solo desde `terminado`, mano de obra en céntimos, precio por defecto en el perfil, errores como
+códigos), salvo la que sigue abajo.
 
 ### Pendiente
 
-**P1, PR3 — lo que falta para cerrar los partes** (siguiente trabajo):
-- Frontend móvil: listado con filtro por estado, formulario a pie de obra, acciones de estado, materiales
-  del catálogo, horas, fotos, firma en canvas, «Convertir en factura», descarga del PDF, enlace en la navbar.
-- Backend que el PR #2 dejó fuera: **fotos** (`WorkOrderPhoto` + ADR 0005), **firma** (`signaturePng`),
-  **`WorkOrderPdf`** + `GET /api/work-orders/{id}/pdf`, con sus tests PHPUnit.
-- Guía 39 ampliada con el ciclo completo del parte y DEVLOG.
+**Producción:**
+- **Reconstruir la imagen del backend** en Render: #4 añadió la extensión GD (`ext-gd`) y `fix/tz` fija
+  `date.timezone = UTC` en el Dockerfile.
 
-**Diferencias entre el PR #2 y este plan, detectadas al retomar** (se resuelven o se documentan en el PR3):
-- Las **transiciones de estado no se validan**: `PUT` acepta cualquier estado, incluido `facturado` sin
-  factura, y saltos hacia atrás.
-- **`/convert` se acepta desde cualquier estado**, no solo desde `terminado`.
-- **La mano de obra se calcula con `float`** (`WorkOrder::laborBaseCents()`), contra el principio de
-  céntimos enteros.
-- El precio por hora es `laborRate` en **euros decimales**, no `hourlyRate` en céntimos como decía el plan,
-  y **no hay precio por defecto en el perfil**.
+**Deuda conocida:**
 - **Las cantidades de material son enteros (mínimo 1)**: no admite 2,5 m de cable. Es el mismo criterio que
-  presupuestos y facturas, así que cambiarlo afecta a los tres.
-- Los errores 400 devuelven el **mensaje de la excepción tal cual** al cliente.
+  presupuestos y facturas, así que cambiarlo afecta a los tres. Se dejó fuera de P1 a propósito.
 
 **Resto del plan, sin empezar:** P2 (mediciones del CIE), P3 (PWA offline), P4 (tarifas de proveedor),
 P5 (propuesta de verticales VE + FV).

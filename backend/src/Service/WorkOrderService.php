@@ -9,6 +9,7 @@ use App\Entity\WorkOrder;
 use App\Entity\WorkOrderLine;
 use App\Entity\WorkOrderPhoto;
 use App\Repository\CustomerRepository;
+use App\Time\BusinessClock;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -32,8 +33,10 @@ class WorkOrderService
         private CustomerRepository $customers,
         private InvoiceService $invoices,
         private ?ImageSanitizer $images = null,
+        private ?BusinessClock $clock = null,
     ) {
         $this->images ??= new ImageSanitizer();
+        $this->clock ??= new BusinessClock();
     }
 
     /** @param array<string,mixed> $data */
@@ -295,7 +298,8 @@ class WorkOrderService
             return null;
         }
         try {
-            return new \DateTimeImmutable((string) $v);
+            // "2026-11-01T10:30" from the form is 10:30 in Spain; stored as the UTC instant.
+            return $this->clock->parseLocal((string) $v);
         } catch (\Exception) {
             throw new \InvalidArgumentException('invalid_date');
         }

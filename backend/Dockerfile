@@ -7,11 +7,14 @@ FROM php:8.4-apache
 # photos and signatures (ImageSanitizer).
 # ES: Librerías del sistema + extensiones PHP que necesitan Symfony/Doctrine. GD (con JPEG + PNG)
 # re-codifica las fotos y firmas de los partes (ImageSanitizer).
+# PHP runs in UTC (also forced in Kernel::boot); Spanish dates come from App\Time\BusinessClock.
+# ES: PHP corre en UTC (también forzado en Kernel::boot); las fechas de España salen de BusinessClock.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libpq-dev libicu-dev libzip-dev unzip libjpeg62-turbo-dev libpng-dev \
     && docker-php-ext-configure gd --with-jpeg \
     && docker-php-ext-install pdo_pgsql intl zip opcache gd \
     && a2enmod rewrite \
+    && echo 'date.timezone = UTC' > "$PHP_INI_DIR/conf.d/timezone.ini" \
     && rm -rf /var/lib/apt/lists/*
 
 # Serve Symfony's public/ directory.

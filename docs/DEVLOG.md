@@ -12,6 +12,24 @@ recientes van arriba.*
 
 ## English
 
+### 2026-11-02 — Entry 053: Dates in Spain, instants in UTC — the time-zone fix
+**Done**
+- The backend derived calendar dates from UTC. An invoice issued between 00:00 and 01:00/02:00 in Madrid
+  was dated the previous day — and on 1 January, numbered in the previous year's series. The issue date is
+  mandatory (RD 1619/2012) and sets the VAT period.
+- **`App\Time\BusinessClock`** (on Symfony's clock): storage stays UTC (PHP's default zone is now explicitly
+  UTC, in `Kernel::boot()` and the Dockerfile), and every calendar fact is decided in **Europe/Madrid**: the
+  invoice and quote issue date and yearly series, entity date defaults, IRPF "today" (year and next
+  deadline), the work-order date and signature time (shown in Spanish time), and times typed on forms
+  (read as Spanish time, stored as UTC).
+- New records' `FechaHoraHusoGenRegistro` carries Spain's offset (`+01:00`/`+02:00`).
+- **The fingerprint of existing invoices does not change**: `verify` recomputes it from the strings stored
+  in each record (`issueDate`, `generatedAt`), never from the invoice or the clock. An integration test
+  rewrites a record exactly as the pre-fix code stored it (UTC), issues a new one and `verify` returns
+  `ok:true` over both.
+- Tests: 23:30 UTC on 31 December → 1 January, series 2027 restarting at 1; both 2026 daylight-saving
+  changes; end of quarter for IRPF; form times round-tripping. 144 tests, 606 assertions.
+
 ### 2026-11-01 — Entry 052: Work orders on the phone — the frontend (P1)
 **Done (P1 PR3b of [PLAN-v2](PLAN-v2.md))**
 - `/partes`: list with a filter and count per status. `/partes/:id`: client and job, materials from the
@@ -900,6 +918,25 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-11-02 — Entrada 053: Fechas de España, instantes en UTC — el arreglo de zona horaria
+**Hecho**
+- El backend derivaba las fechas de calendario en UTC. Una factura emitida entre las 00:00 y la 01:00/02:00
+  de Madrid salía con fecha del día anterior y, el 1 de enero, numerada en la serie del año anterior. La
+  fecha de expedición es obligatoria (RD 1619/2012) y fija el periodo de IVA.
+- **`App\Time\BusinessClock`** (sobre el reloj de Symfony): el almacenamiento sigue en UTC (la zona por
+  defecto de PHP es ahora UTC de forma explícita, en `Kernel::boot()` y en el Dockerfile) y todo dato de
+  calendario se decide en **Europe/Madrid**: fecha de expedición y serie anual de facturas y presupuestos,
+  fechas por defecto de las entidades, el «hoy» del IRPF (año y próximo plazo), la fecha del parte y la hora
+  de la firma (mostradas en hora de España) y las horas escritas en los formularios (leídas como hora de
+  España, guardadas en UTC).
+- El `FechaHoraHusoGenRegistro` de los registros nuevos lleva el desfase de España (`+01:00`/`+02:00`).
+- **La huella de las facturas ya emitidas no cambia**: `verify` la recalcula con los textos guardados en cada
+  registro (`issueDate`, `generatedAt`), nunca desde la factura ni el reloj. Un test de integración reescribe
+  un registro tal como lo guardaba el código anterior (UTC), emite uno nuevo y `verify` da `ok:true` sobre
+  los dos.
+- Tests: 23:30 UTC del 31 de diciembre → 1 de enero, serie 2027 empezando en 1; los dos cambios de hora de
+  2026; fin de trimestre en el IRPF; horas del formulario de ida y vuelta. 144 tests, 606 aserciones.
 
 ### 2026-11-01 — Entrada 052: Los partes en el móvil — el frontend (P1)
 **Hecho (P1 PR3b del [PLAN-v2](PLAN-v2.md))**

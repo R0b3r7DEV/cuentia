@@ -487,6 +487,80 @@ class ApiIntegrationTest extends WebTestCase
         self::assertSame(400, $bad);
     }
 
+    /** Freeze the app's business clock at a UTC instant; returns the clock so the test can move it. */
+    private function freezeClockAt(string $utc): \Symfony\Component\Clock\MockClock
+    {
+        $mock = new \Symfony\Component\Clock\MockClock(new \DateTimeImmutable($utc, new \DateTimeZone('UTC')));
+        static::getContainer()->set(\App\Time\BusinessClock::class, new \App\Time\BusinessClock($mock));
+
+        return $mock;
+    }
+
+    /**
+     * New Year's Eve in Madrid, end to end: an invoice at 23:00 Madrid time stays in 2026; one at 00:30
+     * on 1 January (23:30 UTC on the 31st) is dated 2027 and starts the 2027 series at number 1. The first
+     * record is rewritten exactly as the code BEFORE this fix stored it (generatedAt in UTC, "+00:00"), so
+     * the chain mixes old and new records — and GET /api/invoices/verify must still say ok.
+     */
+    public function testNewYearsEveInvoicesAndTheChainOverPreexistingRecords(): void
+    {
+        $clock = $this->freezeClockAt('2026-12-31 22:00:00'); // 23:00 in Madrid
+        $this->registerAndLogin('nochevieja@test.local');
+        $this->json('PUT', '/api/account/settings', ['taxId' => 'B12345678']);
+
+        $line = ['description' => 'Reparación', 'unitPrice' => '100.00', 'vatRate' => '21.00'];
+        [$s1, $old] = $this->json('POST', '/api/invoices', ['customer' => ['name' => 'ACME', 'taxId' => 'B1'], 'lines' => [$line]]);
+        self::assertSame(201, $s1);
+        self::assertSame('2026/1', $old['number']);
+
+        // what the pre-fix code stored for that invoice: the same fields, generatedAt in UTC
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $record = $em->getRepository(\App\Entity\InvoiceRecord::class)->findOneBy(['fullNumber' => '2026/1']);
+        $record->setGeneratedAt('2026-12-31T22:00:00+00:00');
+        $record->setHash((new \App\Service\VerifactuHasher())->fingerprint($record));
+        $em->flush();
+
+        $clock->modify('+90 minutes'); // 23:30 UTC = 00:30 on 1 January in Madrid
+        [, $new] = $this->json('POST', '/api/invoices', ['customer' => ['name' => 'ACME', 'taxId' => 'B1'], 'lines' => [$line]]);
+        self::assertSame('2027/1', $new['number'], 'new year in Spain: new series, numbering restarted');
+
+        [, $list] = $this->json('GET', '/api/invoices');
+        $dates = array_column($list, 'issuedAt', 'number');
+        self::assertSame('2026-12-31', $dates['2026/1']);
+        self::assertSame('2027-01-01', $dates['2027/1']);
+
+        $em->clear();
+        $newRecord = $em->getRepository(\App\Entity\InvoiceRecord::class)->findOneBy(['fullNumber' => '2027/1']);
+        self::assertSame('01-01-2027', $newRecord->getIssueDate());
+        self::assertSame('2027-01-01T00:30:00+01:00', $newRecord->getGeneratedAt());
+
+        [$vs, $vr] = $this->json('GET', '/api/invoices/verify');
+        self::assertSame(200, $vs);
+        self::assertTrue($vr['ok'], 'old (UTC) and new (Madrid) records verify together');
+        self::assertSame(2, $vr['count']);
+    }
+
+    /** The time typed on the form is Spanish time; stored in UTC; shown back as typed. */
+    public function testWorkOrderTimesRoundTripInSpanishTime(): void
+    {
+        $this->freezeClockAt('2026-10-25 22:30:00'); // 23:30 in Madrid, the day the clocks went back
+        $this->registerAndLogin('hora@test.local');
+
+        [, $wo] = $this->json('POST', '/api/work-orders', [
+            'title' => 'Avería', 'customer' => ['name' => 'C', 'taxId' => 'B1'], 'status' => 'en_curso',
+            'scheduledAt' => '2026-07-01T10:30',
+        ]);
+        self::assertSame('2026-07-01 10:30', $wo['scheduledAt'], 'shown back as typed');
+
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $em->clear();
+        $stored = $em->getRepository(\App\Entity\WorkOrder::class)->find($wo['id'])->getScheduledAt();
+        self::assertSame('2026-07-01 08:30', $stored->format('Y-m-d H:i'), 'stored as the UTC instant (summer, UTC+2)');
+
+        // createdAt was taken now() — the real clock — so it is just shown in Madrid's zone
+        self::assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $wo['createdAt']);
+    }
+
     public function testOpenBankingReportsDisabledWithoutCredentials(): void
     {
         $this->registerAndLogin('bank@test.local');

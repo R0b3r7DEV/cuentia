@@ -39,6 +39,16 @@ class IrpfServiceTest extends TestCase
         return new IrpfService($repo, $vat);
     }
 
+    /** IrpfService whose "today" comes from a clock frozen at an exact UTC instant. */
+    private function irpfAt(string $utc, array $transactions = []): IrpfService
+    {
+        $repo = $this->createStub(TransactionRepository::class);
+        $repo->method('findForUser')->willReturn($transactions);
+        $clock = new \App\Time\BusinessClock(new \Symfony\Component\Clock\MockClock(new \DateTimeImmutable($utc, new \DateTimeZone('UTC'))));
+
+        return new IrpfService($repo, new VatService($this->createStub(TransactionRepository::class)), $clock);
+    }
+
     public function testQuarterlyPaymentAndDeadline(): void
     {
         $svc = $this->irpf([
@@ -78,5 +88,33 @@ class IrpfServiceTest extends TestCase
         // Q1 (Apr 20) already passed → next is Q2 (Jul 20), 18 days away.
         self::assertSame(2, $s['nextDeadline']['quarter']);
         self::assertSame(18, $s['nextDeadline']['daysLeft']);
+    }
+
+    /**
+     * End of quarter: 22:30 UTC on 31 March is already 1 April in Spain (UTC+2 since 29 March). The first
+     * quarter has ended and its deadline (20 April) is 19 days away — in UTC it would still say 20.
+     */
+    public function testEndOfQuarterIsDecidedInSpain(): void
+    {
+        $s = $this->irpfAt('2026-03-31 22:30:00', [$this->tx('1000.00', 'Ingresos de cliente')])->summary(new User());
+        self::assertSame(1, $s['nextDeadline']['quarter']);
+        self::assertSame(19, $s['nextDeadline']['daysLeft']);
+
+        // the deadline day itself still counts as "next" in Spain until midnight Madrid time
+        $s = $this->irpfAt('2026-04-20 21:30:00', [$this->tx('1000.00', 'Ingresos de cliente')])->summary(new User());
+        self::assertSame(1, $s['nextDeadline']['quarter']);
+        self::assertSame(0, $s['nextDeadline']['daysLeft']);
+
+        // 22:30 UTC on 20 April is 00:30 on the 21st in Spain: Q1 has passed, next is Q2 (20 July)
+        $s = $this->irpfAt('2026-04-20 22:30:00', [$this->tx('1000.00', 'Ingresos de cliente')])->summary(new User());
+        self::assertSame(2, $s['nextDeadline']['quarter']);
+    }
+
+    /** With no movements yet, the year is the Spanish one: 23:30 UTC on 31 December is already the new year. */
+    public function testNewYearForTaxesIsDecidedInSpain(): void
+    {
+        $s = $this->irpfAt('2026-12-31 23:30:00')->summary(new User());
+        self::assertSame(2027, $s['year']);
+        self::assertSame('2027-04-20', $s['quarters'][0]['deadline']);
     }
 }

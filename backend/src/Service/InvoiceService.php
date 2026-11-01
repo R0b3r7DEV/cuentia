@@ -10,6 +10,7 @@ use App\Entity\User;
 use App\Repository\CustomerRepository;
 use App\Repository\InvoiceRecordRepository;
 use App\Repository\InvoiceRepository;
+use App\Time\BusinessClock;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -26,7 +27,10 @@ class InvoiceService
         private CustomerRepository $customers,
         private InvoiceRecordRepository $records,
         private VerifactuHasher $hasher,
-    ) {}
+        private ?BusinessClock $clock = null,
+    ) {
+        $this->clock ??= new BusinessClock();
+    }
 
     /**
      * @param array{customer:array{name:string,taxId:string,address?:string,email?:string},
@@ -39,9 +43,12 @@ class InvoiceService
             throw new \InvalidArgumentException('An invoice needs at least one line');
         }
 
+        // The issue date — and so the yearly series — is the date in Spain, not in UTC: between 00:00 and
+        // 01:00/02:00 Madrid time, UTC is still on the previous day (and on 1 January, the previous year).
+        // ES: La fecha de expedición —y por tanto la serie anual— es la fecha en España, no en UTC.
         $issuedAt = isset($data['issuedAt'])
-            ? new \DateTimeImmutable($data['issuedAt'])
-            : new \DateTimeImmutable('today');
+            ? new \DateTimeImmutable((string) $data['issuedAt'], new \DateTimeZone(BusinessClock::ZONE))
+            : $this->clock->today();
         $series = trim((string) ($data['series'] ?? $issuedAt->format('Y')));
 
         $invoice = (new Invoice())
@@ -95,7 +102,9 @@ class InvoiceService
             ->setIssueDate($invoice->getIssuedAt()->format('d-m-Y'))
             ->setVatTotal($invoice->getVatTotal())
             ->setTotal($invoice->getTotal())
-            ->setGeneratedAt((new \DateTimeImmutable())->format('c'))
+            // Spanish time with its offset (+01:00 / +02:00), as the AEAT expects. Only new records get it:
+            // existing ones keep their stored string, and their fingerprint is computed from that string.
+            ->setGeneratedAt($this->clock->localNow()->format('c'))
             ->setPreviousHash($this->records->lastForUser($user)?->getHash());
 
         return $record->setHash($this->hasher->fingerprint($record));
