@@ -71,6 +71,14 @@ class AccountController extends AbstractController
             $v = trim((string) $data['taxId']);
             $user->setTaxId($v !== '' ? $v : null);
         }
+        if (array_key_exists('defaultLaborRate', $data)) {
+            // Empty clears it; otherwise a non-negative amount, "35,50" or "35.50".
+            $v = str_replace(',', '.', trim((string) $data['defaultLaborRate']));
+            if ($v !== '' && (!is_numeric($v) || (float) $v < 0)) {
+                return $this->json(['error' => 'invalid_amount'], 400);
+            }
+            $user->setDefaultLaborRate($v !== '' ? number_format((float) $v, 2, '.', '') : null);
+        }
         $em->flush();
 
         return $this->json($this->settingsPayload($user));
@@ -80,10 +88,11 @@ class AccountController extends AbstractController
     private function settingsPayload(User $user): array
     {
         return [
-            'billingMode'   => $user->getBillingMode(),
-            'businessName'  => $user->getBusinessName(),
-            'fiscalAddress' => $user->getFiscalAddress(),
-            'taxId'         => $user->getTaxId(),
+            'billingMode'      => $user->getBillingMode(),
+            'businessName'     => $user->getBusinessName(),
+            'fiscalAddress'    => $user->getFiscalAddress(),
+            'taxId'            => $user->getTaxId(),
+            'defaultLaborRate' => $user->getDefaultLaborRate(),
         ];
     }
 
