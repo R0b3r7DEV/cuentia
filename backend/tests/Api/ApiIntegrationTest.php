@@ -65,7 +65,8 @@ class ApiIntegrationTest extends WebTestCase
         self::assertSame(200, $status);
         self::assertSame('ana@test.local', $body['email']);
 
-        $this->json('POST', '/api/logout');
+        [$out] = $this->json('POST', '/api/logout');
+        self::assertSame(204, $out, 'no redirect: a cross-origin redirect made the browser\'s logout fetch fail');
         [$status] = $this->json('GET', '/api/me');
         self::assertSame(401, $status);
     }

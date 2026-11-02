@@ -12,6 +12,22 @@ recientes van arriba.*
 
 ## English
 
+### 2026-11-03 — Entry 059: A redesign for electricians — palette, "Hoy", cards and a landing page
+**Done** (PRs #12–#15, stacked)
+- **The user's palette:** midnight black, electric cobalt, acid lime. Light by default (it reads best in the
+  sun), dark one tap away. Lime is only ever a fill with black ink; cobalt is lightened to be ink on black.
+  No more frosted glass. Signage type for headings, label-printer mono for technical data, all self-hosted
+  (no request to Google Fonts). SVG icons instead of emoji.
+- **"Hoy"** is the home screen: open work orders, finished ones ready to invoice, unfinished certificates with
+  what they miss, and this month's invoicing. On a phone, a **bottom tab bar** (Hoy · Partes · Facturas ·
+  Certificados · Más) and a "Más" sheet; on a computer, one top bar with the same sections.
+- **Lists as cards** on a phone (one table, each cell marks its role); sub-tabs on one scrolling line.
+- **Public landing page** for electricians (always dark, the features drawn as breakers on a DIN rail);
+  "Entrar" leads to the new login. Movements moved to `/movements`.
+- Fix found on the way: `POST /api/logout` redirected to the API's own origin, the browser's fetch failed
+  cross-origin and "Salir" seemed to do nothing until a reload. It now answers 204, and the app logs out
+  locally even if the request fails.
+
 ### 2026-11-03 — Entry 058: Code review of the CERTINS E — ten findings, ten fixes
 **Done**
 - Bad dates (`31/12/2026`, `next monday`) and texts longer than their column are now a **400 naming the field**,
@@ -978,6 +994,22 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-11-03 — Entrada 059: Rediseño para electricistas — paleta, «Hoy», tarjetas y portada
+**Hecho** (PRs #12–#15, encadenados)
+- **La paleta del usuario:** negro medianoche, azul cobalto y lima ácido. Claro por defecto (se lee mejor al
+  sol), oscuro con un toque. La lima es siempre relleno con letra negra; el cobalto se aclara para ser texto
+  sobre negro. Fuera el efecto cristal. Letra de rótulo para titulares y monoespaciada de etiquetadora para los
+  datos técnicos, alojadas en la app (sin pedir nada a Google Fonts). Iconos SVG en vez de emojis.
+- **«Hoy»** es la pantalla de inicio: partes abiertos, terminados listos para facturar, certificados a medias
+  con lo que les falta y lo facturado este mes. En el móvil, **barra de pestañas abajo** (Hoy · Partes ·
+  Facturas · Certificados · Más) y una hoja «Más»; en el ordenador, una barra superior con las mismas secciones.
+- **Listados como tarjetas** en el móvil (una sola tabla, cada celda marca su papel); sub-pestañas en una línea.
+- **Portada pública** para electricistas (siempre oscura, las funciones dibujadas como automáticos en un carril
+  DIN); «Entrar» lleva al login nuevo. Movimientos pasa a `/movements`.
+- Arreglo encontrado por el camino: `POST /api/logout` redirigía al dominio de la API, el fetch del navegador
+  fallaba y «Salir» parecía no hacer nada hasta recargar. Ahora responde 204, y la app sale en local aunque la
+  petición falle.
 
 ### 2026-11-03 — Entrada 058: Revisión de código del CERTINS E — diez hallazgos, diez arreglos
 **Hecho**

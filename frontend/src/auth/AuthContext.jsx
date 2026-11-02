@@ -54,8 +54,10 @@ export function AuthProvider({ children }) {
     await login(email, password) // auto-login after registering
   }
 
+  // Out locally even if the request fails (no signal, server down): the button must always log out.
+  // ES: Fuera en local aunque la petición falle: el botón siempre tiene que cerrar sesión.
   const logout = async () => {
-    await fetch('/api/logout', { method: 'POST' })
+    try { await fetch('/api/logout', { method: 'POST' }) } catch { /* already out on this device */ }
     setUser(null)
   }
 
