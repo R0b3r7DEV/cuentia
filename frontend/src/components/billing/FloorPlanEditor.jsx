@@ -299,9 +299,9 @@ export default function FloorPlanEditor({ layout, background, planTitle, onChang
     const bgImage = clone.querySelector('image')
     if (bgImage) bgImage.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', bgImage.getAttribute('href'))
 
-    const ink = cssVar('--text', '#101828'), muted = cssVar('--text-muted', '#475467')
-    const accent = cssVar('--accent', '#443ea8'), pos = cssVar('--pos', '#0f6b54')
-    const warn = cssVar('--warn-text', '#8a5a16'), border = cssVar('--border', '#e2deea')
+    const ink = cssVar('--text', '#030407'), muted = cssVar('--text-muted', '#4f5560')
+    const accent = cssVar('--accent', '#1558c9'), pos = cssVar('--pos', '#1e7a46')
+    const warn = cssVar('--warn-text', '#7a5000'), border = cssVar('--border', '#dadcd3')
 
     const style = el('style')
     style.textContent = `

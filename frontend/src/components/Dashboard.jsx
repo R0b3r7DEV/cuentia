@@ -9,15 +9,15 @@ import { useTranslation } from '../i18n/LanguageContext'
 // (including dark mode). / Lee los colores de los tokens CSS para que los gráficos
 // sigan el tema (incluido el modo oscuro).
 function useChartColors() {
-  const [c, setC] = useState({ blue: '#443ea8', red: '#9b3f3a', grid: '#e1e0d9', muted: '#6b6480' })
+  const [c, setC] = useState({ blue: '#1558c9', red: '#b3261e', grid: '#dadcd3', muted: '#5d636e' })
   useEffect(() => {
     const s = getComputedStyle(document.documentElement)
     const g = (name, fallback) => (s.getPropertyValue(name).trim() || fallback)
     setC({
-      blue: g('--chart-1', '#443ea8'),
-      red: g('--chart-2', '#9b3f3a'),
-      grid: g('--chart-grid', '#e1e0d9'),
-      muted: g('--chart-muted', '#6b6480'),
+      blue: g('--chart-1', '#1558c9'),
+      red: g('--chart-2', '#b3261e'),
+      grid: g('--chart-grid', '#dadcd3'),
+      muted: g('--chart-muted', '#5d636e'),
     })
   }, [])
   return c

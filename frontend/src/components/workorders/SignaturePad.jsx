@@ -34,7 +34,7 @@ const SignaturePad = forwardRef(function SignaturePad({ label, onChange }, ref) 
       ctx.lineWidth = 2.4
       ctx.lineCap = 'round'
       ctx.lineJoin = 'round'
-      ctx.strokeStyle = '#1a1630'
+      ctx.strokeStyle = '#030407'
       setEmpty(true)
     }
     fit()
