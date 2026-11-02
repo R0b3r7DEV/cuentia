@@ -13,6 +13,7 @@ import MyDataPage from './pages/MyDataPage'
 import CertificateGvaPage from './pages/CertificateGvaPage'
 import AccountPage from './pages/AccountPage'
 import AuthPage from './pages/AuthPage'
+import TodayPage from './pages/TodayPage'
 import { useAuth } from './auth/AuthContext'
 
 // Gate the app behind authentication: logged-out users see the login/register screen.
@@ -29,7 +30,8 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route element={<Layout />}>
-          <Route path="/" element={<MovementsPage />} />
+          <Route path="/" element={<TodayPage />} />
+          <Route path="/movements" element={<MovementsPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/taxes" element={<TaxesPage />} />
           <Route path="/invoices" element={<BillingPage />} />
