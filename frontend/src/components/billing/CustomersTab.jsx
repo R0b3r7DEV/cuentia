@@ -91,7 +91,7 @@ export default function CustomersTab() {
       </div>
 
       <div className="card table-scroll" style={{ padding: 0 }}>
-        <table className="table">
+        <table className="table table-cards">
           <thead>
             <tr>
               <th>{t('cust.name')}</th>
@@ -103,10 +103,10 @@ export default function CustomersTab() {
           <tbody>
             {customers.map((c) => (
               <tr key={c.id}>
-                <td>{c.name}</td>
-                <td className="num">{c.taxId}</td>
-                <td className="muted">{c.email || '—'}</td>
-                <td className="right">
+                <td className="tc-title">{c.name}</td>
+                <td className="num tc-meta">{c.taxId}</td>
+                <td className="muted tc-sub">{c.email || '—'}</td>
+                <td className="right tc-actions">
                   <button className="link-btn" onClick={() => setForm({ ...blank, ...c })}>{t('cust.edit')}</button>
                   <button className="link-btn danger-link" onClick={() => remove(c)}>{t('cust.delete')}</button>
                 </td>

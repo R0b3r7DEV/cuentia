@@ -93,7 +93,7 @@ export default function MovementsPage() {
       <BankConnect onImported={reload} />
 
       <div className="card table-scroll" style={{ padding: 0 }}>
-        <table className="table">
+        <table className="table table-cards">
           <thead>
             <tr>
               <th>{t('col.date')}</th>
@@ -105,10 +105,10 @@ export default function MovementsPage() {
           <tbody>
             {transactions.map((tx) => (
               <tr key={tx.id}>
-                <td className="muted" style={{ whiteSpace: 'nowrap' }}>{tx.bookedAt}</td>
-                <td>{tx.description}</td>
-                <td>{tx.category ? <span className="tag">{tx.category}</span> : <span className="tag-empty">—</span>}</td>
-                <td className={`right num ${Number(tx.amount) < 0 ? 'amount-neg' : 'amount-pos'}`}>{eur(tx.amount)}</td>
+                <td className="muted tc-meta" style={{ whiteSpace: 'nowrap' }}>{tx.bookedAt}</td>
+                <td className="tc-title">{tx.description}</td>
+                <td className="tc-status">{tx.category ? <span className="tag">{tx.category}</span> : <span className="tag-empty">—</span>}</td>
+                <td className={`right num tc-amount ${Number(tx.amount) < 0 ? 'amount-neg' : 'amount-pos'}`}>{eur(tx.amount)}</td>
               </tr>
             ))}
             {transactions.length === 0 && (

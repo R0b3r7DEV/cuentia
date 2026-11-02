@@ -199,7 +199,7 @@ export default function QuotesTab({ prefill }) {
       </div>
 
       <div className="card table-scroll" style={{ padding: 0 }}>
-        <table className="table">
+        <table className="table table-cards">
           <thead>
             <tr>
               <th>{t('col.number')}</th>
@@ -213,11 +213,11 @@ export default function QuotesTab({ prefill }) {
             {quotes.map((q) => (
               <Fragment key={q.id}>
                 <tr className="row-click" onClick={() => toggleRow(q.id)}>
-                  <td className="num">{q.number}</td>
-                  <td>{q.customer}</td>
-                  <td className="muted" style={{ whiteSpace: 'nowrap' }}>{q.issuedAt}</td>
-                  <td className="right num">{eur(q.total)}</td>
-                  <td><span className={`tag status-${q.status}`}>{t(`status.${q.status}`)}</span></td>
+                  <td className="num tc-meta">{q.number}</td>
+                  <td className="tc-title">{q.customer}</td>
+                  <td className="muted tc-sub" style={{ whiteSpace: 'nowrap' }}>{q.issuedAt}</td>
+                  <td className="right num tc-amount">{eur(q.total)}</td>
+                  <td className="tc-status"><span className={`tag status-${q.status}`}>{t(`status.${q.status}`)}</span></td>
                 </tr>
                 {expanded?.id === q.id && expanded.detail && (
                   <tr className="detail-row">

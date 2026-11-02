@@ -729,3 +729,36 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 0
   .today-fab { bottom: calc(76px + env(safe-area-inset-bottom)); }
   .today-new { flex: 1; justify-content: center; }
 }
+
+/* ── Lists as cards on a phone ──────────────────────────────────────────────
+   The same <table> (one source of markup); under 640 px each row becomes a card. Each cell says its role:
+   tc-title · tc-amount on the first line, tc-sub · tc-status under it, tc-meta in label mono, tc-actions last.
+   ES: La misma tabla; por debajo de 640 px cada fila es una tarjeta y cada celda dice su papel. */
+@media (max-width: 640px) {
+  .table-scroll:has(.table-cards) { overflow: visible; }
+  .card:has(> .table-cards), .table-scroll:has(.table-cards) { background: transparent; border: 0; box-shadow: none; padding: 0 !important; }
+  .table-cards { min-width: 0; display: block; }
+  .table-cards thead { display: none; }
+  .table-cards tbody { display: grid; gap: 10px; }
+  .table-cards tbody tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "title amount" "sub status" "meta meta" "actions actions";
+    gap: 2px 12px; padding: 12px 14px; background: var(--surface-solid); border: 1px solid var(--border); border-radius: var(--radius); }
+  .table-cards tbody tr:hover { background: var(--surface-solid); }
+  .table-cards td { display: block; padding: 0; border: 0; text-align: left; min-width: 0; }
+  .table-cards .tc-title { grid-area: title; font-weight: 700; font-size: 16px; }
+  .table-cards .tc-amount { grid-area: amount; font-family: var(--display); font-weight: 800; font-size: 22px; line-height: 1.1; text-align: right; }
+  .table-cards .tc-sub { grid-area: sub; color: var(--text-muted); font-size: 14px; }
+  .table-cards .tc-status { grid-area: status; text-align: right; }
+  .table-cards .tc-meta { grid-area: meta; font-family: var(--mono); font-size: 12px; color: var(--text-muted); }
+  .table-cards .tc-actions { grid-area: actions; display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); white-space: normal; }
+  .table-cards .tc-actions .link-btn { margin: 0; min-height: 36px; }
+  /* expanded detail and "empty" rows span the whole card / filas de detalle y vacías, a todo lo ancho */
+  .table-cards tbody tr.detail-row { display: block; margin-top: -8px; border-top: 0; border-radius: 0 0 var(--radius) var(--radius); }
+  .table-cards tbody tr:has(> td.empty) { display: block; }
+  .table-cards tbody tr.row-click { cursor: pointer; }
+}
+/* sub-tabs on one line that scrolls sideways, never wrapping / sub-pestañas en una línea con scroll lateral */
+@media (max-width: 640px) {
+  .subtabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; margin-left: -1rem; margin-right: -1rem; padding: 0 1rem 2px; }
+  .subtabs::-webkit-scrollbar { display: none; }
+  .subtab { white-space: nowrap; flex: none; min-height: 40px; }
+}
