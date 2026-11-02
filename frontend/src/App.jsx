@@ -19,7 +19,9 @@ export default function App() {
   const { user, loading } = useAuth()
 
   if (loading) return null
-  if (!user) return <AuthPage />
+  // A password-reset link opens the reset form even if this browser is still logged in.
+  // ES: Un enlace de recuperación abre el formulario aunque este navegador siga con sesión.
+  if (!user || window.location.pathname.startsWith('/restablecer')) return <AuthPage />
 
   return (
     <BrowserRouter>

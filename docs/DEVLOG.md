@@ -12,6 +12,17 @@ recientes van arriba.*
 
 ## English
 
+### 2026-11-02 — Entry 054: "Forgot my password"
+**Done**
+- `POST /api/password/forgot` + `POST /api/password/reset`, and the matching screens on the login page.
+  E-mail through **Brevo** (`symfony/mailer` + `symfony/brevo-mailer`).
+- Token: 256 random bits, only its SHA-256 stored, 1 hour, single use; a new link kills the old one. Same
+  answer whether the account exists or not. Rate limits per IP and per e-mail (`symfony/rate-limiter`). The
+  token travels after the `#` and is removed from the address bar. Resetting ends the other sessions.
+- Tests: 9 integration tests; 153 tests, 657 assertions. Mobile E2E of the screens. Guide 42.
+
+**Production**: set `MAILER_DSN`, `MAILER_FROM` (a Brevo-verified sender) and `FRONTEND_URL` in Render.
+
 ### 2026-11-02 — Entry 053: Dates in Spain, instants in UTC — the time-zone fix
 **Done**
 - The backend derived calendar dates from UTC. An invoice issued between 00:00 and 01:00/02:00 in Madrid
@@ -918,6 +929,17 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-11-02 — Entrada 054: «He olvidado la contraseña»
+**Hecho**
+- `POST /api/password/forgot` + `POST /api/password/reset`, y sus pantallas en el login. Correo por **Brevo**
+  (`symfony/mailer` + `symfony/brevo-mailer`).
+- Token: 256 bits aleatorios, solo se guarda su SHA-256, 1 hora, un solo uso; un enlace nuevo anula el
+  anterior. Misma respuesta exista o no la cuenta. Límites por IP y por email (`symfony/rate-limiter`). El
+  token viaja tras el `#` y se borra de la barra de direcciones. Al cambiarla se cierran las demás sesiones.
+- Tests: 9 de integración; 153 tests, 657 aserciones. E2E de las pantallas en móvil. Guía 42.
+
+**Producción**: poner `MAILER_DSN`, `MAILER_FROM` (remitente verificado en Brevo) y `FRONTEND_URL` en Render.
 
 ### 2026-11-02 — Entrada 053: Fechas de España, instantes en UTC — el arreglo de zona horaria
 **Hecho**

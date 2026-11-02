@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import { useTranslation } from '../i18n/LanguageContext'
 import { useTheme } from '../theme/ThemeContext'
@@ -17,14 +17,43 @@ const CODE_MESSAGES = {
   invalid_email: 'auth.invalidEmail',
   weak_password: 'auth.weakPassword',
   too_many_attempts: 'auth.tooManyAttempts',
+  too_many_requests: 'auth.tooManyAttempts',
+  invalid_token: 'auth.resetInvalidToken',
   network_error: 'auth.networkError',
+}
+
+/** The token of a reset link (…/restablecer#token=…). It travels after the # so no server ever sees it. */
+function tokenFromUrl() {
+  const m = /[#&]token=([a-f0-9]{64})/.exec(window.location.hash)
+  return m ? m[1] : null
+}
+
+/** POST JSON to a public endpoint; throws an Error with the backend's `code` and HTTP status. */
+async function postPublic(url, body) {
+  let r
+  try {
+    r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+  } catch {
+    const err = new Error('network'); err.code = 'network_error'; throw err
+  }
+  const data = await r.json().catch(() => ({}))
+  if (!r.ok) { const err = new Error(data.code || 'error'); err.code = data.code; err.status = r.status; throw err }
+  return data
 }
 
 export default function AuthPage() {
   const { login, register } = useAuth()
   const { t, lang, setLang } = useTranslation()
   const { theme, toggle } = useTheme()
-  const [mode, setMode] = useState('login') // 'login' | 'register'
+  const [resetToken] = useState(tokenFromUrl)
+  // 'login' | 'register' | 'forgot' | 'reset'
+  const [mode, setMode] = useState(() => (resetToken ? 'reset' : 'login'))
+  const [notice, setNotice] = useState(null) // a neutral, non-error message
+
+  // Once read, take the token out of the address bar and the history entry.
+  useEffect(() => {
+    if (resetToken) window.history.replaceState(null, '', '/')
+  }, [resetToken])
   const cardRef = useRef(null)
 
   // Subtle 3D parallax: the card tilts toward the cursor so it reads as a layer floating above the static
@@ -48,6 +77,7 @@ export default function AuthPage() {
   }
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [password2, setPassword2] = useState('')
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
 
@@ -62,12 +92,24 @@ export default function AuthPage() {
     return t('auth.error')
   }
 
+  const go = (next) => { setMode(next); setError(null); setNotice(null); setPassword(''); setPassword2('') }
+
   const submit = async (e) => {
     e.preventDefault()
-    setError(null); setBusy(true)
+    setError(null); setNotice(null)
+    if (mode === 'reset' && password !== password2) { setError(t('auth.resetMismatch')); return }
+    setBusy(true)
     try {
       if (mode === 'login') await login(email, password)
-      else await register(email, password)
+      else if (mode === 'register') await register(email, password)
+      else if (mode === 'forgot') {
+        await postPublic('/api/password/forgot', { email })
+        setNotice(t('auth.resetSent'))
+      } else {
+        await postPublic('/api/password/reset', { token: resetToken, password })
+        go('login')
+        setNotice(t('auth.resetDone'))
+      }
     } catch (err) {
       setError(messageFor(err))
     } finally {
@@ -101,25 +143,45 @@ export default function AuthPage() {
         <div className="auth-brand">Cuentia<span className="brand-dot">.</span></div>
         <p className="page-subtitle auth-tagline">{t('auth.tagline')}</p>
 
-        <h2>{mode === 'login' ? t('auth.loginTitle') : t('auth.registerTitle')}</h2>
+        <h2>{t({ login: 'auth.loginTitle', register: 'auth.registerTitle', forgot: 'auth.forgotTitle', reset: 'auth.resetTitle' }[mode])}</h2>
+        {mode === 'forgot' && <p className="msg" style={{ marginTop: 0 }}>{t('auth.forgotDesc')}</p>}
         <form onSubmit={submit} className="auth-form">
-          <input className="chat-input" type="email" required placeholder={t('auth.email')}
-            value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-          <input className="chat-input" type="password" required minLength={mode === 'register' ? 8 : 1} placeholder={t('auth.password')}
-            value={password} onChange={(e) => setPassword(e.target.value)}
-            autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
+          {mode !== 'reset' && (
+            <input className="chat-input" type="email" required placeholder={t('auth.email')}
+              value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+          )}
+          {mode !== 'forgot' && (
+            <input className="chat-input" type="password" required minLength={mode === 'login' ? 1 : 8}
+              placeholder={mode === 'reset' ? t('auth.newPassword') : t('auth.password')}
+              value={password} onChange={(e) => setPassword(e.target.value)}
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
+          )}
+          {mode === 'reset' && (
+            <input className="chat-input" type="password" required minLength={8} placeholder={t('auth.repeatPassword')}
+              value={password2} onChange={(e) => setPassword2(e.target.value)} autoComplete="new-password" />
+          )}
           {error && <p className="msg error">{error}</p>}
-          <button className="btn btn-primary" type="submit" disabled={busy}>
-            {mode === 'login' ? t('auth.login') : t('auth.register')}
-          </button>
+          {notice && <p className="msg" role="status">{notice}</p>}
+          {!(mode === 'forgot' && notice) && (
+            <button className="btn btn-primary" type="submit" disabled={busy}>
+              {t({ login: 'auth.login', register: 'auth.register', forgot: 'auth.forgotSend', reset: 'auth.resetSave' }[mode])}
+            </button>
+          )}
         </form>
 
-        <p className="msg">
-          {mode === 'login' ? t('auth.noAccount') : t('auth.haveAccount')}{' '}
-          <button className="link-btn" onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(null) }}>
-            {mode === 'login' ? t('auth.register') : t('auth.login')}
-          </button>
-        </p>
+        {mode === 'login' && (
+          <p className="msg"><button className="link-btn" onClick={() => go('forgot')}>{t('auth.forgotLink')}</button></p>
+        )}
+        {mode === 'login' || mode === 'register' ? (
+          <p className="msg">
+            {mode === 'login' ? t('auth.noAccount') : t('auth.haveAccount')}{' '}
+            <button className="link-btn" onClick={() => go(mode === 'login' ? 'register' : 'login')}>
+              {mode === 'login' ? t('auth.register') : t('auth.login')}
+            </button>
+          </p>
+        ) : (
+          <p className="msg"><button className="link-btn" onClick={() => go('login')}>← {t('auth.backToLogin')}</button></p>
+        )}
       </div>
     </div>
   )
