@@ -1,13 +1,13 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { useTranslation } from '../i18n/LanguageContext'
-import { useTheme } from '../theme/ThemeContext'
-// Background: office scene by George Bakos on Unsplash (free license). Optimised to ~2000px / 142 KB.
-import authScene from '../assets/auth-scene.jpg'
 
 /**
- * The login / register screen shown when nobody is logged in.
- * ES: La pantalla de login / registro que se muestra cuando nadie ha iniciado sesión.
+ * Log in, sign up, forgot / reset password — reached from the landing page's "Entrar". A black header with the
+ * brand (as on the landing) and the form below, on the light page.
+ * ES: Entrar, crear cuenta, recuperar contraseña — se llega desde «Entrar» en la portada. Cabecera negra con la
+ * marca (como en la portada) y el formulario debajo.
  */
 // The backend's stable error codes → translation keys.
 // ES: Los códigos de error estables del backend → claves de traducción.
@@ -41,40 +41,18 @@ async function postPublic(url, body) {
   return data
 }
 
-export default function AuthPage() {
+export default function AuthPage({ initialMode = 'login' }) {
   const { login, register } = useAuth()
   const { t, lang, setLang } = useTranslation()
-  const { theme, toggle } = useTheme()
   const [resetToken] = useState(tokenFromUrl)
   // 'login' | 'register' | 'forgot' | 'reset'
-  const [mode, setMode] = useState(() => (resetToken ? 'reset' : 'login'))
+  const [mode, setMode] = useState(() => (resetToken ? 'reset' : initialMode))
   const [notice, setNotice] = useState(null) // a neutral, non-error message
 
   // Once read, take the token out of the address bar and the history entry.
   useEffect(() => {
-    if (resetToken) window.history.replaceState(null, '', '/')
+    if (resetToken) window.history.replaceState(null, '', '/entrar')
   }, [resetToken])
-  const cardRef = useRef(null)
-
-  // Subtle 3D parallax: the card tilts toward the cursor so it reads as a layer floating above the static
-  // photo, not part of it. Motion is the depth cue, so it is disabled under prefers-reduced-motion.
-  // ES: Paralaje 3D sutil: la tarjeta se inclina hacia el cursor y se lee como una capa sobre la foto.
-  const tilt = (e) => {
-    const el = cardRef.current
-    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const r = el.getBoundingClientRect()
-    const clamp = (v) => Math.max(-0.6, Math.min(0.6, v))
-    const dx = clamp((e.clientX - (r.left + r.width / 2)) / r.width)
-    const dy = clamp((e.clientY - (r.top + r.height / 2)) / r.height)
-    el.style.setProperty('--rx', `${dx * 5}deg`)
-    el.style.setProperty('--ry', `${-dy * 5}deg`)
-  }
-  const untilt = () => {
-    const el = cardRef.current
-    if (!el) return
-    el.style.setProperty('--rx', '0deg')
-    el.style.setProperty('--ry', '0deg')
-  }
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [password2, setPassword2] = useState('')
@@ -118,47 +96,38 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="auth-wrap" onPointerMove={tilt} onPointerLeave={untilt}>
-      {/* The scene behind the card: a warm lamp-lit room, warmed or dimmed by the theme. */}
-      <div className="auth-scene" aria-hidden="true" style={{ backgroundImage: `url(${authScene})` }} />
-      <div className="auth-scene-tint" aria-hidden="true" />
-      {/* The lamp itself is the theme switch: click it (or focus + Enter) to turn the room's light on/off.
-          A real, labelled, keyboard-focusable control — it is the only theme toggle on this page. */}
-      <button
-        type="button"
-        className="auth-lamp-switch"
-        onClick={toggle}
-        aria-pressed={theme === 'light'}
-        aria-label={theme === 'dark' ? t('auth.lightOn') : t('auth.lightOff')}
-        title={theme === 'dark' ? t('auth.lightOn') : t('auth.lightOff')}
-      />
-
-      <div className="card auth-card" ref={cardRef}>
-        <div className="auth-glow" aria-hidden="true" />
-        <div className="auth-topbar">
-          <button className="btn btn-glass btn-sm icon-btn" onClick={() => setLang(lang === 'es' ? 'en' : 'es')}>
-            {lang === 'es' ? 'EN' : 'ES'}
-          </button>
+    <div className="auth">
+      <header className="auth-head">
+        <div className="auth-head-bar">
+          <Link to="/" className="landing-logo"><b>Cuentia<i>.</i></b><small>{t('landing.tag')}</small><span className="earth" aria-hidden="true" /></Link>
+          <div className="auth-head-actions">
+            <button type="button" className="landing-lang" onClick={() => setLang(lang === 'es' ? 'en' : 'es')}>{lang === 'es' ? 'EN' : 'ES'}</button>
+            <Link to="/" className="auth-back">{t('landing.back')}</Link>
+          </div>
         </div>
-        <div className="auth-brand">Cuentia<span className="brand-dot">.</span></div>
-        <p className="page-subtitle auth-tagline">{t('auth.tagline')}</p>
+        <h1 className="auth-title">{t({ login: 'auth.hello', register: 'auth.registerTitle', forgot: 'auth.forgotTitle', reset: 'auth.resetTitle' }[mode])}</h1>
+      </header>
 
-        <h2>{t({ login: 'auth.loginTitle', register: 'auth.registerTitle', forgot: 'auth.forgotTitle', reset: 'auth.resetTitle' }[mode])}</h2>
+      <div className="auth-body">
         {mode === 'forgot' && <p className="msg" style={{ marginTop: 0 }}>{t('auth.forgotDesc')}</p>}
         <form onSubmit={submit} className="auth-form">
           {mode !== 'reset' && (
-            <input className="chat-input" type="email" required placeholder={t('auth.email')}
-              value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+            <label className="field" htmlFor="auth-email"><span>{t('auth.email')}</span>
+              <input id="auth-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+            </label>
           )}
           {mode !== 'forgot' && (
-            <input className="chat-input" type="password" required minLength={mode === 'login' ? 1 : 8}
-              placeholder={mode === 'reset' ? t('auth.newPassword') : t('auth.password')}
-              value={password} onChange={(e) => setPassword(e.target.value)}
-              autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
+            <label className="field" htmlFor="auth-password"><span>{mode === 'reset' ? t('auth.newPassword') : t('auth.password')}</span>
+              <input id="auth-password" type="password" required minLength={mode === 'login' ? 1 : 8}
+                value={password} onChange={(e) => setPassword(e.target.value)}
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
+            </label>
           )}
           {mode === 'reset' && (
-            <input className="chat-input" type="password" required minLength={8} placeholder={t('auth.repeatPassword')}
-              value={password2} onChange={(e) => setPassword2(e.target.value)} autoComplete="new-password" />
+            <label className="field" htmlFor="auth-password2"><span>{t('auth.repeatPassword')}</span>
+              <input id="auth-password2" type="password" required minLength={8}
+                value={password2} onChange={(e) => setPassword2(e.target.value)} autoComplete="new-password" />
+            </label>
           )}
           {error && <p className="msg error">{error}</p>}
           {notice && <p className="msg" role="status">{notice}</p>}
