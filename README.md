@@ -6,15 +6,17 @@
 > invoices, and instantly see your VAT, estimated income tax and cash-flow forecast — the numbers
 > your accountant asks for, without the spreadsheet.
 >
-> Plus a **field toolkit for electricians**: design an installation to the Spanish REBT, trace the real
-> floor plan, and turn it into a certificate and a quote.
+> Plus a **field toolkit for electricians**, phone first: signed work orders that become invoices, the
+> electrical installation certificate (CIE) step by step on the GVA's CERTINS E model, and an installation
+> designer to the Spanish REBT.
 
 > ⚠️ **Work in progress.** This project is being built in public, step by step, with every
 > decision documented in [`docs/`](docs/). Follow the build in [`docs/DEVLOG.md`](docs/DEVLOG.md).
 
 ### 🌐 Live demo: **[cuentia-snowy.vercel.app](https://cuentia-snowy.vercel.app/)**
 
-Register (or log in) and click **“Load sample data”** to explore with realistic movements.
+Tap **Entrar** on the landing page and create an account. To explore with realistic data, open
+**Más → Movimientos** and click **“Cargar datos de ejemplo”**. The app is in Spanish by default (EN/ES toggle).
 *The backend runs on a free tier, so the very first request may take ~30–60 s to wake up.*
 
 [![CI](https://github.com/R0b3r7DEV/cuentia/actions/workflows/ci.yml/badge.svg)](https://github.com/R0b3r7DEV/cuentia/actions/workflows/ci.yml)
@@ -25,11 +27,18 @@ Register (or log in) and click **“Load sample data”** to explore with realis
 
 ## 📸 Screenshots
 
-| Dashboard — spending, income vs expenses, cash-flow forecast | Taxes — VAT & IRPF (modelo 130) with deadline alert |
-|---|---|
-| ![Dashboard](docs/screenshots/dashboard.png) | ![Taxes](docs/screenshots/taxes.png) |
+![Landing page for electricians — the three features as breakers on a DIN rail](docs/screenshots/landing.png)
 
-![Movements — imported & AI-categorized transactions](docs/screenshots/movements.png)
+| “Hoy” — the home screen on a phone | Invoices as cards, bottom tab bar | “Para la GVA” — the certificate ready to copy |
+|---|---|---|
+| ![Hoy](docs/screenshots/mobile-today.png) | ![Invoices](docs/screenshots/mobile-invoices.png) | ![Para la GVA](docs/screenshots/mobile-gva.png) |
+
+| Taxes — VAT & IRPF (modelo 130) | Movements — imported & AI-categorized |
+|---|---|
+| ![Taxes](docs/screenshots/taxes.png) | ![Movements](docs/screenshots/movements.png) |
+
+*Design: the palette is midnight black, electric cobalt and acid lime; signage type for headings and a
+label-printer mono for technical data. Light by default (it reads best in the sun, on site); dark one tap away.*
 
 ---
 
@@ -60,7 +69,20 @@ error-prone, and most of them only find out their real numbers when the quarter 
 
 ### ⚡ For electricians
 
-A vertical built on top of the same billing core, because an electrician's paperwork *is* their invoicing:
+A vertical built on top of the same billing core, because an electrician's paperwork *is* their invoicing.
+Designed **phone first**: a “Hoy” home screen (open work orders, finished ones ready to invoice, unfinished
+certificates and what they miss) and a bottom tab bar within thumb's reach.
+
+- **Work orders** — hours, materials and photos (stripped of EXIF/GPS), signed by the customer with a finger,
+  then turned into a Verifactu invoice in one tap; a PDF of the signed order.
+- **Electrical installation certificate (CIE), step by step** — laid out as the GVA's **CERTINS E** model
+  (sections A–G plus the data for the technical design report), with the required fields checked by rule
+  (CUPS and NIF check digits). A **“Para la GVA”** sheet lists every field in the official form's order with
+  a copy button — the certificate itself is filed in the Generalitat's web form and signed by the installer,
+  never by the app.
+- **Claude as a helper, not the author** — with the user's own Anthropic key: read the customer's electricity
+  bill into the form, answer “what goes here?” and review the certificate before filing. It only fills empty
+  fields, marks what it filled, and never sees the customer's personal data when helping or reviewing.
 
 - **Installation designer (REBT ITC-BT-25)** — from the rooms and their loads, it derives the
   electrification grade, the power to contract, circuits C1–C12 with their sections and breakers, the
@@ -76,9 +98,8 @@ A vertical built on top of the same billing core, because an electrician's paper
   split at the maximum of table 1, the IGA rated from the contracted power, one differential per five
   circuits, and the DIN modules counted so the enclosure can be ordered.
 - **3D view** — the same layout extruded into walls, with the devices at realistic heights.
-- **Export & chain it** — download the finished plan as a **PNG**, turn the design into an
-  **electrical installation certificate (CIE)** ready to sign with AutoFirma, or turn the bill of
-  materials into a **quote** → invoice.
+- **Export & chain it** — download the finished plan as a **PNG**, carry the design into the **CIE**
+  step by step, or turn the bill of materials into a **quote** → invoice.
 
 #### 🔒 Engineering highlight — the Verifactu hash chain
 
@@ -148,12 +169,16 @@ of web development and finance — and knowing exactly where that product line s
 
 - **Backend:** PHP · Symfony · Doctrine · PostgreSQL
 - **Frontend:** React · Vite · Three.js (react-three-fiber, lazy-loaded)
-- **AI:** Anthropic Claude (categorization + natural-language queries)
+- **AI:** Anthropic Claude (official PHP SDK, structured outputs) — categorization, natural-language queries
+  and the CIE helpers; each user brings their own key
+- **Email:** Brevo, sent from an authenticated domain (DKIM + DMARC) — password reset links
 - **e-invoicing:** Verifactu — SHA-256 hash chain · QR (`endroid/qr-code`, SVG) · RegistroAlta XML · PDF (Dompdf)
 - **Open banking:** GoCardless Bank Account Data (PSD2), behind a feature flag
 - **Secrets:** per-user credentials encrypted with AES-256-GCM (bring-your-own-key)
-- **Quality:** PHPUnit (80 unit + integration tests) · GitHub Actions CI — including a job that applies every
-  migration to a clean PostgreSQL and asserts the schema matches the entities · bilingual docs (`docs/guide/` 00→37)
+- **Design:** self-hosted fonts (no request to Google Fonts), SVG icons, WCAG-checked contrast
+- **Quality:** PHPUnit (185 unit + integration tests) · Vitest (67) · GitHub Actions CI — including a job that
+  applies every migration to a clean PostgreSQL and asserts the schema matches the entities · bilingual docs
+  (`docs/guide/` 00→44)
 
 ### Run it locally
 
@@ -178,7 +203,7 @@ and `cd frontend; npm install`) and create the database (see [guide 03](docs/gui
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design and domain model |
 | [docs/DEVLOG.md](docs/DEVLOG.md) | Running log of every step taken |
 | [docs/decisions/](docs/decisions/) | Architecture Decision Records (ADRs) |
-| [docs/guide/](docs/guide/) | 38 step-by-step guides, in English and Spanish |
+| [docs/guide/](docs/guide/) | 43 step-by-step guides, in English and Spanish |
 
 ---
 
@@ -210,7 +235,20 @@ y la mayoría solo descubre sus números reales cuando el trimestre ya se está 
 ### ⚡ Para electricistas
 
 Un vertical construido sobre el mismo núcleo de facturación, porque el papeleo de un electricista **es**
-su facturación:
+su facturación. Pensado **primero para el móvil**: una pantalla de inicio «Hoy» (partes abiertos, terminados
+listos para facturar, certificados a medias y lo que les falta) y una barra de pestañas abajo, a mano del pulgar.
+
+- **Partes de trabajo** — horas, materiales y fotos (sin datos EXIF ni GPS), firmados por el cliente con el
+  dedo y convertidos en factura Verifactu con un toque; PDF del parte firmado.
+- **Certificado de Instalación Eléctrica (CIE), paso a paso** — ordenado como el modelo **CERTINS E** de la
+  GVA (secciones A–G más los datos de la memoria técnica), con los obligatorios comprobados por regla (dígitos
+  de control del CUPS y del NIF). Una hoja **«Para la GVA»** lista cada campo en el orden del formulario oficial
+  con su botón de copiar: el certificado se presenta en el formulario web de la Generalitat y lo firma el
+  instalador, nunca la app.
+- **Claude como ayudante, no como autor** — con la clave de Anthropic de cada usuario: lee la factura de luz
+  del cliente y rellena el formulario, responde «¿qué pongo aquí?» y repasa el certificado antes de presentarlo.
+  Solo rellena campos vacíos, marca lo que ha rellenado y nunca ve los datos personales del cliente al ayudar o
+  repasar.
 
 - **Diseñador de instalaciones (REBT ITC-BT-25)** — a partir de las estancias y sus cargas deduce el grado
   de electrificación, la potencia a contratar, los circuitos C1–C12 con sus secciones y magnetotérmicos,
@@ -226,9 +264,8 @@ su facturación:
   dimensionados por los puntos conectados y desdoblados al máximo de la tabla 1, IGA según la potencia
   contratada, un diferencial por cada cinco circuitos, y los módulos DIN contados para pedir el envolvente.
 - **Vista 3D** — la misma planta extruida en paredes, con los dispositivos a su altura real.
-- **Exportar y encadenar** — descarga el plano acabado en **PNG**, convierte el diseño en un
-  **Certificado de Instalación Eléctrica (CIE)** listo para firmar con AutoFirma, o convierte los
-  materiales en un **presupuesto** → factura.
+- **Exportar y encadenar** — descarga el plano acabado en **PNG**, lleva el diseño al **CIE** paso a
+  paso, o convierte los materiales en un **presupuesto** → factura.
 
 #### 🔒 Detalle de ingeniería — la cadena de hash Verifactu
 
@@ -301,13 +338,16 @@ parte de la habilidad.
 
 - **Backend:** PHP · Symfony · Doctrine · PostgreSQL
 - **Frontend:** React · Vite · Three.js (react-three-fiber, en carga diferida)
-- **IA:** Anthropic Claude (categorización + consultas en lenguaje natural)
+- **IA:** Anthropic Claude (SDK oficial de PHP, salidas estructuradas) — categorización, consultas en lenguaje
+  natural y las ayudas del CIE; cada usuario usa su propia clave
+- **Correo:** Brevo, enviado desde un dominio autenticado (DKIM + DMARC) — enlaces para recuperar la contraseña
 - **Factura electrónica:** Verifactu — cadena de hash SHA-256 · QR (`endroid/qr-code`, SVG) · XML RegistroAlta · PDF (Dompdf)
 - **Banca abierta:** GoCardless Bank Account Data (PSD2), tras un flag de función
 - **Secretos:** credenciales por usuario cifradas con AES-256-GCM (*bring your own key*)
-- **Calidad:** PHPUnit (80 tests unitarios + integración) · GitHub Actions CI — con un job que aplica todas
-  las migraciones sobre un PostgreSQL limpio y comprueba que el esquema cuadra con las entidades ·
-  docs bilingües (`docs/guide/` 00→37)
+- **Diseño:** letras alojadas en la app (sin peticiones a Google Fonts), iconos SVG, contraste comprobado (WCAG)
+- **Calidad:** PHPUnit (185 tests unitarios + integración) · Vitest (67) · GitHub Actions CI — con un job que
+  aplica todas las migraciones sobre un PostgreSQL limpio y comprueba que el esquema cuadra con las entidades ·
+  docs bilingües (`docs/guide/` 00→44)
 
 ### Ejecutar en local
 
@@ -333,4 +373,4 @@ y `cd frontend; npm install`) y crea la base de datos (ver [guía 03](docs/guide
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Diseño del sistema y modelo de dominio |
 | [docs/DEVLOG.md](docs/DEVLOG.md) | Diario de cada paso dado |
 | [docs/decisions/](docs/decisions/) | Registros de Decisiones de Arquitectura (ADR) |
-| [docs/guide/](docs/guide/) | 38 guías paso a paso, en inglés y español |
+| [docs/guide/](docs/guide/) | 43 guías paso a paso, en inglés y español |
