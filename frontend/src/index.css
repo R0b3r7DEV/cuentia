@@ -700,3 +700,11 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 0
 .wo-secondary { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 .wo-secondary .btn { text-decoration: none; text-align: center; }
 .wo-main { width: 100%; padding: 15px 18px; font-size: 17px; text-align: center; text-decoration: none; }
+
+/* "Mis datos" — logo preview on a checkerboard so a transparent background is visible.
+   ES: Vista previa del logo sobre un damero, para que se vea si el fondo es transparente. */
+.my-logo-preview { display: inline-block; padding: 12px; margin-bottom: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: repeating-conic-gradient(#eee 0 25%, #fff 0 50%) 50% / 16px 16px; }
+.my-logo-preview img { display: block; max-width: 300px; max-height: 120px; }
+.wo-section h2 .chain-badge { margin-left: 8px; vertical-align: middle; font-size: 12px; }
+.field input[aria-invalid] { border-color: var(--neg); }

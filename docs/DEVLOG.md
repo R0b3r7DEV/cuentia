@@ -12,6 +12,18 @@ recientes van arriba.*
 
 ## English
 
+### 2026-11-02 — Entry 055: "Mis datos" — the issuer's own data, once, everywhere
+**Done**
+- New **🏢 Mis datos** page: name, NIF, tax address (required on invoices), installer register number
+  (CIE), phone and IBAN (optional, IBAN checked with mod-97) and a **logo**. Kept to what a self-employed
+  electrician needs. The profile fields leave the account's billing card.
+- Invoices, quotes and work orders print the logo and phone; invoices add the IBAN as the payment method; a
+  new CIE fills in the installation company from the profile. Invoices and certificates warn while
+  something required is missing.
+- Fix: the quote PDF printed the login e-mail as the issuer.
+- Logo sanitised (re-encoded PNG, ≤ 600 × 240) and stored in its own table, not on the session-serialised
+  user. 162 backend tests, 709 assertions; 44 Vitest tests; mobile E2E. Guide 43.
+
 ### 2026-11-02 — Entry 054: "Forgot my password"
 **Done**
 - `POST /api/password/forgot` + `POST /api/password/reset`, and the matching screens on the login page.
@@ -929,6 +941,18 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-11-02 — Entrada 055: «Mis datos» — los datos propios, una vez y en todas partes
+**Hecho**
+- Página nueva **🏢 Mis datos**: nombre, NIF, domicilio fiscal (obligatorios en la factura), nº de registro de
+  empresa instaladora (CIE), teléfono e IBAN (opcionales, IBAN comprobado con mod-97) y **logo**. Solo lo que
+  necesita un autónomo. Los datos del perfil salen de la tarjeta de facturación de la cuenta.
+- Facturas, presupuestos y partes llevan el logo y el teléfono; la factura añade el IBAN como forma de pago;
+  un CIE nuevo se rellena con la empresa instaladora del perfil. Facturación y Certificados avisan mientras
+  falte algo obligatorio.
+- Arreglo: el PDF del presupuesto ponía el email de acceso como emisor.
+- Logo saneado (PNG re-codificado, ≤ 600 × 240) y guardado en su propia tabla, no en el usuario que va en la
+  sesión. 162 tests de backend, 709 aserciones; 44 de Vitest; E2E en móvil. Guía 43.
 
 ### 2026-11-02 — Entrada 054: «He olvidado la contraseña»
 **Hecho**

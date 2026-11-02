@@ -4,11 +4,15 @@ namespace App\Controller;
 
 use App\Entity\Transaction;
 use App\Entity\User;
+use App\Entity\UserLogo;
 use App\Service\CredentialStore;
+use App\Service\ImageSanitizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
@@ -18,6 +22,8 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
  */
 class AccountController extends AbstractController
 {
+    public function __construct(private EntityManagerInterface $em) {}
+
     /** Delete all of the current user's transactions (keeps the account). */
     #[Route('/api/account/clear', name: 'api_account_clear', methods: ['POST'])]
     public function clear(EntityManagerInterface $em, #[CurrentUser] User $user): JsonResponse
@@ -71,6 +77,19 @@ class AccountController extends AbstractController
             $v = trim((string) $data['taxId']);
             $user->setTaxId($v !== '' ? $v : null);
         }
+        foreach (['installerRegNumber' => 40, 'phone' => 30] as $field => $max) {
+            if (array_key_exists($field, $data)) {
+                $v = mb_substr(trim((string) $data[$field]), 0, $max);
+                $user->{'set' . ucfirst($field)}($v !== '' ? $v : null);
+            }
+        }
+        if (array_key_exists('iban', $data)) {
+            $v = \App\Util\Iban::normalize((string) $data['iban']);
+            if ($v !== '' && !\App\Util\Iban::isValid($v)) {
+                return $this->json(['error' => 'invalid_iban'], 400);
+            }
+            $user->setIban($v !== '' ? $v : null);
+        }
         if (array_key_exists('defaultLaborRate', $data)) {
             // Empty clears it; otherwise a non-negative amount, "35,50" or "35.50".
             $v = str_replace(',', '.', trim((string) $data['defaultLaborRate']));
@@ -93,7 +112,81 @@ class AccountController extends AbstractController
             'fiscalAddress'    => $user->getFiscalAddress(),
             'taxId'            => $user->getTaxId(),
             'defaultLaborRate' => $user->getDefaultLaborRate(),
+            'installerRegNumber' => $user->getInstallerRegNumber(),
+            'phone'            => $user->getPhone(),
+            'iban'             => $user->getIban() ? \App\Util\Iban::format($user->getIban()) : null,
+            'logoUrl'          => $this->hasLogo($user) ? '/api/account/logo' : null,
+            // What is still missing to issue each kind of document (empty = ready).
+            // ES: Lo que aún falta para emitir cada documento (vacío = listo).
+            'missing' => [
+                'invoice' => array_keys(array_filter([
+                    'businessName'  => !$user->getBusinessName(),
+                    'taxId'         => !$user->getTaxId(),
+                    'fiscalAddress' => !$user->getFiscalAddress(),
+                ])),
+                'certificate' => array_keys(array_filter([
+                    'businessName'       => !$user->getBusinessName(),
+                    'taxId'              => !$user->getTaxId(),
+                    'installerRegNumber' => !$user->getInstallerRegNumber(),
+                ])),
+            ],
         ];
+    }
+
+    private function hasLogo(User $user): bool
+    {
+        return $this->em->getRepository(UserLogo::class)->count(['user' => $user]) > 0;
+    }
+
+    /** The user's logo (PNG). Only ever their own: there is no id in the URL. */
+    #[Route('/api/account/logo', name: 'api_account_logo', methods: ['GET'])]
+    public function logo(#[CurrentUser] User $user): Response
+    {
+        $logo = $this->em->getRepository(UserLogo::class)->findOneBy(['user' => $user]);
+        if ($logo === null) {
+            return $this->json(['error' => 'not_found'], 404);
+        }
+
+        return new Response($logo->getPng(), 200, [
+            'Content-Type' => 'image/png',
+            'Content-Disposition' => 'inline',
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control' => 'private, no-cache',
+        ]);
+    }
+
+    /** Multipart upload, field "logo": sniffed, size-capped and re-encoded (ImageSanitizer). */
+    #[Route('/api/account/logo', name: 'api_account_logo_save', methods: ['POST'])]
+    public function saveLogo(Request $request, ImageSanitizer $images, #[CurrentUser] User $user): JsonResponse
+    {
+        $file = $request->files->get('logo');
+        if (!$file instanceof UploadedFile || !$file->isValid()) {
+            return $this->json(['error' => 'invalid_image'], 400);
+        }
+        try {
+            $clean = $images->logo((string) file_get_contents($file->getPathname()));
+        } catch (\InvalidArgumentException $e) {
+            return $this->json(['error' => $e->getMessage()], 400);
+        }
+
+        $logo = $this->em->getRepository(UserLogo::class)->findOneBy(['user' => $user]) ?? new UserLogo($user);
+        $logo->setPng($clean['png'], $clean['width'], $clean['height']);
+        $this->em->persist($logo);
+        $this->em->flush();
+
+        return $this->json($this->settingsPayload($user));
+    }
+
+    #[Route('/api/account/logo', name: 'api_account_logo_delete', methods: ['DELETE'])]
+    public function deleteLogo(#[CurrentUser] User $user): JsonResponse
+    {
+        $logo = $this->em->getRepository(UserLogo::class)->findOneBy(['user' => $user]);
+        if ($logo !== null) {
+            $this->em->remove($logo);
+            $this->em->flush();
+        }
+
+        return $this->json($this->settingsPayload($user));
     }
 
     /** Status of the user's own API integrations (never returns the keys). */

@@ -33,6 +33,7 @@ class CertificateController extends AbstractController
         if (!is_array($data)) {
             return $this->json(['error' => 'Invalid JSON'], 400);
         }
+        $data = $this->withProfileDefaults($data, $user);
         if ($this->missingRequired($data)) {
             return $this->json(['error' => 'address, titularName and companyName are required'], 400);
         }
@@ -95,6 +96,32 @@ class CertificateController extends AbstractController
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="cie-' . $certificate->getId() . '.pdf"',
         ]);
+    }
+
+    /**
+     * A self-employed electrician is their own installation company: whatever is left blank on a new CIE is
+     * filled from "Mis datos" (name, NIF, register number; the installer is the same person).
+     * ES: Un autónomo es su propia empresa instaladora: lo que se deje vacío en un CIE nuevo se completa con
+     * «Mis datos» (nombre, NIF, nº de registro; el instalador es la misma persona).
+     *
+     * @param array<string,mixed> $data
+     * @return array<string,mixed>
+     */
+    private function withProfileDefaults(array $data, User $user): array
+    {
+        $defaults = [
+            'companyName'      => $user->getBusinessName(),
+            'companyNif'       => $user->getTaxId(),
+            'companyRegNumber' => $user->getInstallerRegNumber(),
+            'installerName'    => $user->getBusinessName(),
+        ];
+        foreach ($defaults as $field => $value) {
+            if (trim((string) ($data[$field] ?? '')) === '' && $value) {
+                $data[$field] = $value;
+            }
+        }
+
+        return $data;
     }
 
     private function missingRequired(array $data): bool

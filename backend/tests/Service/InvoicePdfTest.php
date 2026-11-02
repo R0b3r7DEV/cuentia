@@ -65,6 +65,26 @@ class InvoicePdfTest extends TestCase
         self::assertStringContainsString('C/ Major 1, València', $html);
     }
 
+    public function testShowsTheLogoThePhoneAndTheIbanToPay(): void
+    {
+        $invoice = $this->invoice();
+        $invoice->getUser()->setPhone('600 123 456')->setIban('ES9121000418450200051332');
+        $profile = $this->createStub(\App\Service\IssuerProfile::class);
+        $profile->method('logoTag')->willReturn('<img class="logo" src="data:image/png;base64,LOGO">');
+
+        $html = (new InvoicePdf(new VerifactuQr(), $profile))->html($invoice, $this->record(), false);
+
+        self::assertStringContainsString('data:image/png;base64,LOGO', $html);
+        self::assertStringContainsString('Tel. 600 123 456', $html);
+        self::assertStringContainsString('Transferencia bancaria · IBAN ES91 2100 0418 4502 0005 1332', $html);
+    }
+
+    public function testNoIbanNoPaymentBlock(): void
+    {
+        $html = (new InvoicePdf(new VerifactuQr()))->html($this->invoice(), $this->record(), false);
+        self::assertStringNotContainsString('Forma de pago', $html);
+    }
+
     public function testVerifactuModeShowsTheQrAndTheDemoLegend(): void
     {
         $html = (new InvoicePdf(new VerifactuQr()))->html($this->invoice(), $this->record(), true);

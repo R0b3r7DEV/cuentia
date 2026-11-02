@@ -21,6 +21,7 @@ const TOP = [
   ['/certificates', 'bill.certificates', '📄'],
   ['/installation', 'bill.installation', '⚡'],
   ['/chat', 'nav.assistant', '💬'],
+  ['/mis-datos', 'nav.myData', '🏢'],
 ]
 
 export default function Navbar() {

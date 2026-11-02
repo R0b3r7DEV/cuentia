@@ -21,7 +21,7 @@ use Dompdf\Options;
  */
 class InvoicePdf
 {
-    public function __construct(private VerifactuQr $qr) {}
+    public function __construct(private VerifactuQr $qr, private ?IssuerProfile $profile = null) {}
 
     public function build(Invoice $invoice, ?InvoiceRecord $record, bool $showVerifactu = false): string
     {
@@ -89,16 +89,19 @@ class InvoicePdf
             .fpl { font-size: 9px; text-transform: uppercase; color: #6b7280; }
             .hash { font-family: "DejaVu Sans Mono", monospace; font-size: 7px; word-break: break-all; color: #2a78d6; }
             .note { font-size: 9px; color: #9aa2b1; max-width: 320px; }
+            .logo { max-height: 60px; max-width: 220px; margin-bottom: 8px; }
+            .pay { margin-top: 18px; padding: 10px 12px; border: 1px solid #d3d8e2; border-radius: 6px; width: 60%; }
           </style></head><body>
             <div class="head">
-              <div><h1>Factura</h1><div class="muted">Nº ' . $this->e($invoice->getFullNumber()) . '</div></div>
+              <div>' . ($this->profile?->logoTag($issuer) ?? '') . '<h1>Factura</h1><div class="muted">Nº ' . $this->e($invoice->getFullNumber()) . '</div></div>
               <div class="r"><div class="label">Fecha</div>' . $invoice->getIssuedAt()->format('d/m/Y') . '</div>
             </div>
 
             <table class="parties"><tr>
               <td><div class="label">Emisor</div>' . $this->e($issuer?->getBusinessName() ?: (string) $issuer?->getEmail())
                 . '<br><span class="muted">NIF: ' . $this->e($issuer?->getTaxId() ?: ($record?->getIssuerNif() ?? '—')) . '</span>'
-                . ($issuer?->getFiscalAddress() ? '<br><span class="muted">' . $this->e($issuer->getFiscalAddress()) . '</span>' : '') . '</td>
+                . ($issuer?->getFiscalAddress() ? '<br><span class="muted">' . $this->e($issuer->getFiscalAddress()) . '</span>' : '')
+                . (IssuerProfile::phoneLine($issuer) ? '<br><span class="muted">' . IssuerProfile::phoneLine($issuer) . '</span>' : '') . '</td>
               <td><div class="label">Cliente</div>' . $this->e((string) $customer?->getName())
                 . '<br><span class="muted">NIF: ' . $this->e((string) $customer?->getTaxId()) . '</span>'
                 . ($customer?->getAddress() ? '<br><span class="muted">' . $this->e($customer->getAddress()) . '</span>' : '') . '</td>
@@ -114,6 +117,9 @@ class InvoicePdf
               <tr><td>IVA</td><td class="r">' . $this->money($invoice->getVatTotal()) . '</td></tr>
               <tr class="grand"><td>Total</td><td class="r">' . $this->money($invoice->getTotal()) . '</td></tr>
             </table>
+            ' . (IssuerProfile::iban($issuer) !== null
+                ? '<div class="pay"><div class="label">Forma de pago</div>Transferencia bancaria · IBAN ' . $this->e(IssuerProfile::iban($issuer)) . '</div>'
+                : '') . '
 
             <div class="foot">
               <div class="note">' . ($showVerifactu && $record !== null
