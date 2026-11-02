@@ -7,6 +7,8 @@ import { downscalePhoto } from '../../lib/photo'
 const NUMERIC = ['maxPower', 'installedPower', 'voltage', 'circuits']
 const TEXTAREA = ['useSpecifications', 'observations']
 const DATE = ['designDate']
+// Lists that come from the CERTINS E model in the backend: never free text while it loads or if it fails.
+const FROM_MODEL = ['supplySource', 'useType', 'designBasis', 'specificRisks', 'secondaryUses']
 
 /** POST/PUT JSON or FormData; returns {ok, data} or {ok:false, code} — never throws. */
 async function send(method, url, body) {
@@ -18,7 +20,7 @@ async function send(method, url, body) {
       body: isForm ? body : JSON.stringify(body),
     })
     const data = await r.json().catch(() => null)
-    return r.ok ? { ok: true, data } : { ok: false, code: data?.error ?? 'generic' }
+    return r.ok ? { ok: true, data } : { ok: false, code: data?.error ?? 'generic', field: data?.field }
   } catch {
     return { ok: false, code: 'network' }
   }
@@ -41,7 +43,8 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
   const [aiFields, setAiFields] = useState([])
   const [checks, setChecks] = useState([])
   const [contractedPower, setContractedPower] = useState(null)
-  const [model, setModel] = useState(null) // the CERTINS E lists, with the model's labels
+  const [model, setModel] = useState(null) // the CERTINS E lists, required fields and lengths
+  const [modelFailed, setModelFailed] = useState(false)
   const [assistant, setAssistant] = useState(null) // {enabled}
   const [busy, setBusy] = useState(null)
   const [error, setError] = useState(null)
@@ -56,11 +59,17 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
 
   useEffect(() => {
     fetch('/api/certificates/assistant/status').then((r) => (r.ok ? r.json() : null)).then(setAssistant).catch(() => setAssistant(null))
-    fetch('/api/certificates/model').then((r) => (r.ok ? r.json() : null)).then(setModel).catch(() => setModel(null))
+    loadModel()
   }, [])
 
+  function loadModel() {
+    setModelFailed(false)
+    fetch('/api/certificates/model').then((r) => (r.ok ? r.json() : Promise.reject())).then(setModel).catch(() => setModelFailed(true))
+  }
+
   const current = STEPS[step]
-  const errorText = (code) => {
+  const errorText = (code, field) => {
+    if (code === 'invalid_field' && field) return t('wiz.err.invalid_field', { field: t('cie.' + field) })
     const key = `wiz.err.${code}`
     return t(key) === key ? t('wiz.err.generic') : t(key)
   }
@@ -120,7 +129,7 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
       ? await send('PUT', `/api/certificates/${form.id}`, payload(form))
       : await send('POST', '/api/certificates', payload(form))
     setBusy(null)
-    if (!r.ok) { setError(errorText(r.code)); return }
+    if (!r.ok) { setError(errorText(r.code, r.field)); return }
     setSaved(r.data)
     setForm((f) => ({ ...f, id: r.data.id }))
     onSaved?.(r.data)
@@ -145,6 +154,18 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
   const hint = (k) => (t(`wiz.hint.${k}`) !== `wiz.hint.${k}` ? <small className="muted">{t(`wiz.hint.${k}`)}</small> : null)
 
   const fieldFor = (k) => {
+    if (FROM_MODEL.includes(k) && !model) {
+      return (
+        <div key={k} className="field">
+          {label(k)}
+          {modelFailed ? (
+            <small className="wiz-check-msg">⚠️ {t('wiz.modelError')}{' '}
+              <button type="button" className="link-btn" onClick={loadModel}>{t('wiz.retry')}</button>
+            </small>
+          ) : <small className="muted">{t('wo.loading')}</small>}
+        </div>
+      )
+    }
     if (MULTI.includes(k)) {
       const opts = options(k) ?? {}
       return (
@@ -169,9 +190,10 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
             {Object.entries(opts).map(([key, text]) => <option key={key} value={key}>{text}</option>)}
           </select>
         ) : TEXTAREA.includes(k) ? (
-          <textarea className="wo-textarea" rows={3} value={form[k] ?? ''} onChange={(e) => set(k, e.target.value)} />
+          <textarea className="wo-textarea" rows={3} value={form[k] ?? ''} maxLength={model?.maxLength?.[k]} onChange={(e) => set(k, e.target.value)} />
         ) : (
           <input type={DATE.includes(k) ? 'date' : 'text'} value={form[k] ?? ''} inputMode={NUMERIC.includes(k) ? 'decimal' : undefined}
+            maxLength={model?.maxLength?.[k]}
             onChange={(e) => set(k, e.target.value)} aria-invalid={checks.includes(k) || undefined} />
         )}
         {checks.includes(k) && <small className="wiz-check-msg">⚠️ {t('wiz.checkFailed')}</small>}
@@ -182,8 +204,8 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
 
   // The distributor and CUPS only exist with the distribution network as the source.
   const visibleFields = current.fields.filter((k) => !(form.supplySource === 'generacion_aislada' && ['distributor', 'cups'].includes(k)))
-  const missingHere = missingInStep(form, current.id)
-  const missingAll = missingRequired(form)
+  const missingHere = missingInStep(form, current.id, model)
+  const missingAll = missingRequired(form, model)
   const claudeOn = assistant?.enabled
   const savedId = saved?.id ?? form.id
 

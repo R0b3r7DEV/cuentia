@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   BLANK_CIE, STEPS, NOT_IN_STEPS, MULTI, requiredFor, missingRequired, missingInStep, canSave, composeAddress,
-  profileDefaults, mergeEmpty, applyBill, formFromCertificate, payload, filled,
+  profileDefaults, mergeEmpty, applyBill, formFromCertificate, payload, filled, decimalForForm,
 } from './cie'
 
 const complete = {
@@ -96,5 +96,37 @@ describe('address, defaults and merging', () => {
     expect(f.cups).toBe('')
     expect(f.specificRisks).toEqual(['humedo'])
     expect(f.secondaryUses).toEqual([])
+  })
+
+  it('a company\'s CIF is never offered as the installer\'s NIF', () => {
+    expect(profileDefaults({ businessName: 'Instalaciones Mar SL', taxId: 'B12345674' }))
+      .toMatchObject({ companyNif: 'B12345674', installerName: '', installerNif: '' })
+    expect(profileDefaults({ businessName: 'Ana', taxId: 'x1234567l' }).installerNif).toBe('x1234567l')
+  })
+
+  it('decimals come back with a comma, as they are written in Spain', () => {
+    expect(decimalForForm('5.750')).toBe('5,75')
+    expect(decimalForForm('1500.500')).toBe('1500,5')
+    expect(decimalForForm('6.000')).toBe('6')
+    expect(formFromCertificate({ installedPower: '5.750', maxPower: null }).installedPower).toBe('5,75')
+  })
+
+  it('an old certificate with only the one-line address is not missing its street', () => {
+    const f = formFromCertificate({ id: 1, address: 'C/ Mayor 3' })
+    expect(f.streetName).toBe('C/ Mayor 3')
+    expect(payload(f).address).toBe('C/ Mayor 3')
+    expect(missingRequired({ ...BLANK_CIE, address: 'C/ Mayor 3' })).not.toContain('streetName')
+  })
+
+  it('the required fields come from the backend model when it is loaded', () => {
+    const model = { required: ['titularName'], gridRequired: ['cups'] }
+    expect(requiredFor({ supplySource: 'red' }, model)).toEqual(['titularName', 'cups'])
+    expect(requiredFor({ supplySource: 'generacion_aislada' }, model)).toEqual(['titularName'])
+  })
+
+  it('an isolated installation sends no distributor nor CUPS', () => {
+    const body = payload({ ...BLANK_CIE, supplySource: 'generacion_aislada', distributor: 'i-DE', cups: 'ES0021000012345678LB' })
+    expect(body.distributor).toBe('')
+    expect(body.cups).toBe('')
   })
 })

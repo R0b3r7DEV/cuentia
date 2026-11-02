@@ -40,23 +40,32 @@ class CertificateController extends AbstractController
         }
 
         $certificate = (new Certificate())->setUser($user);
-        $this->apply($certificate, $data);
+        $refused = $this->applyOrRefuse($certificate, $data, $em);
+        if ($refused !== null) {
+            return $refused;
+        }
         $em->persist($certificate);
         $em->flush();
 
         return $this->json($this->toArray($certificate), 201);
     }
 
-    /** The CERTINS E lists (uses, risks, supply sources, design basis) with the model's own labels. */
+    /**
+     * The CERTINS E lists (uses, risks, supply sources, design basis) with the model's own labels, the required
+     * fields and the column lengths — so the wizard asks exactly what the backend checks and stores.
+     */
     #[Route('/api/certificates/model', name: 'api_certificates_model', methods: ['GET'])]
-    public function model(): JsonResponse
+    public function model(EntityManagerInterface $em): JsonResponse
     {
         return $this->json([
-            'version'     => CertinsModel::VERSION,
-            'uses'        => CertinsModel::USES,
-            'risks'       => CertinsModel::RISKS,
-            'sources'     => CertinsModel::SOURCES,
-            'designBasis' => CertinsModel::DESIGN_BASIS,
+            'version'      => CertinsModel::VERSION,
+            'uses'         => CertinsModel::USES,
+            'risks'        => CertinsModel::RISKS,
+            'sources'      => CertinsModel::SOURCES,
+            'designBasis'  => CertinsModel::DESIGN_BASIS,
+            'required'     => CertinsModel::REQUIRED,
+            'gridRequired' => CertinsModel::GRID_REQUIRED,
+            'maxLength'    => $this->maxLengths($em),
         ]);
     }
 
@@ -96,7 +105,10 @@ class CertificateController extends AbstractController
         if (!is_array($data) || $this->missingRequired($data)) {
             return $this->json(['error' => 'address, titularName and companyName are required'], 400);
         }
-        $this->apply($certificate, $data);
+        $refused = $this->applyOrRefuse($certificate, $data, $em);
+        if ($refused !== null) {
+            return $refused;
+        }
         $em->flush();
 
         return $this->json($this->toArray($certificate));
@@ -131,9 +143,10 @@ class CertificateController extends AbstractController
 
     /**
      * A self-employed electrician is their own installation company: whatever is left blank on a new CIE is
-     * filled from "Mis datos" (name, NIF, register number; the installer is the same person).
+     * filled from "Mis datos" (name, NIF, register number). The installer (holder of the CCI) is the same person
+     * only when that NIF is a person's: a company's CIF is never offered as the installer's NIF.
      * ES: Un autónomo es su propia empresa instaladora: lo que se deje vacío en un CIE nuevo se completa con
-     * «Mis datos» (nombre, NIF, nº de registro; el instalador es la misma persona).
+     * «Mis datos». El instalador solo se rellena si ese NIF es de una persona, nunca con el CIF de una sociedad.
      *
      * @param array<string,mixed> $data
      * @return array<string,mixed>
@@ -144,9 +157,11 @@ class CertificateController extends AbstractController
             'companyName'      => $user->getBusinessName(),
             'companyNif'       => $user->getTaxId(),
             'companyRegNumber' => $user->getInstallerRegNumber(),
-            'installerName'    => $user->getBusinessName(),
-            'installerNif'     => $user->getTaxId(),
         ];
+        if (\App\Util\Nif::isPerson((string) $user->getTaxId())) {
+            $defaults['installerName'] = $user->getBusinessName();
+            $defaults['installerNif'] = $user->getTaxId();
+        }
         foreach ($defaults as $field => $value) {
             if (trim((string) ($data[$field] ?? '')) === '' && $value) {
                 $data[$field] = $value;
@@ -163,10 +178,61 @@ class CertificateController extends AbstractController
             || trim((string) ($data['companyName'] ?? '')) === '';
     }
 
+    /**
+     * apply() and then check every text against its column: a refused field is a 400 naming it, never a
+     * database error. Nothing is flushed when a field is refused.
+     */
+    private function applyOrRefuse(Certificate $c, array $data, EntityManagerInterface $em): ?JsonResponse
+    {
+        try {
+            $this->apply($c, $data);
+            foreach ($this->maxLengths($em) as $field => $length) {
+                if (mb_strlen((string) $c->{'get' . ucfirst($field)}()) > $length) {
+                    throw new \InvalidArgumentException($field);
+                }
+            }
+        } catch (\InvalidArgumentException $e) {
+            return $this->json(['error' => 'invalid_field', 'field' => $e->getMessage()], 400);
+        }
+
+        return null;
+    }
+
+    /** @return array<string,int> text field → its column length */
+    private function maxLengths(EntityManagerInterface $em): array
+    {
+        $meta = $em->getClassMetadata(Certificate::class);
+        $lengths = [];
+        foreach ($meta->getFieldNames() as $field) {
+            $length = $meta->getFieldMapping($field)->length;
+            if ($length !== null) {
+                $lengths[$field] = $length;
+            }
+        }
+
+        return $lengths;
+    }
+
+    /** A date as the form sends it (YYYY-MM-DD); anything else ("31/12/2026", "next monday") is refused. */
+    private function date(array $data, string $key): ?\DateTimeImmutable
+    {
+        $v = trim((string) ($data[$key] ?? ''));
+        if ($v === '') {
+            return null;
+        }
+        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $v);
+        if ($date === false || $date->format('Y-m-d') !== $v) {
+            throw new \InvalidArgumentException($key);
+        }
+
+        return $date;
+    }
+
     private function apply(Certificate $c, array $data): void
     {
-        if (!empty($data['issuedAt'])) {
-            $c->setIssuedAt(new \DateTimeImmutable((string) $data['issuedAt']));
+        $issuedAt = $this->date($data, 'issuedAt');
+        if ($issuedAt !== null) {
+            $c->setIssuedAt($issuedAt);
         }
         $installationType = (string) ($data['installationType'] ?? 'nueva');
         $c->setInstallationType(in_array($installationType, ['nueva', 'ampliacion', 'reforma'], true) ? $installationType : 'nueva');
@@ -179,6 +245,11 @@ class CertificateController extends AbstractController
         }
         $source = (string) ($data['supplySource'] ?? 'red');
         $c->setSupplySource(isset(CertinsModel::SOURCES[$source]) ? $source : 'red');
+        $fromGrid = $c->getSupplySource() === 'red';
+        // An isolated generating installation has no distributor nor CUPS: drop what a bill may have left.
+        if (!$fromGrid) {
+            $c->setDistributor(null);
+        }
         $c->setSpecificRisks(CertinsModel::pick($data['specificRisks'] ?? [], CertinsModel::RISKS));
         // The one-line address: as typed, or composed from the CERTINS parts.
         $address = trim((string) ($data['address'] ?? ''));
@@ -191,7 +262,7 @@ class CertificateController extends AbstractController
         $c->setTitularNif($this->str($data, 'titularNif'));
         $c->setTitularAddress($this->str($data, 'titularAddress'));
         $cups = \App\Util\Cups::normalize((string) ($data['cups'] ?? ''));
-        $c->setCups($cups !== '' ? $cups : null);
+        $c->setCups($fromGrid && $cups !== '' ? $cups : null);
 
         $c->setCompanyName(trim((string) ($data['companyName'] ?? '')));
         $c->setCompanyRegNumber($this->str($data, 'companyRegNumber'));
@@ -202,7 +273,7 @@ class CertificateController extends AbstractController
         $c->setInstallerNif($nif !== '' ? $nif : null);
         $basis = (string) ($data['designBasis'] ?? 'mtd');
         $c->setDesignBasis(isset(CertinsModel::DESIGN_BASIS[$basis]) ? $basis : 'mtd');
-        $c->setDesignDate(!empty($data['designDate']) ? new \DateTimeImmutable((string) $data['designDate']) : null);
+        $c->setDesignDate($this->date($data, 'designDate'));
         $c->setInsulationResistance($this->str($data, 'insulationResistance'));
 
         $c->setMaxPower($this->decimal($data, 'maxPower'));
@@ -228,8 +299,12 @@ class CertificateController extends AbstractController
 
     private function decimal(array $data, string $key): ?string
     {
-        // "5,75" is how a power is written in Spain: accept the decimal comma (it used to be dropped silently).
-        $v = str_replace(',', '.', trim((string) ($data[$key] ?? '')));
+        // "5,75" is how a power is written in Spain: with a comma, dots are thousands ("1.500,5" → 1500.5).
+        // Without one, the dot is the decimal point, as the API itself returns it ("5.750").
+        $v = trim((string) ($data[$key] ?? ''));
+        if (str_contains($v, ',')) {
+            $v = str_replace(',', '.', str_replace('.', '', $v));
+        }
 
         return is_numeric($v) ? number_format((float) $v, 3, '.', '') : null;
     }

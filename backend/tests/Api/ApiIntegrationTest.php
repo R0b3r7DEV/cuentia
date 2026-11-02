@@ -714,6 +714,48 @@ class ApiIntegrationTest extends WebTestCase
         self::assertSame(404, $other, 'another user never sees the sheet');
     }
 
+    /** What the code review found: bad dates and over-long texts are a 400 naming the field, never a 500. */
+    public function testCertificateRefusesBadInputByField(): void
+    {
+        $this->registerAndLogin('certins-input@test.local');
+        // a company: its CIF is never offered as the installer's NIF
+        $this->json('PUT', '/api/account/settings', ['businessName' => 'Instalaciones Mar SL', 'taxId' => 'B12345674', 'installerRegNumber' => 'CV-1']);
+        $base = ['titularName' => 'María López', 'streetName' => 'del Mar'];
+
+        [, $model] = $this->json('GET', '/api/certificates/model');
+        self::assertContains('installerNif', $model['required']);
+        self::assertSame(['distributor', 'cups'], $model['gridRequired']);
+        self::assertSame(10, $model['maxLength']['floor']);
+
+        foreach (['31/12/2026', 'next monday', '2026-02-30'] as $bad) {
+            [$s, $err] = $this->json('POST', '/api/certificates', $base + ['designDate' => $bad]);
+            self::assertSame(400, $s, $bad);
+            self::assertSame(['error' => 'invalid_field', 'field' => 'designDate'], $err);
+        }
+        [$s, $err] = $this->json('POST', '/api/certificates', $base + ['floor' => 'Bajo izquierda']);
+        self::assertSame(400, $s);
+        self::assertSame('floor', $err['field']);
+        self::assertSame(0, count($this->json('GET', '/api/certificates')[1]), 'nothing refused was saved');
+
+        [$s, $cie] = $this->json('POST', '/api/certificates', $base + [
+            'installedPower' => '1.500,5', 'maxPower' => '5.750',
+            'supplySource' => 'generacion_aislada', 'distributor' => 'i-DE', 'cups' => 'ES0021000012345678LB',
+        ]);
+        self::assertSame(201, $s);
+        self::assertSame('1500.500', $cie['installedPower'], 'with a comma, the dots are thousands');
+        self::assertSame('5.750', $cie['maxPower'], 'without one, the dot is the decimal point');
+        self::assertNull($cie['cups'], 'an isolated installation has no CUPS');
+        self::assertNull($cie['distributor']);
+        self::assertSame('B12345674', $cie['companyNif']);
+        self::assertNull($cie['installerNif']);
+        self::assertNull($cie['installerName']);
+
+        // an update with a bad date changes nothing
+        [$s] = $this->json('PUT', '/api/certificates/' . $cie['id'], $base + ['designDate' => 'abc', 'installedPower' => '9']);
+        self::assertSame(400, $s);
+        self::assertEqualsWithDelta(1500.5, (float) $this->json('GET', '/api/certificates/' . $cie['id'])[1]['installedPower'], 0.0001);
+    }
+
     public function testOpenBankingReportsDisabledWithoutCredentials(): void
     {
         $this->registerAndLogin('bank@test.local');

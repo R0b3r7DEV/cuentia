@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Assistant\AssistantException;
 use App\Assistant\CieAssistant;
+use App\Cie\CertinsModel;
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -72,17 +73,7 @@ class CieAssistantController extends AbstractController
         if ($form === null) {
             return $this->json(['error' => 'invalid_json'], 400);
         }
-        // The CERTINS E required fields (mirrors CertinsSheet and frontend lib/cie.js REQUIRED).
-        $required = ['titularName', 'titularNif', 'streetName', 'locality', 'province', 'postalCode', 'installedPower', 'voltage',
-            'useType', 'companyName', 'companyNif', 'companyRegNumber', 'installerName', 'installerNif',
-            'designDate', 'earthResistance', 'insulationResistance'];
-        if (($form['supplySource'] ?? 'red') === 'red') {
-            array_push($required, 'distributor', 'cups');
-        }
-        $missing = array_values(array_filter($required, static fn (string $k): bool => trim((string) ($form[$k] ?? '')) === ''));
-        if (empty($form['specificRisks'])) {
-            $missing[] = 'specificRisks';
-        }
+        $missing = CertinsModel::missing($form);
 
         return $this->call($user, fn () => ['missing' => $missing] + $this->assistant->review($user, $form, $missing));
     }

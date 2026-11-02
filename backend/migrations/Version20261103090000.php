@@ -46,6 +46,12 @@ final class Version20261103090000 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
+        // The renamed uses go back; the ones up() cleared ('local', 'otros') cannot be recovered.
+        $this->warnIf(true, "Uses cleared by up() ('local', 'otros') stay NULL.");
+        $this->addSql("UPDATE certificate SET use_type = 'industrial' WHERE use_type = 'industria'");
+        $this->addSql("UPDATE certificate SET use_type = 'garaje' WHERE use_type = 'garaje_privado'");
+        $this->addSql("UPDATE certificate SET use_type = 'comunes' WHERE use_type = 'servicios_generales'");
+        $this->addSql("UPDATE certificate SET use_type = 'agricola' WHERE use_type = 'bombas'");
         foreach (['street_type', 'street_name', 'portal', 'bis', 'stair', 'floor', 'door', 'population', 'distributor', 'use_specifications',
             'design_date', 'insulation_resistance', 'installer_nif', 'supply_source', 'design_basis', 'specific_risks', 'secondary_uses'] as $col) {
             $this->addSql("ALTER TABLE certificate DROP $col");

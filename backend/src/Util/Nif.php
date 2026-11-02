@@ -19,6 +19,12 @@ final class Nif
         return strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $nif) ?? '');
     }
 
+    /** A person's NIF (DNI or NIE), not a company's CIF — format only. */
+    public static function isPerson(string $nif): bool
+    {
+        return (bool) preg_match('/^[XYZ]?\d{7,8}[A-Z]$/', self::normalize($nif));
+    }
+
     public static function isValid(string $nif): bool
     {
         $n = self::normalize($nif);

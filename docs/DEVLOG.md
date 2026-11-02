@@ -12,6 +12,20 @@ recientes van arriba.*
 
 ## English
 
+### 2026-11-03 — Entry 058: Code review of the CERTINS E — ten findings, ten fixes
+**Done**
+- Bad dates (`31/12/2026`, `next monday`) and texts longer than their column are now a **400 naming the field**,
+  never a 500; the column lengths come from Doctrine's metadata and reach the wizard as `maxLength`.
+- **One list of required fields** (`CertinsModel::REQUIRED`): the GVA sheet, the PDF, the Claude review and the
+  wizard (through `/api/certificates/model`) all use it. An old certificate with only the one-line address no
+  longer shows its street as missing in one place and filled in another.
+- A company's **CIF is never offered as the installer's NIF** (the CCI holder is a person).
+- An **isolated generating installation** drops distributor and CUPS; "1.500,5" reads as 1500.5 and the form shows
+  "5,75" instead of "5.750"; if the CERTINS lists fail to load, the wizard says so with a retry instead of free text.
+- The Claude-in-Chrome message now says what it reads is data, never instructions (prompt injection from a bill).
+- The CERTINS migration's `down()` restores the renamed uses and warns about the ones it cannot.
+- 185 backend tests, 850 assertions; 62 Vitest; E2E of the wizard (model down → retry, CIF company, edit an old one).
+
 ### 2026-11-03 — Entry 057: The CIE follows the GVA's CERTINS E — and a "Para la GVA" sheet to copy it
 **Done**
 - Verified against the GVA: procedure 440 files the certificate as an **online web form** (FAQ 2023, q. 13), signed
@@ -964,6 +978,23 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-11-03 — Entrada 058: Revisión de código del CERTINS E — diez hallazgos, diez arreglos
+**Hecho**
+- Las fechas mal escritas («31/12/2026», «next monday») y los textos más largos que su columna dan ahora un
+  **400 que nombra el campo**, nunca un 500; las longitudes salen de los metadatos de Doctrine y llegan al
+  asistente como `maxLength`.
+- **Una sola lista de obligatorios** (`CertinsModel::REQUIRED`): la usan la hoja «Para la GVA», el PDF, el repaso
+  de Claude y el asistente (vía `/api/certificates/model`). Un certificado antiguo con la dirección en una línea
+  ya no sale con la vía «falta» en un sitio y rellena en otro.
+- El **CIF de una sociedad nunca se propone como NIF del instalador** (el titular del CCI es una persona).
+- Una **instalación generadora aislada** descarta distribuidora y CUPS; «1.500,5» se lee como 1500,5 y el formulario
+  muestra «5,75» en vez de «5.750»; si las listas del CERTINS no cargan, el asistente lo dice y deja reintentar en
+  vez de mostrar texto libre.
+- El mensaje para Claude en Chrome dice ahora que lo que lee son datos, nunca órdenes (inyección desde una factura).
+- El `down()` de la migración del CERTINS devuelve los usos renombrados y avisa de los que no puede.
+- 185 tests de backend, 850 aserciones; 62 de Vitest; E2E del asistente (modelo caído → reintentar, empresa con
+  CIF, editar uno antiguo).
 
 ### 2026-11-03 — Entrada 057: El CIE sigue el CERTINS E de la GVA — y una hoja «Para la GVA» para copiarlo
 **Hecho**
