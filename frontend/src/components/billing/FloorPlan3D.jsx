@@ -9,7 +9,7 @@ const WALL_H = 2.5, WALL_T = 0.1
 const HEIGHTS = { socket: 0.3, switch: 1.1, light: 2.4, panel: 1.2 }
 // Matches the app palette: indigo accent, teal "positive", ochre for the lit points.
 // ES: Coincide con la paleta de la app: índigo, verde-azulado y ocre para los puntos de luz.
-const COLORS = { socket: '#443ea8', switch: '#0f6b54', light: '#d09853', panel: '#56506e' }
+const COLORS = { socket: '#1558c9', switch: '#1e7a46', light: '#e0b000', panel: '#030407' }
 
 /** One wall per polygon edge: a box of the edge's length, spun about Y to lie along it. */
 /** ES: Un muro por arista: una caja del largo de la arista, girada sobre Y para tumbarse sobre ella. */
@@ -24,7 +24,7 @@ function Walls({ points }) {
         return (
           <mesh key={i} position={[(a.x + b.x) / 2, WALL_H / 2, (a.y + b.y) / 2]} rotation={[0, Math.atan2(-dz, dx), 0]}>
             <boxGeometry args={[len, WALL_H, WALL_T]} />
-            <meshStandardMaterial color="#d3cde0" transparent opacity={0.3} />
+            <meshStandardMaterial color="#c9ccc2" transparent opacity={0.3} />
           </mesh>
         )
       })}
@@ -68,9 +68,9 @@ export default function FloorPlan3D({ layout }) {
         <directionalLight position={[cx + 6, 14, cz + 4]} intensity={1.1} />
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[cx, 0, cz]}>
           <planeGeometry args={[maxX + 4, maxZ + 4]} />
-          <meshStandardMaterial color="#f0ecf6" />
+          <meshStandardMaterial color="#ecede7" />
         </mesh>
-        <gridHelper args={[grid, grid, '#b6acc9', '#ddd6e8']} position={[cx, 0.02, cz]} />
+        <gridHelper args={[grid, grid, '#b9bcb1', '#dadcd3']} position={[cx, 0.02, cz]} />
         {polys.map((p, i) => <Walls key={i} points={p} />)}
         {devices.map((d, i) => <Device key={i} d={d} />)}
         {panel && <Device d={{ ...panel, type: 'panel' }} />}

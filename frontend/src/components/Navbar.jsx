@@ -3,6 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { useTranslation } from '../i18n/LanguageContext'
 import { useAuth } from '../auth/AuthContext'
 import { useTheme } from '../theme/ThemeContext'
+import Icon from './Icon'
 
 const cls = ({ isActive }) => (isActive ? 'navlink active' : 'navlink')
 const menuCls = ({ isActive }) => (isActive ? 'nav-menu-item active' : 'nav-menu-item')
@@ -17,11 +18,11 @@ const PANEL = [
   ['/invoices', 'nav.invoices'],
 ]
 const TOP = [
-  ['/partes', 'nav.workOrders', '🔧'],
-  ['/certificates', 'bill.certificates', '📄'],
-  ['/installation', 'bill.installation', '⚡'],
-  ['/chat', 'nav.assistant', '💬'],
-  ['/mis-datos', 'nav.myData', '🏢'],
+  ['/partes', 'nav.workOrders', 'wrench'],
+  ['/certificates', 'bill.certificates', 'certificate'],
+  ['/installation', 'bill.installation', 'zap'],
+  ['/chat', 'nav.assistant', 'chat'],
+  ['/mis-datos', 'nav.myData', 'building'],
 ]
 
 export default function Navbar() {
@@ -58,9 +59,9 @@ export default function Navbar() {
               onClick={() => setOpen((o) => !o)}
               title={t('nav.dashboard')}
             >
-              <span className="nav-ico" aria-hidden="true">📊</span>
+              <Icon name="chart" className="nav-ico" />
               <span className="nav-label">{t('nav.dashboard')}</span>
-              <span className="nav-caret" aria-hidden="true">▾</span>
+              <Icon name="chevronDown" size={14} className="nav-caret" />
             </button>
 
             {open && (
@@ -76,7 +77,7 @@ export default function Navbar() {
 
           {TOP.map(([to, key, icon]) => (
             <NavLink key={to} to={to} className={cls} title={t(key)}>
-              <span className="nav-ico" aria-hidden="true">{icon}</span>
+              <Icon name={icon} className="nav-ico" />
               <span className="nav-label">{t(key)}</span>
             </NavLink>
           ))}
@@ -84,15 +85,15 @@ export default function Navbar() {
 
         <div className="nav-actions">
           <NavLink to="/account" className="nav-user" title={user?.email}>
-            <span className="nav-ico" aria-hidden="true">👤</span>
+            <Icon name="user" className="nav-ico" />
             <span className="nav-label nav-email">{user?.email}</span>
           </NavLink>
           <button className="btn btn-glass btn-sm" onClick={logout} title={t('auth.logout')}>
-            <span className="nav-ico" aria-hidden="true">🚪</span>
+            <Icon name="logout" className="nav-ico" />
             <span className="nav-label">{t('auth.logout')}</span>
           </button>
           <button className="btn btn-glass btn-sm icon-btn" onClick={toggle} title="Light / dark" aria-label="Toggle theme">
-            {theme === 'dark' ? '☀️' : '🌙'}
+            <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} />
           </button>
           <button className="btn btn-glass btn-sm icon-btn" onClick={() => setLang(lang === 'es' ? 'en' : 'es')} title="Change language / Cambiar idioma">
             {lang === 'es' ? 'EN' : 'ES'}
