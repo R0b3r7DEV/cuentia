@@ -643,7 +643,8 @@ class ApiIntegrationTest extends WebTestCase
     {
         // Claude is replaced before the first request builds the real gateway.
         static::getContainer()->set(\App\Assistant\AnthropicGateway::class, new \App\Tests\Assistant\FakeClaude([
-            'titularName' => 'María López', 'titularNif' => '12345678Z', 'supplyAddress' => 'C/ Mar 3',
+            'titularName' => 'María López', 'titularNif' => '12345678Z', 'distributor' => 'i-DE', 'streetType' => 'Calle',
+            'streetName' => 'del Mar', 'portal' => '3', 'stair' => null, 'floor' => null, 'door' => null,
             'postalCode' => '12001', 'locality' => 'Castelló', 'province' => 'Castellón',
             'cups' => 'ES0021000012345678LB', 'contractedPowerKw' => '5.75', 'supplyType' => 'monofasico',
         ]));
@@ -674,6 +675,43 @@ class ApiIntegrationTest extends WebTestCase
         [$cs, $cie] = $this->json('POST', '/api/certificates', ['cups' => 'es 0021 0000 1234 5678 lb', 'companyName' => 'José Pérez'] + $read['fields']);
         self::assertSame(201, $cs);
         self::assertSame('ES0021000012345678LB', $cie['cups']);
+    }
+
+    /** The CERTINS E model over HTTP: lists, a certificate filled section by section, the GVA sheet and defaults. */
+    public function testCertificateFollowsTheCertinsModel(): void
+    {
+        $this->registerAndLogin('certins@test.local');
+        $this->json('PUT', '/api/account/settings', ['businessName' => 'José Pérez García', 'taxId' => '11111111H', 'installerRegNumber' => 'CV-12345']);
+
+        [, $model] = $this->json('GET', '/api/certificates/model');
+        self::assertSame('Local húmedo', $model['risks']['humedo']);
+        self::assertSame('Vivienda', $model['uses']['vivienda']);
+
+        [$s, $cie] = $this->json('POST', '/api/certificates', [
+            'titularName' => 'María López', 'titularNif' => '12345678Z', 'supplySource' => 'red', 'distributor' => 'i-DE',
+            'streetType' => 'Calle', 'streetName' => 'del Mar', 'portal' => '3', 'locality' => 'Castelló', 'province' => 'Castellón',
+            'postalCode' => '12001', 'installedPower' => '5,75', 'maxPower' => '5,75', 'voltage' => '230', 'cups' => 'ES0021000012345678LB',
+            'specificRisks' => ['humedo', 'inventado'], 'useType' => 'vivienda', 'secondaryUses' => ['vivienda', 'alumbrado_exterior'],
+            'designBasis' => 'mtd', 'designDate' => '2026-10-30', 'earthResistance' => '18', 'insulationResistance' => '250',
+        ]);
+        self::assertSame(201, $s);
+        self::assertSame('Calle del Mar 3', $cie['address'], 'the one-line address is composed from the parts');
+        self::assertSame(['humedo'], $cie['specificRisks'], 'unknown risks are dropped');
+        self::assertSame(['alumbrado_exterior'], $cie['secondaryUses'], 'the main use is not repeated as secondary');
+        self::assertSame('11111111H', $cie['installerNif'], 'the installer NIF comes from "Mis datos"');
+        self::assertSame('5.750', $cie['installedPower'], 'a decimal comma is accepted, not dropped');
+        self::assertSame('5.750', $cie['maxPower']);
+        self::assertSame('CV-12345', $cie['companyRegNumber']);
+
+        [$gs, $sheet] = $this->json('GET', '/api/certificates/' . $cie['id'] . '/gva');
+        self::assertSame(200, $gs);
+        self::assertSame(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'MTD'], array_column($sheet['sections'], 'code'));
+        self::assertSame([], $sheet['missing']);
+
+        $this->json('POST', '/api/logout');
+        $this->registerAndLogin('otro-certins@test.local');
+        [$other] = $this->json('GET', '/api/certificates/' . $cie['id'] . '/gva');
+        self::assertSame(404, $other, 'another user never sees the sheet');
     }
 
     public function testOpenBankingReportsDisabledWithoutCredentials(): void

@@ -72,10 +72,17 @@ class CieAssistantController extends AbstractController
         if ($form === null) {
             return $this->json(['error' => 'invalid_json'], 400);
         }
-        $missing = array_values(array_filter(
-            ['address', 'titularName', 'companyName', 'companyRegNumber', 'maxPower', 'supplyType', 'igaCurrent', 'differentialSensitivity'],
-            static fn (string $k): bool => trim((string) ($form[$k] ?? '')) === '',
-        ));
+        // The CERTINS E required fields (mirrors CertinsSheet and frontend lib/cie.js REQUIRED).
+        $required = ['titularName', 'titularNif', 'streetName', 'locality', 'province', 'postalCode', 'installedPower', 'voltage',
+            'useType', 'companyName', 'companyNif', 'companyRegNumber', 'installerName', 'installerNif',
+            'designDate', 'earthResistance', 'insulationResistance'];
+        if (($form['supplySource'] ?? 'red') === 'red') {
+            array_push($required, 'distributor', 'cups');
+        }
+        $missing = array_values(array_filter($required, static fn (string $k): bool => trim((string) ($form[$k] ?? '')) === ''));
+        if (empty($form['specificRisks'])) {
+            $missing[] = 'specificRisks';
+        }
 
         return $this->call($user, fn () => ['missing' => $missing] + $this->assistant->review($user, $form, $missing));
     }

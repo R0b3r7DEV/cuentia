@@ -56,3 +56,34 @@ Each step has a **fixed guide text** (always available, no cost). Steps and fiel
 - `certificate.cups` (new column), on the form, the assistant and the CIE PDF.
 - The classic form still exists ("Nuevo"); a design from Installation now also brings the company from
   "Mis datos".
+
+---
+
+## The CERTINS E model and "Para la GVA" (2026-11-03) / El modelo CERTINS E y «Para la GVA»
+
+What the GVA actually files (verified, not assumed):
+- Procedure 440 ("Instalaciones eléctricas de BAJA TENSIÓN que requieran MEMORIA TÉCNICA DE DISEÑO") asks for web
+  forms — datos generales, tipo de instalación, **certificado (CERTINS E/V)** — plus the **MTD**, digitally signed.
+- **Since 2023 the certificate is not a document**: it is filled in online, and "NO se debe presentar otro documento
+  a modo de certificado" (GVA low-voltage FAQ, 2023-11-02, q. 13). The installer signs it from the **Carpeta
+  Ciudadana** (1 month to sign, q. 16). **CUPS is mandatory** when supplied from a distribution network (q. 26).
+- The live web form sits behind a digital certificate, so its labels were taken from the **official CERTINS E
+  model (04/2009)**, sections A–H. The app says so where it shows them.
+
+What changed in Cuentia:
+- `App\Cie\CertinsModel`: the model's lists with their exact labels (19 uses, 12 specific risks, supply source,
+  design basis). `GET /api/certificates/model`.
+- New certificate fields: broken-down address (tipo vía, vía, portal, bis, escalera, piso, puerta, población),
+  supply source + distributor, specific risks, secondary uses, use specifications, MTD/project + signature date,
+  insulation resistance (MΩ), installer NIF. Old use values mapped by the migration.
+- `App\Cie\CertinsSheet`: one certificate as sections A–G (+ the MTD data, which is not part of the certificate)
+  and the required fields still missing. Feeds `GET /api/certificates/{id}/gva` and the PDF.
+- **Assistant in 8 steps**, in the model order; IGA, differential, circuits… moved to a "datos para la MTD" step.
+  It now creates **and edits** (the old flat form did not know the new fields and would have wiped them on save).
+- **"Para la GVA" screen** (`/certificates/:id/gva`): sections A–G with the model labels, a 📋 copy button per
+  value, the missing fields, and a ready-made message for **Claude in Chrome** to copy the data into the GVA form —
+  which forbids it to sign, register or submit and asks it to report what it filled and what is missing.
+- **The PDF is a data sheet**, titled as such, saying it is not the certificate.
+- Claude reads from the bill also the **distributor** (the network owner, not the retailer) and the address
+  **in parts**; the client's broken-down address is never sent to help/review.
+- Fix: powers written with a **decimal comma** ("5,75") were silently dropped by the backend.

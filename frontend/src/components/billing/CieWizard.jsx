@@ -1,23 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from '../../i18n/LanguageContext'
-import { STEPS, applyBill, mergeEmpty, missingInStep, missingRequired } from '../../lib/cie'
+import { MULTI, STEPS, applyBill, canSave, mergeEmpty, missingInStep, missingRequired, payload } from '../../lib/cie'
 import { downscalePhoto } from '../../lib/photo'
 
-const SELECTS = {
-  installationType: ['nueva', 'ampliacion', 'reforma'],
-  useType: ['vivienda', 'local', 'industrial', 'garaje', 'comunes', 'agricola', 'otros'],
-  supplyType: ['monofasico', 'trifasico'],
-}
-const OPTION_KEY = { installationType: 'cie.type.', useType: 'cie.use.', supplyType: 'cie.supply.' }
 const NUMERIC = ['maxPower', 'installedPower', 'voltage', 'circuits']
+const TEXTAREA = ['useSpecifications', 'observations']
+const DATE = ['designDate']
 
-/** POST JSON or FormData; returns {ok, data} or {ok:false, code} — never throws. */
-async function post(url, body) {
+/** POST/PUT JSON or FormData; returns {ok, data} or {ok:false, code} — never throws. */
+async function send(method, url, body) {
   try {
     const isForm = body instanceof FormData
     const r = await fetch(url, {
-      method: 'POST',
+      method,
       headers: isForm ? undefined : { 'Content-Type': 'application/json' },
       body: isForm ? body : JSON.stringify(body),
     })
@@ -29,20 +25,23 @@ async function post(url, body) {
 }
 
 /**
- * The CIE, step by step: a fixed guide on every step (always there, no cost), and three Claude helpers —
- * read the electricity bill, "¿Qué pongo aquí?", and a final review. What Claude fills is marked ✨ until the
- * electrician touches it; what a rule can check (CUPS, NIF) is flagged ⚠️. Compliance is never Claude's call.
+ * The CIE, step by step, in the order of the GVA's CERTINS E (A–G) plus the data for the Technical Design
+ * Report: a fixed guide on every step, and three Claude helpers — read the electricity bill, "¿Qué pongo
+ * aquí?", and a final review. What Claude fills is marked ✨ until touched; what a rule can check (CUPS, NIF)
+ * is flagged ⚠️. Compliance is never Claude's call. Used both to create and to edit a certificate.
  *
- * ES: El CIE paso a paso: una guía fija en cada paso y tres ayudas de Claude. Lo que rellena Claude se marca ✨
- * hasta que el electricista lo toca; lo que una regla puede comprobar (CUPS, NIF) se marca ⚠️.
+ * ES: El CIE paso a paso, en el orden del CERTINS E de la GVA (A–G) más los datos de la MTD. Sirve para crear y
+ * para editar un certificado.
  */
 export default function CieWizard({ initial, onSaved, onCancel }) {
   const { t } = useTranslation()
-  const [step, setStep] = useState(initial?.fromInstallation ? 1 : 0)
+  const editing = Boolean(initial.form.id)
+  const [step, setStep] = useState(editing || initial?.fromInstallation ? 1 : 0)
   const [form, setForm] = useState(initial.form)
   const [aiFields, setAiFields] = useState([])
   const [checks, setChecks] = useState([])
   const [contractedPower, setContractedPower] = useState(null)
+  const [model, setModel] = useState(null) // the CERTINS E lists, with the model's labels
   const [assistant, setAssistant] = useState(null) // {enabled}
   const [busy, setBusy] = useState(null)
   const [error, setError] = useState(null)
@@ -57,6 +56,7 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
 
   useEffect(() => {
     fetch('/api/certificates/assistant/status').then((r) => (r.ok ? r.json() : null)).then(setAssistant).catch(() => setAssistant(null))
+    fetch('/api/certificates/model').then((r) => (r.ok ? r.json() : null)).then(setModel).catch(() => setModel(null))
   }, [])
 
   const current = STEPS[step]
@@ -71,8 +71,9 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
     setChecks((c) => c.filter((x) => x !== k))
     setReview(null)
   }
+  const toggle = (k, key) => set(k, form[k].includes(key) ? form[k].filter((x) => x !== key) : [...form[k], key])
 
-  const go = (to) => { setStep(to); setAnswer(null); setQuestion(''); setError(null) }
+  const go = (to) => { setStep(to); setAnswer(null); setQuestion(''); setError(null); window.scrollTo?.(0, 0) }
 
   const readBill = async (file) => {
     if (!file) return
@@ -83,7 +84,7 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
     }
     const fd = new FormData()
     fd.append('bill', upload, file.type === 'application/pdf' ? 'factura.pdf' : 'factura.jpg')
-    const r = await post('/api/certificates/assistant/bill', fd)
+    const r = await send('POST', '/api/certificates/assistant/bill', fd)
     setBusy(null)
     if (billInput.current) billInput.current.value = ''
     if (!r.ok) { setError(errorText(r.code)); return }
@@ -99,7 +100,7 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
     e.preventDefault()
     if (!question.trim()) return
     setBusy('help'); setError(null); setAnswer(null)
-    const r = await post('/api/certificates/assistant/help', { step: current.id, question, form })
+    const r = await send('POST', '/api/certificates/assistant/help', { step: current.id, question, form })
     setBusy(null)
     if (!r.ok) { setError(errorText(r.code)); return }
     setAnswer(r.data.answer)
@@ -107,7 +108,7 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
 
   const runReview = async () => {
     setBusy('review'); setError(null)
-    const r = await post('/api/certificates/assistant/review', { form })
+    const r = await send('POST', '/api/certificates/assistant/review', { form })
     setBusy(null)
     if (!r.ok) { setError(errorText(r.code)); return }
     setReview(r.data)
@@ -115,13 +116,25 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
 
   const save = async () => {
     setBusy('save'); setError(null)
-    const { id: _id, ...body } = form
-    const r = await post('/api/certificates', body)
+    const r = editing
+      ? await send('PUT', `/api/certificates/${form.id}`, payload(form))
+      : await send('POST', '/api/certificates', payload(form))
     setBusy(null)
     if (!r.ok) { setError(errorText(r.code)); return }
     setSaved(r.data)
+    setForm((f) => ({ ...f, id: r.data.id }))
     onSaved?.(r.data)
   }
+
+  const options = (k) => ({
+    installationType: Object.fromEntries(['nueva', 'ampliacion', 'reforma'].map((v) => [v, t('cie.type.' + v)])),
+    supplyType: Object.fromEntries(['monofasico', 'trifasico'].map((v) => [v, t('cie.supply.' + v)])),
+    supplySource: model?.sources,
+    useType: model?.uses,
+    designBasis: model?.designBasis,
+    specificRisks: model?.risks,
+    secondaryUses: model?.uses && Object.fromEntries(Object.entries(model.uses).filter(([key]) => key !== form.useType)),
+  }[k])
 
   const label = (k) => (
     <span>
@@ -129,28 +142,50 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
       {aiFields.includes(k) && <em className="wiz-ai" title={t('wiz.aiTitle')}> ✨ {t('wiz.aiTag')}</em>}
     </span>
   )
+  const hint = (k) => (t(`wiz.hint.${k}`) !== `wiz.hint.${k}` ? <small className="muted">{t(`wiz.hint.${k}`)}</small> : null)
 
-  const fieldFor = (k) => (
-    <label key={k} className={`field${checks.includes(k) ? ' wiz-check' : ''}`}>
-      {label(k)}
-      {SELECTS[k] ? (
-        <select className="bank-select" value={form[k] ?? ''} onChange={(e) => set(k, e.target.value)}>
-          {k === 'supplyType' && <option value="">—</option>}
-          {SELECTS[k].map((v) => <option key={v} value={v}>{t(OPTION_KEY[k] + v)}</option>)}
-        </select>
-      ) : k === 'observations' ? (
-        <textarea className="wo-textarea" rows={3} value={form[k] ?? ''} onChange={(e) => set(k, e.target.value)} />
-      ) : (
-        <input value={form[k] ?? ''} inputMode={NUMERIC.includes(k) ? 'decimal' : undefined}
-          onChange={(e) => set(k, e.target.value)} aria-invalid={checks.includes(k) || undefined} />
-      )}
-      {checks.includes(k) && <small className="wiz-check-msg">⚠️ {t('wiz.checkFailed')}</small>}
-      {t(`wiz.hint.${k}`) !== `wiz.hint.${k}` && <small className="muted">{t(`wiz.hint.${k}`)}</small>}
-    </label>
-  )
+  const fieldFor = (k) => {
+    if (MULTI.includes(k)) {
+      const opts = options(k) ?? {}
+      return (
+        <fieldset key={k} className="field wiz-multi">
+          <legend>{label(k)}</legend>
+          {Object.entries(opts).map(([key, text]) => (
+            <label key={key} className="wiz-check-item">
+              <input type="checkbox" checked={form[k].includes(key)} onChange={() => toggle(k, key)} /> {text}
+            </label>
+          ))}
+          {hint(k)}
+        </fieldset>
+      )
+    }
+    const opts = options(k)
+    return (
+      <label key={k} className={`field${checks.includes(k) ? ' wiz-check' : ''}`}>
+        {label(k)}
+        {opts ? (
+          <select className="bank-select" value={form[k] ?? ''} onChange={(e) => set(k, e.target.value)}>
+            {k === 'supplyType' && <option value="">—</option>}
+            {Object.entries(opts).map(([key, text]) => <option key={key} value={key}>{text}</option>)}
+          </select>
+        ) : TEXTAREA.includes(k) ? (
+          <textarea className="wo-textarea" rows={3} value={form[k] ?? ''} onChange={(e) => set(k, e.target.value)} />
+        ) : (
+          <input type={DATE.includes(k) ? 'date' : 'text'} value={form[k] ?? ''} inputMode={NUMERIC.includes(k) ? 'decimal' : undefined}
+            onChange={(e) => set(k, e.target.value)} aria-invalid={checks.includes(k) || undefined} />
+        )}
+        {checks.includes(k) && <small className="wiz-check-msg">⚠️ {t('wiz.checkFailed')}</small>}
+        {hint(k)}
+      </label>
+    )
+  }
 
+  // The distributor and CUPS only exist with the distribution network as the source.
+  const visibleFields = current.fields.filter((k) => !(form.supplySource === 'generacion_aislada' && ['distributor', 'cups'].includes(k)))
   const missingHere = missingInStep(form, current.id)
+  const missingAll = missingRequired(form)
   const claudeOn = assistant?.enabled
+  const savedId = saved?.id ?? form.id
 
   return (
     <div className="wiz">
@@ -160,6 +195,7 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
           {STEPS.map((s, i) => <span key={s.id} className={i < step ? 'done' : i === step ? 'on' : ''} />)}
         </div>
       </div>
+      {current.section && <p className="wiz-section">{t('wiz.sectionOf', { s: current.section })}</p>}
 
       <p className="wiz-guide">🧭 {t(`wiz.guide.${current.id}`)}</p>
 
@@ -188,16 +224,11 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
         </div>
       )}
 
-      {current.fields.length > 0 && (
-        <div className="wiz-fields">{current.fields.map(fieldFor)}</div>
-      )}
+      {visibleFields.length > 0 && <div className="wiz-fields">{visibleFields.map(fieldFor)}</div>}
 
       {current.id === 'installation' && contractedPower && (
         <div className="wiz-power">
-          {t('wiz.contractedPower', { kw: String(Number(contractedPower)).replace('.', ',') })}{' '}
-          {!form.maxPower && (
-            <button type="button" className="link-btn" onClick={() => set('maxPower', String(Number(contractedPower)))}>{t('wiz.usePower')}</button>
-          )}
+          {t('wiz.contractedPower', { kw: String(Number(contractedPower)).replace('.', ',') })}
           <small className="muted"> {t('wiz.powerNote')}</small>
         </div>
       )}
@@ -208,8 +239,8 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
 
       {current.id === 'review' && (
         <div className="wiz-review">
-          {missingRequired(form).length > 0 ? (
-            <p className="alert-warn">{t('wiz.stillMissing', { fields: missingRequired(form).map((k) => t('cie.' + k)).join(', ') })}</p>
+          {missingAll.length > 0 ? (
+            <p className="alert-warn">{t('wiz.stillMissing', { fields: missingAll.map((k) => t('cie.' + k)).join(', ') })}</p>
           ) : (
             <p className="chain-badge chain-ok">✓ {t('wiz.allRequired')}</p>
           )}
@@ -229,17 +260,20 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
               <small className="muted">{t('wiz.reviewDisclaimer')}</small>
             </div>
           )}
-          {saved ? (
+          {saved && (
             <div className="card wiz-done">
               <p>✓ {t('wiz.saved')}</p>
-              <p><a className="btn btn-primary" href={`/api/certificates/${saved.id}/pdf`}>{t('cie.download')}</a></p>
+              <p className="wo-add-row" style={{ marginTop: 0 }}>
+                <Link className="btn btn-primary" to={`/certificates/${savedId}/gva`}>🏛️ {t('gva.open')}</Link>
+                <a className="btn btn-glass" href={`/api/certificates/${savedId}/pdf`}>{t('cie.download')}</a>
+              </p>
               <p className="muted">{t('wiz.nextSteps')}</p>
               <ol className="cie-steps">
                 <li>{t('cie.step2')}</li>
                 <li>{t('cie.step3')}</li>
               </ol>
             </div>
-          ) : null}
+          )}
         </div>
       )}
 
@@ -264,8 +298,8 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
           <button type="button" className="btn btn-primary" onClick={() => go(step + 1)} disabled={busy !== null}>{t('wiz.next')} →</button>
         )}
         {current.id === 'review' && !saved && (
-          <button type="button" className="btn btn-primary" onClick={save} disabled={busy !== null || !['address', 'titularName', 'companyName'].every((k) => String(form[k] ?? '').trim())}>
-            {busy === 'save' ? t('cie.saving') : t('wiz.saveCie')}
+          <button type="button" className="btn btn-primary" onClick={save} disabled={busy !== null || !canSave(form)}>
+            {busy === 'save' ? t('cie.saving') : t(editing ? 'wiz.saveChanges' : 'wiz.saveCie')}
           </button>
         )}
         {saved && <button type="button" className="btn btn-glass" onClick={onCancel}>{t('wiz.close')}</button>}

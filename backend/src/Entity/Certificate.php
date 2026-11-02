@@ -55,6 +55,70 @@ class Certificate
     #[ORM\Column(length: 10, nullable: true)]
     private ?string $postalCode = null;
 
+    // --- Emplazamiento desglosado, como en el CERTINS (sección C) ---
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $streetType = null;
+
+    #[ORM\Column(length: 150, nullable: true)]
+    private ?string $streetName = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $portal = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $bis = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $stair = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $floor = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $door = null;
+
+    /** Población (the CERTINS asks municipio and población separately). */
+    #[ORM\Column(length: 120, nullable: true)]
+    private ?string $population = null;
+
+    // --- Suministro (secciones B y C) ---
+    /** 'red' | 'generacion_aislada' — see CertinsModel::SOURCES. */
+    #[ORM\Column(length: 20, options: ['default' => 'red'])]
+    private string $supplySource = 'red';
+
+    /** B · Empresa distribuidora (a la que se conecta la instalación). */
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $distributor = null;
+
+    /** @var list<string> C · Riesgos específicos (CertinsModel::RISKS keys). */
+    #[ORM\Column(type: 'json')]
+    private array $specificRisks = [];
+
+    /** @var list<string> E · Usos secundarios (CertinsModel::USES keys). */
+    #[ORM\Column(type: 'json')]
+    private array $secondaryUses = [];
+
+    /** F · Especificaciones del uso (actividad, superficie, aforo, capacidad…). */
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $useSpecifications = null;
+
+    // --- Certificación (sección G) ---
+    /** 'mtd' | 'proyecto'. */
+    #[ORM\Column(length: 10, options: ['default' => 'mtd'])]
+    private string $designBasis = 'mtd';
+
+    /** Fecha de firma de la memoria o del proyecto (FAQ 9). */
+    #[ORM\Column(type: 'date_immutable', nullable: true)]
+    private ?\DateTimeImmutable $designDate = null;
+
+    /** Medida de la resistencia del aislamiento, MΩ. */
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $insulationResistance = null;
+
+    /** NIF del titular del certificado de cualificación individual (el instalador). */
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $installerNif = null;
+
     // --- Titular ---
     #[ORM\Column(length: 150)]
     private string $titularName;
@@ -229,6 +293,57 @@ class Certificate
 
     public function getEarthConductorSection(): ?string { return $this->earthConductorSection; }
     public function setEarthConductorSection(?string $v): self { $this->earthConductorSection = $v; return $this; }
+
+    public function getStreetType(): ?string { return $this->streetType; }
+    public function setStreetType(?string $v): self { $this->streetType = $v; return $this; }
+    public function getStreetName(): ?string { return $this->streetName; }
+    public function setStreetName(?string $v): self { $this->streetName = $v; return $this; }
+    public function getPortal(): ?string { return $this->portal; }
+    public function setPortal(?string $v): self { $this->portal = $v; return $this; }
+    public function getBis(): ?string { return $this->bis; }
+    public function setBis(?string $v): self { $this->bis = $v; return $this; }
+    public function getStair(): ?string { return $this->stair; }
+    public function setStair(?string $v): self { $this->stair = $v; return $this; }
+    public function getFloor(): ?string { return $this->floor; }
+    public function setFloor(?string $v): self { $this->floor = $v; return $this; }
+    public function getDoor(): ?string { return $this->door; }
+    public function setDoor(?string $v): self { $this->door = $v; return $this; }
+    public function getPopulation(): ?string { return $this->population; }
+    public function setPopulation(?string $v): self { $this->population = $v; return $this; }
+    public function getSupplySource(): string { return $this->supplySource; }
+    public function setSupplySource(string $v): self { $this->supplySource = $v; return $this; }
+    public function getDistributor(): ?string { return $this->distributor; }
+    public function setDistributor(?string $v): self { $this->distributor = $v; return $this; }
+    /** @return list<string> */
+    public function getSpecificRisks(): array { return $this->specificRisks; }
+    /** @param list<string> $v */
+    public function setSpecificRisks(array $v): self { $this->specificRisks = $v; return $this; }
+    /** @return list<string> */
+    public function getSecondaryUses(): array { return $this->secondaryUses; }
+    /** @param list<string> $v */
+    public function setSecondaryUses(array $v): self { $this->secondaryUses = $v; return $this; }
+    public function getUseSpecifications(): ?string { return $this->useSpecifications; }
+    public function setUseSpecifications(?string $v): self { $this->useSpecifications = $v; return $this; }
+    public function getDesignBasis(): string { return $this->designBasis; }
+    public function setDesignBasis(string $v): self { $this->designBasis = $v; return $this; }
+    public function getDesignDate(): ?\DateTimeImmutable { return $this->designDate; }
+    public function setDesignDate(?\DateTimeImmutable $v): self { $this->designDate = $v; return $this; }
+    public function getInsulationResistance(): ?string { return $this->insulationResistance; }
+    public function setInsulationResistance(?string $v): self { $this->insulationResistance = $v; return $this; }
+    public function getInstallerNif(): ?string { return $this->installerNif; }
+    public function setInstallerNif(?string $v): self { $this->installerNif = $v; return $this; }
+
+    /** "Calle Mayor 3, esc. A, 2º B" from the parts, for lists and as the one-line address. */
+    public function composedAddress(): string
+    {
+        $street = trim(implode(' ', array_filter([$this->streetType, $this->streetName, $this->portal, $this->bis])));
+        $rest = array_filter([
+            $this->stair ? 'esc. ' . $this->stair : null,
+            trim(($this->floor ?? '') . ($this->door ? ' ' . $this->door : '')) ?: null,
+        ]);
+
+        return trim(implode(', ', array_filter([$street, ...$rest])));
+    }
 
     public function getObservations(): ?string { return $this->observations; }
     public function setObservations(?string $v): self { $this->observations = $v; return $this; }

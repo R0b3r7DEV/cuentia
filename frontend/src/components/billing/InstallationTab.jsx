@@ -144,7 +144,8 @@ export default function InstallationTab({ onNavigate }) {
   // Hand the computed design to another tab: prefill a CIE, or a quote from the materials.
   const toCertificate = () => onNavigate?.('certificates', {
     installationType: 'nueva',
-    address: form.name || '',
+    // The design's name is not an address (the CIE asks it broken down): it goes to the observations.
+    observations: form.name ? `Instalación: ${form.name}` : '',
     maxPower: (result.contractedPower / 1000).toFixed(3),
     voltage: result.voltage,
     supplyType: result.supplyType,
