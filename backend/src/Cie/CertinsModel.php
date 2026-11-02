@@ -70,6 +70,42 @@ final class CertinsModel
         'proyecto' => 'Proyecto',
     ];
 
+    /**
+     * The required fields of the CERTINS E — the one list the GVA sheet, the PDF, the Claude review and (through
+     * GET /api/certificates/model) the wizard all use.
+     */
+    public const REQUIRED = [
+        'titularName', 'titularNif', 'supplySource', 'streetName', 'province', 'locality', 'postalCode', 'installedPower',
+        'voltage', 'installationType', 'specificRisks', 'companyName', 'companyNif', 'companyRegNumber', 'installerName',
+        'installerNif', 'useType', 'designBasis', 'designDate', 'earthResistance', 'insulationResistance',
+    ];
+
+    /** Only with the distribution network as the source (GVA low-voltage FAQ 26). */
+    public const GRID_REQUIRED = ['distributor', 'cups'];
+
+    /** @return list<string> */
+    public static function required(string $supplySource): array
+    {
+        return $supplySource === 'red' ? [...self::REQUIRED, ...self::GRID_REQUIRED] : self::REQUIRED;
+    }
+
+    /**
+     * Required fields still empty in a form (as the wizard sends it). Certificates from before the CERTINS
+     * fields only have the one-line address: it counts as the street name, as on the GVA sheet.
+     *
+     * @param array<string,mixed> $form
+     * @return list<string>
+     */
+    public static function missing(array $form): array
+    {
+        $filled = static fn (mixed $v): bool => is_array($v) ? $v !== [] : trim((string) $v) !== '';
+
+        return array_values(array_filter(
+            self::required((string) ($form['supplySource'] ?? 'red')),
+            static fn (string $k): bool => !$filled($form[$k] ?? null) && !($k === 'streetName' && $filled($form['address'] ?? null)),
+        ));
+    }
+
     /** C · Nueva / Modificación (the app's "ampliación" and "reforma" are modifications). */
     public static function actuation(string $installationType): string
     {

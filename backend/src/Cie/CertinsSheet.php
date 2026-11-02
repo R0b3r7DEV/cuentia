@@ -20,59 +20,59 @@ final class CertinsSheet
      */
     public static function sections(Certificate $c): array
     {
-        $fromGrid = $c->getSupplySource() === 'red';
-        $row = static fn (string $key, string $label, ?string $value, bool $required = false): array => [
-            'key' => $key, 'label' => $label, 'value' => trim((string) $value), 'required' => $required,
+        $required = CertinsModel::required($c->getSupplySource());
+        $row = static fn (string $key, string $label, ?string $value): array => [
+            'key' => $key, 'label' => $label, 'value' => trim((string) $value), 'required' => in_array($key, $required, true),
         ];
         $labels = static fn (array $keys, array $catalog): string => implode('; ', array_map(static fn (string $k): string => $catalog[$k] ?? $k, $keys));
 
         return [
             ['code' => 'A', 'title' => 'TITULAR', 'rows' => [
-                $row('titularName', 'Apellidos y nombre o razón social', $c->getTitularName(), true),
-                $row('titularNif', 'NIF', $c->getTitularNif(), true),
+                $row('titularName', 'Apellidos y nombre o razón social', $c->getTitularName()),
+                $row('titularNif', 'NIF', $c->getTitularNif()),
             ]],
             ['code' => 'B', 'title' => 'EMPRESA DISTRIBUIDORA (a la que se conecta la instalación)', 'rows' => [
-                $row('supplySource', 'Fuente de suministro', CertinsModel::SOURCES[$c->getSupplySource()] ?? $c->getSupplySource(), true),
-                $row('distributor', 'Empresa distribuidora', $c->getDistributor(), $fromGrid),
+                $row('supplySource', 'Fuente de suministro', CertinsModel::SOURCES[$c->getSupplySource()] ?? $c->getSupplySource()),
+                $row('distributor', 'Empresa distribuidora', $c->getDistributor()),
             ]],
             ['code' => 'C', 'title' => 'CARACTERÍSTICAS DE LA INSTALACIÓN', 'rows' => [
                 $row('streetType', 'Tipo vía', $c->getStreetType()),
-                $row('streetName', 'Nombre vía', $c->getStreetName() ?: ($c->getAddress() ?? ''), true),
+                $row('streetName', 'Nombre vía', $c->getStreetName() ?: ($c->getAddress() ?? '')),
                 $row('portal', 'Portal', $c->getPortal()),
                 $row('bis', 'Bis', $c->getBis()),
                 $row('stair', 'Esc', $c->getStair()),
                 $row('floor', 'Piso', $c->getFloor()),
                 $row('door', 'Puerta', $c->getDoor()),
-                $row('province', 'Provincia', $c->getProvince(), true),
-                $row('locality', 'Municipio', $c->getLocality(), true),
+                $row('province', 'Provincia', $c->getProvince()),
+                $row('locality', 'Municipio', $c->getLocality()),
                 $row('population', 'Población', $c->getPopulation()),
-                $row('postalCode', 'CP', $c->getPostalCode(), true),
-                $row('installedPower', 'Potencia instalada (kW)', self::num($c->getInstalledPower()), true),
-                $row('voltage', 'Tensión (V)', $c->getVoltage() !== null ? (string) $c->getVoltage() : null, true),
-                $row('installationType', 'Nueva / Modificación', CertinsModel::actuation($c->getInstallationType()), true),
-                $row('cups', 'CUPS', $c->getCups(), $fromGrid),
-                $row('specificRisks', 'Riesgos específicos de la instalación', $labels($c->getSpecificRisks(), CertinsModel::RISKS) ?: null, true),
+                $row('postalCode', 'CP', $c->getPostalCode()),
+                $row('installedPower', 'Potencia instalada (kW)', self::num($c->getInstalledPower())),
+                $row('voltage', 'Tensión (V)', $c->getVoltage() !== null ? (string) $c->getVoltage() : null),
+                $row('installationType', 'Nueva / Modificación', CertinsModel::actuation($c->getInstallationType())),
+                $row('cups', 'CUPS', $c->getCups()),
+                $row('specificRisks', 'Riesgos específicos de la instalación', $labels($c->getSpecificRisks(), CertinsModel::RISKS) ?: null),
             ]],
             ['code' => 'D', 'title' => 'EMPRESA INSTALADORA', 'rows' => [
-                $row('companyName', 'Apellidos y nombre o razón social', $c->getCompanyName(), true),
-                $row('companyNif', 'NIF', $c->getCompanyNif(), true),
-                $row('companyRegNumber', 'Nº de inscripción en el registro de empresas instaladoras', $c->getCompanyRegNumber(), true),
-                $row('installerName', 'Nombre del instalador (titular del CCI)', $c->getInstallerName(), true),
-                $row('installerNif', 'NIF del instalador', $c->getInstallerNif(), true),
+                $row('companyName', 'Apellidos y nombre o razón social', $c->getCompanyName()),
+                $row('companyNif', 'NIF', $c->getCompanyNif()),
+                $row('companyRegNumber', 'Nº de inscripción en el registro de empresas instaladoras', $c->getCompanyRegNumber()),
+                $row('installerName', 'Nombre del instalador (titular del CCI)', $c->getInstallerName()),
+                $row('installerNif', 'NIF del instalador', $c->getInstallerNif()),
                 $row('installerLicense', 'Nº del certificado de cualificación individual (CCI)', $c->getInstallerLicense()),
             ]],
             ['code' => 'E', 'title' => 'USO DE LA INSTALACIÓN', 'rows' => [
-                $row('useType', 'Uso principal', $c->getUseType() !== null ? (CertinsModel::USES[$c->getUseType()] ?? $c->getUseType()) : null, true),
+                $row('useType', 'Uso principal', $c->getUseType() !== null ? (CertinsModel::USES[$c->getUseType()] ?? $c->getUseType()) : null),
                 $row('secondaryUses', 'Usos secundarios', $labels($c->getSecondaryUses(), CertinsModel::USES) ?: null),
             ]],
             ['code' => 'F', 'title' => 'ESPECIFICACIONES DEL USO', 'rows' => [
                 $row('useSpecifications', 'Especificaciones del uso', $c->getUseSpecifications()),
             ]],
             ['code' => 'G', 'title' => 'CERTIFICACIÓN DE LA EMPRESA INSTALADORA', 'rows' => [
-                $row('designBasis', 'Instalación ejecutada de acuerdo con', CertinsModel::DESIGN_BASIS[$c->getDesignBasis()] ?? $c->getDesignBasis(), true),
-                $row('designDate', 'Fecha de firma de la memoria / del proyecto', $c->getDesignDate()?->format('d/m/Y'), true),
-                $row('earthResistance', 'Resistencia de la tierra de protección (ohmios)', $c->getEarthResistance(), true),
-                $row('insulationResistance', 'Medida de la resistencia del aislamiento (Megaohmios)', $c->getInsulationResistance(), true),
+                $row('designBasis', 'Instalación ejecutada de acuerdo con', CertinsModel::DESIGN_BASIS[$c->getDesignBasis()] ?? $c->getDesignBasis()),
+                $row('designDate', 'Fecha de firma de la memoria / del proyecto', $c->getDesignDate()?->format('d/m/Y')),
+                $row('earthResistance', 'Resistencia de la tierra de protección (ohmios)', $c->getEarthResistance()),
+                $row('insulationResistance', 'Medida de la resistencia del aislamiento (Megaohmios)', $c->getInsulationResistance()),
             ]],
             ['code' => 'MTD', 'title' => 'DATOS TÉCNICOS PARA LA MEMORIA TÉCNICA DE DISEÑO (no van en el certificado)', 'rows' => [
                 $row('maxPower', 'Potencia máxima admisible (kW)', self::num($c->getMaxPower())),
