@@ -561,6 +561,80 @@ class ApiIntegrationTest extends WebTestCase
         self::assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $wo['createdAt']);
     }
 
+    /** Multipart upload of a logo; returns [status, decoded body]. */
+    private function uploadLogo(string $bytes): array
+    {
+        $path = tempnam(sys_get_temp_dir(), 'logo');
+        file_put_contents($path, $bytes);
+        $this->client->request('POST', '/api/account/logo', [], [
+            'logo' => new \Symfony\Component\HttpFoundation\File\UploadedFile($path, 'logo.png', 'image/png', null, true),
+        ]);
+        $res = $this->client->getResponse();
+
+        return [$res->getStatusCode(), json_decode($res->getContent() ?: 'null', true)];
+    }
+
+    /** "Mis datos" for a self-employed electrician: what is missing, the IBAN check, the logo, and where it all shows up. */
+    public function testMyDataProfileLogoAndWhereTheyAreUsed(): void
+    {
+        $this->registerAndLogin('autonomo@test.local');
+
+        // a new account is missing everything an invoice and a CIE need
+        [, $empty] = $this->json('GET', '/api/account/settings');
+        self::assertSame(['businessName', 'taxId', 'fiscalAddress'], $empty['missing']['invoice']);
+        self::assertSame(['businessName', 'taxId', 'installerRegNumber'], $empty['missing']['certificate']);
+        self::assertNull($empty['logoUrl']);
+
+        // a mistyped IBAN is refused and nothing is half-saved
+        [$bad, $err] = $this->json('PUT', '/api/account/settings', ['iban' => 'ES91 2100 0418 4502 0005 1333']);
+        self::assertSame(400, $bad);
+        self::assertSame('invalid_iban', $err['error']);
+
+        [$ok, $saved] = $this->json('PUT', '/api/account/settings', [
+            'businessName' => 'José Pérez García', 'taxId' => '12345678Z', 'fiscalAddress' => 'C/ Major 1, Castelló',
+            'installerRegNumber' => 'CV-12345', 'phone' => '600 123 456', 'iban' => 'es91 2100 0418 4502 0005 1332',
+        ]);
+        self::assertSame(200, $ok);
+        self::assertSame('ES91 2100 0418 4502 0005 1332', $saved['iban']);
+        self::assertSame([], $saved['missing']['invoice']);
+        self::assertSame([], $saved['missing']['certificate']);
+
+        // logo: sanitised, served back as PNG with nosniff; a fake one is refused
+        [$fake] = $this->uploadLogo('<svg onload="alert(1)"/>');
+        self::assertSame(400, $fake);
+        [$ls, $withLogo] = $this->uploadLogo(\App\Tests\Service\ImageSanitizerTest::png(1200, 300, true));
+        self::assertSame(200, $ls);
+        self::assertSame('/api/account/logo', $withLogo['logoUrl']);
+        $this->client->request('GET', '/api/account/logo');
+        $logo = $this->client->getResponse();
+        self::assertSame('image/png', $logo->headers->get('Content-Type'));
+        self::assertSame('nosniff', $logo->headers->get('X-Content-Type-Options'));
+        self::assertSame([600, 150], array_slice(getimagesizefromstring((string) $logo->getContent()), 0, 2));
+
+        // the invoice PDF carries the logo (an image) — and issuing it leaves the hash chain intact
+        [, $inv] = $this->json('POST', '/api/invoices', ['customer' => ['name' => 'ACME', 'taxId' => 'B1'], 'lines' => [['description' => 'x', 'unitPrice' => '10.00', 'vatRate' => '21.00']]]);
+        $this->client->request('GET', '/api/invoices/' . $inv['id'] . '/pdf');
+        self::assertGreaterThanOrEqual(1, substr_count((string) $this->client->getResponse()->getContent(), '/Subtype /Image'));
+        self::assertTrue($this->json('GET', '/api/invoices/verify')[1]['ok']);
+
+        // a new CIE with the company left blank takes it from "Mis datos"
+        [$cs, $cie] = $this->json('POST', '/api/certificates', ['address' => 'C/ Mar 3, Castelló', 'titularName' => 'María López']);
+        self::assertSame(201, $cs);
+        self::assertSame('José Pérez García', $cie['companyName']);
+        self::assertSame('12345678Z', $cie['companyNif']);
+        self::assertSame('CV-12345', $cie['companyRegNumber']);
+        self::assertSame('José Pérez García', $cie['installerName']);
+
+        // the logo can be removed; another user never sees it (there is no id to guess)
+        [, $noLogo] = $this->json('DELETE', '/api/account/logo');
+        self::assertNull($noLogo['logoUrl']);
+        $this->uploadLogo(\App\Tests\Service\ImageSanitizerTest::png());
+        $this->json('POST', '/api/logout');
+        $this->registerAndLogin('otro@test.local');
+        $this->client->request('GET', '/api/account/logo');
+        self::assertSame(404, $this->client->getResponse()->getStatusCode());
+    }
+
     public function testOpenBankingReportsDisabledWithoutCredentials(): void
     {
         $this->registerAndLogin('bank@test.local');

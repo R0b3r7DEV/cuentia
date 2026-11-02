@@ -59,6 +59,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'decimal', precision: 12, scale: 2, nullable: true)]
     private ?string $defaultLaborRate = null;
 
+    /**
+     * Number in the GVA register of installation companies (for a self-employed electrician, the company is
+     * themselves). Printed on every CIE. / Nº de inscripción en el registro de empresas instaladoras.
+     */
+    #[ORM\Column(length: 40, nullable: true)]
+    private ?string $installerRegNumber = null;
+
+    /** Contact phone printed on documents. / Teléfono de contacto en los documentos. */
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $phone = null;
+
+    /** IBAN printed on invoices as the payment method (normalised, no spaces). / IBAN para cobrar. */
+    #[ORM\Column(length: 34, nullable: true)]
+    private ?string $iban = null;
+
     // Per-user API credentials (BYOK), stored ENCRYPTED (never plaintext). / Credenciales cifradas.
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $anthropicKey = null;
@@ -92,6 +107,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getDefaultLaborRate(): ?string { return $this->defaultLaborRate; }
     public function setDefaultLaborRate(?string $v): self { $this->defaultLaborRate = $v; return $this; }
+
+    public function getInstallerRegNumber(): ?string { return $this->installerRegNumber; }
+    public function setInstallerRegNumber(?string $v): self { $this->installerRegNumber = $v; return $this; }
+
+    public function getPhone(): ?string { return $this->phone; }
+    public function setPhone(?string $v): self { $this->phone = $v; return $this; }
+
+    public function getIban(): ?string { return $this->iban; }
+    public function setIban(?string $v): self { $this->iban = $v; return $this; }
 
     public function getAnthropicKey(): ?string { return $this->anthropicKey; }
     public function setAnthropicKey(?string $v): self { $this->anthropicKey = $v; return $this; }

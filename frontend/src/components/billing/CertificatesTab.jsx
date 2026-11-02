@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from '../../i18n/LanguageContext'
 
 const blank = {
@@ -17,12 +18,27 @@ export default function CertificatesTab({ prefill }) {
   const [form, setForm] = useState(null)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState(null)
+  const [profile, setProfile] = useState(null) // "Mis datos", to prefill the installation company
 
   const load = async () => {
     const res = await fetch('/api/certificates')
     if (res.ok) setCertificates(await res.json())
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    fetch('/api/account/settings').then((r) => (r.ok ? r.json() : null)).then(setProfile).catch(() => {})
+  }, [])
+
+  // A self-employed electrician is their own installation company: a new CIE starts with "Mis datos".
+  // ES: Un autónomo es su propia empresa instaladora: un CIE nuevo empieza con «Mis datos».
+  const newCertificate = () => setForm({
+    ...blank,
+    companyName: profile?.businessName ?? '',
+    companyNif: profile?.taxId ?? '',
+    companyRegNumber: profile?.installerRegNumber ?? '',
+    installerName: profile?.businessName ?? '',
+  })
+  const missingCie = profile?.missing?.certificate ?? []
 
   // Open a prefilled draft when arriving from the installation designer.
   useEffect(() => {
@@ -88,7 +104,15 @@ export default function CertificatesTab({ prefill }) {
 
       <div className="card">
         {form === null ? (
-          <button className="btn btn-glass btn-sm" onClick={() => setForm({ ...blank })}>{t('cie.new')}</button>
+          <>
+            {missingCie.length > 0 && (
+              <p className="alert-warn" style={{ marginTop: 0 }}>
+                {t('my.warnCie', { fields: missingCie.map((k) => t(`my.f.${k}`)).join(', ') })}{' '}
+                <Link to="/mis-datos" className="link-btn">{t('my.goFill')}</Link>
+              </p>
+            )}
+            <button className="btn btn-glass btn-sm" onClick={newCertificate}>{t('cie.new')}</button>
+          </>
         ) : (
           <form className="invoice-form" onSubmit={save}>
             <div className="form-sec">{t('cie.secInstallation')}</div>

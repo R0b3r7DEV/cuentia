@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from '../i18n/LanguageContext'
 import { toCents } from '../lib/workOrders'
 
@@ -18,9 +19,6 @@ export default function BillingSettings() {
   useEffect(() => {
     fetch('/api/account/settings').then((r) => r.ok && r.json()).then((d) => d && setForm({
       billingMode: d.billingMode || 'standard',
-      businessName: d.businessName || '',
-      fiscalAddress: d.fiscalAddress || '',
-      taxId: d.taxId || '',
       // "35.00" → "35", the way a person types it
       defaultLaborRate: d.defaultLaborRate ? String(Number(d.defaultLaborRate)).replace('.', ',') : '',
     }))
@@ -74,16 +72,7 @@ export default function BillingSettings() {
         </label>
       </div>
 
-      <div className="form-sec">{t('billset.issuer')}</div>
-      <p className="msg" style={{ marginTop: 0 }}>{t('billset.issuerDesc')}</p>
-      <div className="field-row">
-        <label className="field"><span>{t('billset.businessName')}</span>
-          <input value={form.businessName} onChange={(e) => set({ businessName: e.target.value })} /></label>
-        <label className="field field-sm"><span>{t('billset.taxId')}</span>
-          <input value={form.taxId} onChange={(e) => set({ taxId: e.target.value })} /></label>
-      </div>
-      <label className="field"><span>{t('billset.fiscalAddress')}</span>
-        <input value={form.fiscalAddress} onChange={(e) => set({ fiscalAddress: e.target.value })} /></label>
+      <p className="msg">{t('billset.profileMoved')} <Link to="/mis-datos" className="link-btn">{t('nav.myData')}</Link></p>
 
       <div className="form-sec">{t('billset.workOrders')}</div>
       <label className="field field-sm"><span>{t('billset.defaultLaborRate')}</span>

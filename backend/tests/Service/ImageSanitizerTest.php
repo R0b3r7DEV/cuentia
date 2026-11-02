@@ -108,6 +108,26 @@ class ImageSanitizerTest extends TestCase
         (new ImageSanitizer())->signature('data:image/png;base64,%%%not-base64%%%');
     }
 
+    public function testLogoKeepsTransparencyAndFitsTheLetterheadBox(): void
+    {
+        $wide = (new ImageSanitizer())->logo(self::png(1200, 300, true));
+        self::assertSame([600, 150], [$wide['width'], $wide['height']]);
+        self::assertSame(IMAGETYPE_PNG, getimagesizefromstring($wide['png'])[2]);
+        self::assertSame(127, (imagecolorat(imagecreatefromstring($wide['png']), 0, 0) >> 24) & 0x7F, 'transparent background kept');
+
+        $tall = (new ImageSanitizer())->logo(self::jpeg(300, 600));
+        self::assertSame([120, 240], [$tall['width'], $tall['height']]);
+
+        $small = (new ImageSanitizer())->logo(self::png(200, 80));
+        self::assertSame([200, 80], [$small['width'], $small['height']], 'never enlarged');
+    }
+
+    public function testLogoMustBeAnImage(): void
+    {
+        $this->expectExceptionObject(new \InvalidArgumentException('invalid_image'));
+        (new ImageSanitizer())->logo('<svg onload="alert(1)"></svg>');
+    }
+
     public function testOversizedSignatureCanvasIsRejected(): void
     {
         $this->expectExceptionObject(new \InvalidArgumentException('signature_too_large'));

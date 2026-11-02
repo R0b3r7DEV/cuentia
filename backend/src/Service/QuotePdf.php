@@ -14,6 +14,8 @@ use Dompdf\Options;
  */
 class QuotePdf
 {
+    public function __construct(private ?IssuerProfile $profile = null) {}
+
     public function build(Quote $quote): string
     {
         $options = new Options();
@@ -27,7 +29,8 @@ class QuotePdf
         return $dompdf->output();
     }
 
-    private function html(Quote $quote): string
+    /** The HTML before rendering; public so tests can assert on it. */
+    public function html(Quote $quote): string
     {
         $customer = $quote->getCustomer();
         $issuer = $quote->getUser();
@@ -65,15 +68,18 @@ class QuotePdf
             .totals td { padding: 5px 6px; }
             .totals .grand td { border-top: 2px solid #2a78d6; font-weight: bold; font-size: 15px; color: #2a78d6; }
             .note { margin-top: 30px; font-size: 9px; color: #9aa2b1; }
+            .logo { max-height: 60px; max-width: 220px; margin-bottom: 8px; }
           </style></head><body>
             <div class="head">
-              <div><h1>Presupuesto</h1><div class="muted">Nº ' . $this->e($quote->getFullNumber()) . '</div></div>
+              <div>' . ($this->profile?->logoTag($issuer) ?? '') . '<h1>Presupuesto</h1><div class="muted">Nº ' . $this->e($quote->getFullNumber()) . '</div></div>
               <div class="r"><div class="label">Fecha</div>' . $quote->getIssuedAt()->format('d/m/Y') . $validUntil . '</div>
             </div>
 
             <table class="parties"><tr>
-              <td><div class="label">Emisor</div>' . $this->e((string) $issuer?->getEmail())
-                . '<br><span class="muted">NIF: ' . $this->e($issuer?->getTaxId() ?: '—') . '</span></td>
+              <td><div class="label">Emisor</div>' . $this->e(IssuerProfile::name($issuer))
+                . '<br><span class="muted">NIF: ' . $this->e($issuer?->getTaxId() ?: '—') . '</span>'
+                . ($issuer?->getFiscalAddress() ? '<br><span class="muted">' . $this->e($issuer->getFiscalAddress()) . '</span>' : '')
+                . (IssuerProfile::phoneLine($issuer) ? '<br><span class="muted">' . IssuerProfile::phoneLine($issuer) . '</span>' : '') . '</td>
               <td><div class="label">Cliente</div>' . $this->e((string) $customer?->getName())
                 . '<br><span class="muted">NIF: ' . $this->e((string) $customer?->getTaxId()) . '</span>'
                 . ($customer?->getAddress() ? '<br><span class="muted">' . $this->e($customer->getAddress()) . '</span>' : '') . '</td>

@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { eur } from '../../lib/format'
 import { useTranslation } from '../../i18n/LanguageContext'
 
@@ -19,6 +20,7 @@ export default function InvoicesTab() {
   const { t } = useTranslation()
   const [invoices, setInvoices] = useState([])
   const [demoMode, setDemoMode] = useState(false) // Verifactu demo mode → show QR/XML/chain
+  const [missingProfile, setMissingProfile] = useState([]) // "Mis datos" fields an invoice still needs
   const [customers, setCustomers] = useState([])
   const [services, setServices] = useState([])
   const [verify, setVerify] = useState(null)
@@ -48,7 +50,10 @@ export default function InvoicesTab() {
 
   const loadMode = async () => {
     const res = await fetch('/api/account/settings')
-    if (res.ok) setDemoMode((await res.json()).billingMode === 'verifactu')
+    if (!res.ok) return
+    const s = await res.json()
+    setDemoMode(s.billingMode === 'verifactu')
+    setMissingProfile(s.missing?.invoice ?? [])
   }
 
   useEffect(() => { loadInvoices(); loadCustomers(); loadServices(); loadMode() }, [])
@@ -113,6 +118,14 @@ export default function InvoicesTab() {
   return (
     <>
       <p className="page-subtitle">{t('inv.subtitle')}</p>
+
+      {/* A standard invoice must carry the issuer's name, NIF and address (RD 1619/2012). */}
+      {missingProfile.length > 0 && (
+        <div className="card alert-warn">
+          {t('my.warnInvoice', { fields: missingProfile.map((k) => t(`my.f.${k}`)).join(', ') })}{' '}
+          <Link to="/mis-datos" className="link-btn">{t('my.goFill')}</Link>
+        </div>
+      )}
 
       {/* Verifactu chain status — only in demo mode. In standard mode the chain runs silently underneath. */}
       {demoMode && (

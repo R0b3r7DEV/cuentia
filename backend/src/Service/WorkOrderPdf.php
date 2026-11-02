@@ -30,7 +30,7 @@ class WorkOrderPdf
         'facturado' => 'Facturado',
     ];
 
-    public function __construct(private ?BusinessClock $clock = null)
+    public function __construct(private ?BusinessClock $clock = null, private ?IssuerProfile $profile = null)
     {
         $this->clock ??= new BusinessClock();
     }
@@ -101,7 +101,7 @@ class WorkOrderPdf
             $signature = '<div class="muted">Pendiente de firma.</div>';
         }
 
-        $issuerName = $issuer?->getBusinessName() ?: (string) $issuer?->getEmail();
+        $issuerName = IssuerProfile::name($issuer);
         // The date in Spain: a job done at 00:30 on the 2nd is not dated the 1st. / La fecha en España.
         $date = $this->clock->format($wo->getScheduledAt() ?? $wo->getCreatedAt(), 'd/m/Y');
         $invoice = $wo->getConvertedInvoice() !== null
@@ -130,9 +130,10 @@ class WorkOrderPdf
             .photo { width: 160px; height: 120px; margin: 0 8px 8px 0; border: 1px solid #d3d8e2; }
             .signature { width: 240px; border-bottom: 1px solid #1c2129; margin-top: 6px; }
             .note { margin-top: 30px; font-size: 9px; color: #9aa2b1; }
+            .logo { max-height: 60px; max-width: 220px; margin-bottom: 8px; }
           </style></head><body>
             <table class="head" width="100%"><tr>
-              <td><h1>Parte de trabajo</h1><div class="muted">Nº ' . (int) $wo->getId() . ' · '
+              <td>' . ($this->profile?->logoTag($issuer) ?? '') . '<h1>Parte de trabajo</h1><div class="muted">Nº ' . (int) $wo->getId() . ' · '
                 . self::STATUS_LABELS[$wo->getStatus()] . '</div>' . $invoice . '</td>
               <td class="r"><div class="label">Fecha</div>' . $date . '</td>
             </tr></table>
@@ -140,7 +141,8 @@ class WorkOrderPdf
             <table class="parties"><tr>
               <td><div class="label">Electricista</div>' . $this->e($issuerName)
                 . '<br><span class="muted">NIF: ' . $this->e($issuer?->getTaxId() ?: '—') . '</span>'
-                . ($issuer?->getFiscalAddress() ? '<br><span class="muted">' . $this->e($issuer->getFiscalAddress()) . '</span>' : '') . '</td>
+                . ($issuer?->getFiscalAddress() ? '<br><span class="muted">' . $this->e($issuer->getFiscalAddress()) . '</span>' : '')
+                . (IssuerProfile::phoneLine($issuer) ? '<br><span class="muted">' . IssuerProfile::phoneLine($issuer) . '</span>' : '') . '</td>
               <td><div class="label">Cliente</div>' . $this->e((string) $customer?->getName())
                 . '<br><span class="muted">NIF: ' . $this->e((string) $customer?->getTaxId()) . '</span>'
                 . ($customer?->getAddress() ? '<br><span class="muted">' . $this->e($customer->getAddress()) . '</span>' : '') . '</td>

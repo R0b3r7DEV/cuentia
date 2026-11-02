@@ -100,6 +100,40 @@ class ImageSanitizer
         return (string) ob_get_clean();
     }
 
+    /** Box a logo is fitted into: wide and short, like a letterhead. / Caja en la que se encaja el logo. */
+    public const LOGO_MAX_WIDTH = 600;
+    public const LOGO_MAX_HEIGHT = 240;
+
+    /**
+     * A logo for document headers (JPEG or PNG in) → a clean PNG that keeps transparency, fitted inside
+     * LOGO_MAX_WIDTH × LOGO_MAX_HEIGHT.
+     *
+     * @return array{png:string, width:int, height:int}
+     */
+    public function logo(string $bytes): array
+    {
+        if ($bytes === '' || strlen($bytes) > self::MAX_UPLOAD_BYTES) {
+            throw new \InvalidArgumentException('image_too_large');
+        }
+        [$width, $height] = $this->inspect($bytes, [IMAGETYPE_JPEG, IMAGETYPE_PNG]);
+        $image = $this->decode($bytes);
+
+        $scale = min(1, self::LOGO_MAX_WIDTH / $width, self::LOGO_MAX_HEIGHT / $height);
+        $w = max(1, (int) round($width * $scale));
+        $h = max(1, (int) round($height * $scale));
+
+        $out = imagecreatetruecolor($w, $h);
+        imagealphablending($out, false);
+        imagesavealpha($out, true);
+        imagefill($out, 0, 0, imagecolorallocatealpha($out, 0, 0, 0, 127));
+        imagecopyresampled($out, $image, 0, 0, 0, 0, $w, $h, $width, $height);
+
+        ob_start();
+        imagepng($out, null, 9);
+
+        return ['png' => (string) ob_get_clean(), 'width' => $w, 'height' => $h];
+    }
+
     /**
      * Sniff the real type and size from the bytes, before any decoding.
      *
