@@ -735,3 +735,4 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 0
 .wiz-warning { color: var(--warn-text); }
 .wiz-nav { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; }
 .wiz-nav .btn { min-height: 46px; flex: 1; }
+.wiz-done .btn { display: inline-block; margin: 4px 0; text-decoration: none; }
