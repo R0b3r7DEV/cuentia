@@ -232,7 +232,8 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
           {saved ? (
             <div className="card wiz-done">
               <p>✓ {t('wiz.saved')}</p>
-              <a className="btn btn-primary" href={`/api/certificates/${saved.id}/pdf`}>{t('cie.download')}</a>
+              <p><a className="btn btn-primary" href={`/api/certificates/${saved.id}/pdf`}>{t('cie.download')}</a></p>
+              <p className="muted">{t('wiz.nextSteps')}</p>
               <ol className="cie-steps">
                 <li>{t('cie.step2')}</li>
                 <li>{t('cie.step3')}</li>
