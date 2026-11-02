@@ -635,6 +635,47 @@ class ApiIntegrationTest extends WebTestCase
         self::assertSame(404, $this->client->getResponse()->getStatusCode());
     }
 
+    /**
+     * The CIE assistant over HTTP, with Claude replaced by a fake: without a key the Claude buttons are off
+     * (409); with the user's own key a bill is read into CIE fields; and the CUPS is saved on the certificate.
+     */
+    public function testCieAssistantReadsABillWithTheUsersOwnKey(): void
+    {
+        // Claude is replaced before the first request builds the real gateway.
+        static::getContainer()->set(\App\Assistant\AnthropicGateway::class, new \App\Tests\Assistant\FakeClaude([
+            'titularName' => 'María López', 'titularNif' => '12345678Z', 'supplyAddress' => 'C/ Mar 3',
+            'postalCode' => '12001', 'locality' => 'Castelló', 'province' => 'Castellón',
+            'cups' => 'ES0021000012345678LB', 'contractedPowerKw' => '5.75', 'supplyType' => 'monofasico',
+        ]));
+        $this->registerAndLogin('cie-ia@test.local');
+
+        [, $status] = $this->json('GET', '/api/certificates/assistant/status');
+        self::assertFalse($status['enabled']);
+        [$noKey, $err] = $this->json('POST', '/api/certificates/assistant/help', ['step' => 'client', 'question' => '¿Qué es el CUPS?', 'form' => []]);
+        self::assertSame(409, $noKey);
+        self::assertSame('no_api_key', $err['error']);
+
+        $this->json('PUT', '/api/account/integrations/anthropic', ['key' => 'sk-ant-test-key']);
+        [, $on] = $this->json('GET', '/api/certificates/assistant/status');
+        self::assertTrue($on['enabled']);
+
+        $path = tempnam(sys_get_temp_dir(), 'bill');
+        file_put_contents($path, \App\Tests\Service\ImageSanitizerTest::jpeg(800, 600));
+        $this->client->request('POST', '/api/certificates/assistant/bill', [], [
+            'bill' => new \Symfony\Component\HttpFoundation\File\UploadedFile($path, 'factura.jpg', 'image/jpeg', null, true),
+        ]);
+        $read = json_decode((string) $this->client->getResponse()->getContent(), true);
+        self::assertSame(200, $this->client->getResponse()->getStatusCode());
+        self::assertSame('ES0021000012345678LB', $read['fields']['cups']);
+        self::assertSame([], $read['checks']);
+        self::assertSame('5.750', $read['contractedPowerKw']);
+
+        // the read fields go into a CIE; the CUPS is stored normalised and printed on the PDF
+        [$cs, $cie] = $this->json('POST', '/api/certificates', ['cups' => 'es 0021 0000 1234 5678 lb', 'companyName' => 'José Pérez'] + $read['fields']);
+        self::assertSame(201, $cs);
+        self::assertSame('ES0021000012345678LB', $cie['cups']);
+    }
+
     public function testOpenBankingReportsDisabledWithoutCredentials(): void
     {
         $this->registerAndLogin('bank@test.local');

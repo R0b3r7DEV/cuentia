@@ -65,6 +65,13 @@ class Certificate
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $titularAddress = null;
 
+    /**
+     * CUPS — the supply point's unique code (on every electricity bill). / Código Universal del Punto de
+     * Suministro, el que viene en la factura de la luz.
+     */
+    #[ORM\Column(length: 22, nullable: true)]
+    private ?string $cups = null;
+
     // --- Empresa instaladora / Instalador ---
     #[ORM\Column(length: 150)]
     private string $companyName;
@@ -171,6 +178,9 @@ class Certificate
 
     public function getTitularAddress(): ?string { return $this->titularAddress; }
     public function setTitularAddress(?string $v): self { $this->titularAddress = $v; return $this; }
+
+    public function getCups(): ?string { return $this->cups; }
+    public function setCups(?string $v): self { $this->cups = $v; return $this; }
 
     public function getCompanyName(): string { return $this->companyName; }
     public function setCompanyName(string $v): self { $this->companyName = $v; return $this; }

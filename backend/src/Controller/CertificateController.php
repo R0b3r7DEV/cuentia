@@ -147,6 +147,8 @@ class CertificateController extends AbstractController
         $c->setTitularName(trim((string) ($data['titularName'] ?? '')));
         $c->setTitularNif($this->str($data, 'titularNif'));
         $c->setTitularAddress($this->str($data, 'titularAddress'));
+        $cups = \App\Util\Cups::normalize((string) ($data['cups'] ?? ''));
+        $c->setCups($cups !== '' ? $cups : null);
 
         $c->setCompanyName(trim((string) ($data['companyName'] ?? '')));
         $c->setCompanyRegNumber($this->str($data, 'companyRegNumber'));
@@ -210,6 +212,7 @@ class CertificateController extends AbstractController
             'titularName'             => $c->getTitularName(),
             'titularNif'              => $c->getTitularNif(),
             'titularAddress'          => $c->getTitularAddress(),
+            'cups'                    => $c->getCups(),
             'companyName'             => $c->getCompanyName(),
             'companyRegNumber'        => $c->getCompanyRegNumber(),
             'companyNif'              => $c->getCompanyNif(),

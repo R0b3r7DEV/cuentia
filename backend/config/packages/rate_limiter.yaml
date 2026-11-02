@@ -18,4 +18,9 @@ framework:
             policy: sliding_window
             limit: 10
             interval: '15 minutes'
-
+        # Claude calls of the CIE assistant, per user: they spend the user's own API credit.
+        # ES: llamadas a Claude del asistente del CIE, por usuario: gastan el crédito de su propia clave.
+        cie_assistant:
+            policy: sliding_window
+            limit: 40
+            interval: '1 hour'

@@ -1,16 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from '../../i18n/LanguageContext'
+import { BLANK_CIE, mergeEmpty, profileDefaults } from '../../lib/cie'
+import CieWizard from './CieWizard'
 
-const blank = {
-  id: null, installationType: 'nueva', useType: 'vivienda', issuedAt: '',
-  address: '', postalCode: '', locality: '', province: '',
-  titularName: '', titularNif: '', titularAddress: '',
-  companyName: '', companyRegNumber: '', companyNif: '', installerName: '', installerLicense: '',
-  maxPower: '', installedPower: '', voltage: '', supplyType: '', earthingScheme: 'TT', circuits: '',
-  derivationSection: '', igaCurrent: '', differentialSensitivity: '', earthResistance: '', earthConductorSection: '',
-  observations: '',
-}
+const blank = BLANK_CIE
 
 export default function CertificatesTab({ prefill }) {
   const { t } = useTranslation()
@@ -19,6 +13,7 @@ export default function CertificatesTab({ prefill }) {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState(null)
   const [profile, setProfile] = useState(null) // "Mis datos", to prefill the installation company
+  const [wizard, setWizard] = useState(null) // {form, fromInstallation} while the guided mode is open
 
   const load = async () => {
     const res = await fetch('/api/certificates')
@@ -31,18 +26,22 @@ export default function CertificatesTab({ prefill }) {
 
   // A self-employed electrician is their own installation company: a new CIE starts with "Mis datos".
   // ES: Un autónomo es su propia empresa instaladora: un CIE nuevo empieza con «Mis datos».
-  const newCertificate = () => setForm({
-    ...blank,
-    companyName: profile?.businessName ?? '',
-    companyNif: profile?.taxId ?? '',
-    companyRegNumber: profile?.installerRegNumber ?? '',
-    installerName: profile?.businessName ?? '',
-  })
+  const newCertificate = () => setForm({ ...blank, ...profileDefaults(profile) })
+  const openWizard = () => setWizard({ form: { ...blank, ...profileDefaults(profile) }, fromInstallation: false })
+
+  // "Mis datos" may arrive after a design handed over from Installation: fill the company if still empty.
+  // ES: «Mis datos» puede llegar después de un diseño traspasado desde Instalación: completar la empresa.
+  useEffect(() => {
+    if (!profile) return
+    const fill = (f) => (f ? mergeEmpty(f, profileDefaults(profile)).form : f)
+    setForm(fill)
+    setWizard((w) => (w ? { ...w, form: fill(w.form) } : w))
+  }, [profile])
   const missingCie = profile?.missing?.certificate ?? []
 
   // Open a prefilled draft when arriving from the installation designer.
   useEffect(() => {
-    if (prefill) setForm({ ...blank, ...prefill })
+    if (prefill) setWizard({ form: { ...blank, ...prefill }, fromInstallation: true })
   }, [prefill])
 
   const set = (patch) => setForm((f) => ({ ...f, ...patch }))
@@ -103,7 +102,14 @@ export default function CertificatesTab({ prefill }) {
       </div>
 
       <div className="card">
-        {form === null ? (
+        {wizard ? (
+          <CieWizard
+            key={wizard.fromInstallation ? 'inst' : 'new'}
+            initial={wizard}
+            onSaved={() => load()}
+            onCancel={() => setWizard(null)}
+          />
+        ) : form === null ? (
           <>
             {missingCie.length > 0 && (
               <p className="alert-warn" style={{ marginTop: 0 }}>
@@ -111,7 +117,10 @@ export default function CertificatesTab({ prefill }) {
                 <Link to="/mis-datos" className="link-btn">{t('my.goFill')}</Link>
               </p>
             )}
-            <button className="btn btn-glass btn-sm" onClick={newCertificate}>{t('cie.new')}</button>
+            <div className="wo-add-row" style={{ marginTop: 0 }}>
+              <button className="btn btn-primary btn-sm" onClick={openWizard}>🧭 {t('wiz.open')}</button>
+              <button className="btn btn-glass btn-sm" onClick={newCertificate}>{t('cie.new')}</button>
+            </div>
           </>
         ) : (
           <form className="invoice-form" onSubmit={save}>
@@ -139,7 +148,7 @@ export default function CertificatesTab({ prefill }) {
 
             <div className="form-sec">{t('cie.secTitular')}</div>
             <div className="field-row">{field('titularName', { required: true })}{field('titularNif', { sm: true })}</div>
-            <div className="field-row">{field('titularAddress')}</div>
+            <div className="field-row">{field('titularAddress')}{field('cups')}</div>
 
             <div className="form-sec">{t('cie.secCompany')}</div>
             <div className="field-row">{field('companyName', { required: true })}{field('companyRegNumber', { sm: true })}</div>
