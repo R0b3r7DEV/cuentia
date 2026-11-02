@@ -83,7 +83,7 @@ export default function ServicesTab() {
       </div>
 
       <div className="card table-scroll" style={{ padding: 0 }}>
-        <table className="table">
+        <table className="table table-cards">
           <thead>
             <tr>
               <th>{t('svc.name')}</th>
@@ -95,10 +95,10 @@ export default function ServicesTab() {
           <tbody>
             {services.map((s) => (
               <tr key={s.id}>
-                <td>{s.name}</td>
-                <td className="right num">{eur(s.unitPrice)}</td>
-                <td className="right num">{s.vatRate}%</td>
-                <td className="right">
+                <td className="tc-title">{s.name}</td>
+                <td className="right num tc-amount">{eur(s.unitPrice)}</td>
+                <td className="right num tc-sub">{s.vatRate}%</td>
+                <td className="right tc-actions">
                   <button className="link-btn" onClick={() => setForm({ ...blank, ...s })}>{t('svc.edit')}</button>
                   <button className="link-btn danger-link" onClick={() => remove(s)}>{t('svc.delete')}</button>
                 </td>

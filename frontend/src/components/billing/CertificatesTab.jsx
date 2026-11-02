@@ -96,7 +96,7 @@ export default function CertificatesTab({ prefill, editId }) {
       </div>
 
       <div className="card table-scroll" style={{ padding: 0 }}>
-        <table className="table">
+        <table className="table table-cards">
           <thead>
             <tr>
               <th>{t('cie.issuedAt')}</th>
@@ -108,11 +108,11 @@ export default function CertificatesTab({ prefill, editId }) {
           <tbody>
             {certificates.map((c) => (
               <tr key={c.id}>
-                <td className="muted" style={{ whiteSpace: 'nowrap' }}>{c.issuedAt}</td>
-                <td>{c.address}</td>
-                <td>{c.titularName}</td>
-                <td className="right cie-actions">
-                  <Link className="link-btn" to={`/certificates/${c.id}/gva`}>🏛️ {t('gva.short')}</Link>
+                <td className="muted tc-meta" style={{ whiteSpace: 'nowrap' }}>{c.issuedAt}</td>
+                <td className="tc-sub">{c.address}</td>
+                <td className="tc-title">{c.titularName}</td>
+                <td className="right cie-actions tc-actions">
+                  <Link className="link-btn" to={`/certificates/${c.id}/gva`}>{t('gva.short')}</Link>
                   <a className="link-btn" href={`/api/certificates/${c.id}/pdf`}>{t('cie.download')}</a>
                   <button className="link-btn" onClick={() => openEdit(c)}>{t('cie.edit')}</button>
                   <button className="link-btn danger-link" onClick={() => remove(c)}>{t('cie.delete')}</button>

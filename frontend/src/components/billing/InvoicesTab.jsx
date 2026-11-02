@@ -252,7 +252,7 @@ export default function InvoicesTab() {
       </div>
 
       <div className="card table-scroll" style={{ padding: 0 }}>
-        <table className="table">
+        <table className="table table-cards">
           <thead>
             <tr>
               <th>{t('col.number')}</th>
@@ -266,11 +266,11 @@ export default function InvoicesTab() {
             {invoices.map((inv) => (
               <Fragment key={inv.id}>
                 <tr className="row-click" onClick={() => toggleRow(inv.id)}>
-                  <td className="num">{inv.number}</td>
-                  <td>{inv.customer}</td>
-                  <td className="muted" style={{ whiteSpace: 'nowrap' }}>{inv.issuedAt}</td>
-                  <td className="right num">{eur(inv.total)}</td>
-                  <td><span className="tag tag-sealed">{demoMode ? t('inv.sealed') : t('inv.issued')}</span></td>
+                  <td className="num tc-meta">{inv.number}</td>
+                  <td className="tc-title">{inv.customer}</td>
+                  <td className="muted tc-sub" style={{ whiteSpace: 'nowrap' }}>{inv.issuedAt}</td>
+                  <td className="right num tc-amount">{eur(inv.total)}</td>
+                  <td className="tc-status"><span className="tag tag-sealed">{demoMode ? t('inv.sealed') : t('inv.issued')}</span></td>
                 </tr>
                 {expanded?.id === inv.id && expanded.detail && (
                   <tr className="detail-row">
