@@ -12,6 +12,18 @@ recientes van arriba.*
 
 ## English
 
+### 2026-11-03 — Entry 057: The CIE follows the GVA's CERTINS E — and a "Para la GVA" sheet to copy it
+**Done**
+- Verified against the GVA: procedure 440 files the certificate as an **online web form** (FAQ 2023, q. 13), signed
+  by the installer from the Carpeta Ciudadana, plus the signed MTD. The labels come from the official CERTINS E
+  model (04/2009); the live form is behind a digital certificate.
+- New CERTINS fields (broken-down address, distributor and supply source, specific risks, uses, MTD/project and
+  date, insulation resistance, installer NIF); `CertinsModel` + `CertinsSheet`; assistant in 8 steps in the model
+  order, now also for editing; **"Para la GVA"** screen with copy buttons and a safe Claude-in-Chrome message; the
+  PDF becomes a data sheet that says it is not the certificate.
+- Fix: a decimal comma in powers ("5,75") was silently dropped.
+- 181 backend tests, 821 assertions; 57 Vitest; mobile E2E (8 steps → save → Para la GVA → copy → edit). Guide 44.
+
 ### 2026-11-02 — Entry 056: The CIE, step by step — with Claude reading the bill
 **Done**
 - **🧭 Step-by-step CIE**: six steps with a fixed guide each, on the phone. Three Claude helpers on Claude
@@ -952,6 +964,19 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-11-03 — Entrada 057: El CIE sigue el CERTINS E de la GVA — y una hoja «Para la GVA» para copiarlo
+**Hecho**
+- Comprobado con la GVA: el trámite 440 presenta el certificado como **formulario web online** (FAQ 2023, preg. 13),
+  firmado por el instalador desde la Carpeta Ciudadana, más la MTD firmada. Las etiquetas salen del modelo oficial
+  CERTINS E (04/2009); el formulario en vivo está tras el certificado digital.
+- Campos nuevos del CERTINS (dirección desglosada, distribuidora y fuente de suministro, riesgos específicos, usos,
+  MTD/proyecto y fecha, resistencia de aislamiento, NIF del instalador); `CertinsModel` + `CertinsSheet`; asistente
+  en 8 pasos en el orden del modelo, también para editar; pantalla **«Para la GVA»** con botones de copiar y un
+  mensaje seguro para Claude en Chrome; el PDF pasa a ser una hoja de datos que dice que no es el certificado.
+- Arreglo: la coma decimal en las potencias («5,75») se descartaba sin avisar.
+- 181 tests de backend, 821 aserciones; 57 de Vitest; E2E en móvil (8 pasos → guardar → Para la GVA → copiar →
+  editar). Guía 44.
 
 ### 2026-11-02 — Entrada 056: El CIE paso a paso — con Claude leyendo la factura
 **Hecho**

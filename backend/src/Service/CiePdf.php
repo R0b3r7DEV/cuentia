@@ -2,32 +2,29 @@
 
 namespace App\Service;
 
+use App\Cie\CertinsModel;
+use App\Cie\CertinsSheet;
 use App\Entity\Certificate;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
 /**
- * Renders an Electrical Installation Certificate (CIE) as a PDF laid out like the Comunitat Valenciana
- * CERTINS E model (REBT, RD 842/2002).
+ * The CIE as a DATA SHEET in the order of the CERTINS E model (sections A–G), plus the technical data for the
+ * Technical Design Report. It is not the certificate: since 2023 the certificate is filled in "online" in the
+ * web form of GVA procedure 440 and no other document may be filed as the certificate (GVA low-voltage FAQ,
+ * question 13). The sheet says so, and is laid out to copy the data field by field.
  *
- * NOTE: this is a fill-in draft to help the electrician; the official certificate is issued telematically
- * with a digital signature through the GVA sede electrónica. The PDF states this explicitly.
- * ES: Renderiza un CIE como PDF con la estructura del modelo CERTINS E. Es un borrador de ayuda; el
- * certificado oficial se emite telemáticamente con firma digital en la sede de la GVA.
+ * ES: El CIE como HOJA DE DATOS en el orden del modelo CERTINS E (secciones A–G), más los datos técnicos para
+ * la MTD. No es el certificado: desde 2023 se rellena "online" en el formulario web del trámite 440 y no se
+ * debe presentar otro documento como certificado. La hoja lo dice y está pensada para copiar campo a campo.
  */
 class CiePdf
 {
-    private const INSTALLATION_TYPES = ['nueva' => 'Nueva', 'ampliacion' => 'Ampliación', 'reforma' => 'Reforma'];
-    private const USES = [
-        'vivienda' => 'Vivienda', 'local' => 'Local comercial', 'industrial' => 'Industrial',
-        'garaje' => 'Garaje/Aparcamiento', 'comunes' => 'Servicios comunes', 'agricola' => 'Agrícola', 'otros' => 'Otros',
-    ];
-    private const SUPPLY = ['monofasico' => 'Monofásico', 'trifasico' => 'Trifásico'];
-
     public function build(Certificate $c): string
     {
         $options = new Options();
         $options->set('defaultFont', 'DejaVu Sans');
+        $options->set('isRemoteEnabled', false);
 
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml($this->html($c), 'UTF-8');
@@ -37,91 +34,50 @@ class CiePdf
         return $dompdf->output();
     }
 
-    private function html(Certificate $c): string
+    /** The HTML before rendering; public so tests can assert on it. */
+    public function html(Certificate $c): string
     {
-        $installation = self::INSTALLATION_TYPES[$c->getInstallationType()] ?? $c->getInstallationType();
-        $use = $c->getUseType() !== null ? (self::USES[$c->getUseType()] ?? $c->getUseType()) : '—';
-        $supply = $c->getSupplyType() !== null ? (self::SUPPLY[$c->getSupplyType()] ?? $c->getSupplyType()) : '—';
-        $emplazamiento = trim($c->getAddress() . ', ' . ($c->getPostalCode() ?: '') . ' ' . ($c->getLocality() ?: '') . ($c->getProvince() ? ' (' . $c->getProvince() . ')' : ''), ', ');
+        $sections = '';
+        foreach (CertinsSheet::sections($c) as $s) {
+            $rows = '';
+            foreach ($s['rows'] as $r) {
+                $value = $r['value'] !== '' ? $this->e($r['value']) : ($r['required'] ? '<span class="missing">FALTA</span>' : '—');
+                $rows .= '<tr><td class="k">' . $this->e($r['label']) . '</td><td class="v">' . $value . '</td></tr>';
+            }
+            $sections .= '<table class="sec' . ($s['code'] === 'MTD' ? ' mtd' : '') . '"><tr><th colspan="2"><span class="code">'
+                . $this->e($s['code']) . '</span>' . $this->e($s['title']) . '</th></tr>' . $rows . '</table>';
+        }
+
+        $missing = CertinsSheet::missing($c);
+        $missingBox = $missing === [] ? '' : '<div class="warn"><strong>Faltan datos obligatorios:</strong> '
+            . $this->e(implode(' · ', array_column($missing, 'label'))) . '</div>';
 
         return '<!DOCTYPE html><html><head><meta charset="utf-8"><style>
             * { font-family: "DejaVu Sans", sans-serif; }
-            body { color: #1c2129; font-size: 11px; margin: 0; }
-            h1 { color: #2a78d6; font-size: 18px; margin: 0 0 2px; }
-            .sub { color: #6b7280; font-size: 10px; margin-bottom: 14px; }
-            .sec { background: #eef2f8; color: #2a78d6; font-weight: bold; font-size: 11px; text-transform: uppercase;
-                   letter-spacing: .4px; padding: 5px 8px; border-radius: 4px; margin: 14px 0 6px; }
-            table.kv { width: 100%; border-collapse: collapse; }
-            table.kv td { padding: 3px 8px 3px 0; vertical-align: top; width: 50%; }
-            .k { font-size: 9px; text-transform: uppercase; color: #6b7280; letter-spacing: .3px; }
-            .v { font-size: 12px; border-bottom: 1px solid #e4e7ee; padding-bottom: 2px; min-height: 14px; }
-            .decl { margin-top: 18px; font-size: 10px; color: #3a4250; border: 1px solid #d3d8e2; border-radius: 6px; padding: 10px 12px; }
-            .lugar { margin-top: 14px; font-size: 11px; color: #3a4250; }
-            .sigrow { width: 100%; margin-top: 10px; border-collapse: collapse; }
-            .sigrow td { width: 50%; padding: 6px 8px 0; vertical-align: top; }
-            .sigbox { border: 1px solid #b9c2d0; border-radius: 6px; height: 66px; position: relative; background: #fbfcfe; }
-            .sigbox .cap { position: absolute; bottom: 5px; left: 0; right: 0; text-align: center; font-size: 8px; color: #6b7280; }
-            .sigttl { font-size: 9px; text-transform: uppercase; letter-spacing: .3px; color: #6b7280; margin-bottom: 3px; }
-            .foot { margin-top: 20px; font-size: 8px; color: #9aa2b1; border-top: 1px dashed #d3d8e2; padding-top: 8px; }
+            body { color: #1c2129; font-size: 10.5px; margin: 0; }
+            h1 { color: #2a78d6; font-size: 16px; margin: 0 0 2px; }
+            .sub { color: #6b7280; font-size: 9.5px; margin-bottom: 8px; }
+            .notice { border: 1px solid #2a78d6; background: #eef4fc; border-radius: 5px; padding: 7px 10px; font-size: 9.5px; margin-bottom: 8px; }
+            .warn { border: 1px solid #d09853; background: #fdf3e3; border-radius: 5px; padding: 6px 10px; font-size: 9.5px; margin-bottom: 8px; }
+            table.sec { width: 100%; border-collapse: collapse; margin-bottom: 7px; page-break-inside: avoid; }
+            table.sec th { text-align: left; background: #1c2129; color: #fff; font-size: 10px; padding: 4px 7px; }
+            table.sec.mtd th { background: #6b7280; }
+            .code { display: inline-block; background: #fff; color: #1c2129; font-weight: bold; padding: 0 5px; margin-right: 7px; border-radius: 2px; }
+            td.k { width: 46%; color: #3a4250; padding: 3px 7px; border-bottom: 1px solid #e4e7ee; vertical-align: top; }
+            td.v { font-weight: bold; padding: 3px 7px; border-bottom: 1px solid #e4e7ee; }
+            .missing { color: #b3261e; }
+            .foot { margin-top: 6px; font-size: 8.5px; color: #6b7280; }
           </style></head><body>
-            <h1>Certificado de Instalación Eléctrica de Baja Tensión</h1>
-            <div class="sub">Modelo CERTINS E · REBT (RD 842/2002) · Comunitat Valenciana &nbsp;·&nbsp; Emitido: ' . $c->getIssuedAt()->format('d/m/Y') . '</div>
-
-            <div class="sec">1 · Datos de la instalación</div>
-            <table class="kv">
-              <tr><td>' . $this->kv('Tipo', $installation) . '</td><td>' . $this->kv('Uso o destino', $use) . '</td></tr>
-              <tr><td colspan="2">' . $this->kv('Emplazamiento', $emplazamiento) . '</td></tr>
-            </table>
-
-            <div class="sec">2 · Titular de la instalación</div>
-            <table class="kv">
-              <tr><td>' . $this->kv('Nombre / Razón social', $c->getTitularName()) . '</td><td>' . $this->kv('NIF / DNI', $c->getTitularNif()) . '</td></tr>
-              <tr><td>' . $this->kv('Domicilio', $c->getTitularAddress()) . '</td><td>' . $this->kv('CUPS', $c->getCups()) . '</td></tr>
-            </table>
-
-            <div class="sec">3 · Empresa instaladora e instalador habilitado</div>
-            <table class="kv">
-              <tr><td>' . $this->kv('Empresa instaladora', $c->getCompanyName()) . '</td><td>' . $this->kv('Nº registro / categoría', $c->getCompanyRegNumber()) . '</td></tr>
-              <tr><td>' . $this->kv('NIF empresa', $c->getCompanyNif()) . '</td><td>' . $this->kv('Instalador habilitado', $c->getInstallerName()) . '</td></tr>
-              <tr><td>' . $this->kv('Nº carné / habilitación', $c->getInstallerLicense()) . '</td><td></td></tr>
-            </table>
-
-            <div class="sec">4 · Características técnicas</div>
-            <table class="kv">
-              <tr><td>' . $this->kv('Potencia máxima admisible (kW)', $c->getMaxPower()) . '</td><td>' . $this->kv('Potencia instalada / prevista (kW)', $c->getInstalledPower()) . '</td></tr>
-              <tr><td>' . $this->kv('Tensión (V)', $c->getVoltage() !== null ? (string) $c->getVoltage() : null) . '</td><td>' . $this->kv('Tipo de suministro', $supply) . '</td></tr>
-              <tr><td>' . $this->kv('Esquema de conexión a tierra', $c->getEarthingScheme()) . '</td><td>' . $this->kv('Nº de circuitos', $c->getCircuits() !== null ? (string) $c->getCircuits() : null) . '</td></tr>
-              <tr><td>' . $this->kv('Derivación individual (sección)', $c->getDerivationSection()) . '</td><td>' . $this->kv('IGA (A)', $c->getIgaCurrent()) . '</td></tr>
-              <tr><td>' . $this->kv('Diferencial (mA)', $c->getDifferentialSensitivity()) . '</td><td>' . $this->kv('Resistencia de tierra (Ω)', $c->getEarthResistance()) . '</td></tr>
-              <tr><td>' . $this->kv('Sección conductor de tierra (mm²)', $c->getEarthConductorSection()) . '</td><td></td></tr>
-            </table>
-            ' . ($c->getObservations() ? '<div class="sec">Observaciones</div><div class="v">' . nl2br($this->e($c->getObservations())) . '</div>' : '') . '
-
-            <div class="decl">La empresa instaladora y el instalador habilitado que suscriben <strong>CERTIFICAN</strong>
-            que la instalación eléctrica de baja tensión descrita ha sido ejecutada y verificada conforme al
-            <strong>Reglamento Electrotécnico para Baja Tensión</strong> (RD 842/2002) y sus Instrucciones Técnicas
-            Complementarias (ITC-BT), y que las mediciones reglamentarias (aislamiento, continuidad, resistencia de
-            tierra y disparo de las protecciones) han resultado <strong>favorables</strong>.</div>
-
-            <div class="lugar">En ' . $this->e($c->getLocality() ?: '____________________') . ', a ' . $c->getIssuedAt()->format('d/m/Y') . '.</div>
-
-            <table class="sigrow">
-              <tr>
-                <td><div class="sigttl">Empresa instaladora</div><div class="sigbox"><div class="cap">Firma electrónica (AutoFirma / ACCV)</div></div></td>
-                <td><div class="sigttl">Instalador habilitado</div><div class="sigbox"><div class="cap">Firma electrónica (AutoFirma / ACCV)</div></div></td>
-              </tr>
-            </table>
-
-            <div class="foot"><strong>Documento listo para firmar.</strong> Fírmelo digitalmente con AutoFirma o con el
-            firmador de la ACCV (su certificado no sale de su equipo) y preséntelo <strong>telemáticamente</strong> por
-            instalador habilitado en la sede electrónica de la Generalitat Valenciana (modelo CERTINS E / CERTINS V).
-            Generado con Cuentia · REBT RD 842/2002.</div>
+            <h1>Hoja de datos del certificado de instalación eléctrica (CERTINS E)</h1>
+            <div class="sub">Instalación receptora específica de baja tensión · Comunitat Valenciana · REBT (RD 842/2002) · Generada con Cuentia el '
+                . $c->getIssuedAt()->format('d/m/Y') . '</div>
+            <div class="notice"><strong>Esto NO es el certificado.</strong> El certificado se rellena en el formulario web del trámite
+            «Instalaciones eléctricas de BAJA TENSIÓN que requieran MEMORIA TÉCNICA DE DISEÑO» (sede.gva.es, código 440) y lo firma el
+            instalador habilitado desde la Carpeta Ciudadana. Esta hoja recoge los datos en el mismo orden (secciones A a G) para copiarlos.</div>
+            ' . $missingBox . $sections . '
+            <div class="foot">Estructura y etiquetas según el modelo ' . $this->e(CertinsModel::VERSION)
+                . '. Si el formulario web pide algún dato distinto, manda lo que diga el formulario.</div>
           </body></html>';
-    }
-
-    private function kv(string $label, ?string $value): string
-    {
-        return '<div class="k">' . $this->e($label) . '</div><div class="v">' . ($value !== null && $value !== '' ? $this->e($value) : '&nbsp;') . '</div>';
     }
 
     private function e(string $v): string

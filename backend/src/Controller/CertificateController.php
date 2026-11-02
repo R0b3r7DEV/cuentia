@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Cie\CertinsModel;
 use App\Entity\Certificate;
 use App\Entity\User;
 use App\Repository\CertificateRepository;
@@ -44,6 +45,36 @@ class CertificateController extends AbstractController
         $em->flush();
 
         return $this->json($this->toArray($certificate), 201);
+    }
+
+    /** The CERTINS E lists (uses, risks, supply sources, design basis) with the model's own labels. */
+    #[Route('/api/certificates/model', name: 'api_certificates_model', methods: ['GET'])]
+    public function model(): JsonResponse
+    {
+        return $this->json([
+            'version'     => CertinsModel::VERSION,
+            'uses'        => CertinsModel::USES,
+            'risks'       => CertinsModel::RISKS,
+            'sources'     => CertinsModel::SOURCES,
+            'designBasis' => CertinsModel::DESIGN_BASIS,
+        ]);
+    }
+
+    /** The certificate as the CERTINS E sections A–G (+ MTD data), and what is still missing. */
+    #[Route('/api/certificates/{id}/gva', name: 'api_certificates_gva', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function gva(int $id, CertificateRepository $repo, #[CurrentUser] User $user): JsonResponse
+    {
+        $certificate = $this->owned($id, $repo, $user);
+        if ($certificate === null) {
+            return $this->json(['error' => 'Not found'], 404);
+        }
+
+        return $this->json([
+            'id'       => $certificate->getId(),
+            'version'  => CertinsModel::VERSION,
+            'sections' => \App\Cie\CertinsSheet::sections($certificate),
+            'missing'  => \App\Cie\CertinsSheet::missing($certificate),
+        ]);
     }
 
     #[Route('/api/certificates/{id}', name: 'api_certificates_get', methods: ['GET'], requirements: ['id' => '\d+'])]
@@ -114,6 +145,7 @@ class CertificateController extends AbstractController
             'companyNif'       => $user->getTaxId(),
             'companyRegNumber' => $user->getInstallerRegNumber(),
             'installerName'    => $user->getBusinessName(),
+            'installerNif'     => $user->getTaxId(),
         ];
         foreach ($defaults as $field => $value) {
             if (trim((string) ($data[$field] ?? '')) === '' && $value) {
@@ -126,7 +158,7 @@ class CertificateController extends AbstractController
 
     private function missingRequired(array $data): bool
     {
-        return trim((string) ($data['address'] ?? '')) === ''
+        return (trim((string) ($data['address'] ?? '')) === '' && trim((string) ($data['streetName'] ?? '')) === '')
             || trim((string) ($data['titularName'] ?? '')) === ''
             || trim((string) ($data['companyName'] ?? '')) === '';
     }
@@ -138,8 +170,19 @@ class CertificateController extends AbstractController
         }
         $installationType = (string) ($data['installationType'] ?? 'nueva');
         $c->setInstallationType(in_array($installationType, ['nueva', 'ampliacion', 'reforma'], true) ? $installationType : 'nueva');
-        $c->setUseType($this->str($data, 'useType'));
-        $c->setAddress(trim((string) ($data['address'] ?? '')));
+        $use = (string) ($data['useType'] ?? '');
+        $c->setUseType(isset(CertinsModel::USES[$use]) ? $use : null);
+        $c->setSecondaryUses(array_values(array_diff(CertinsModel::pick($data['secondaryUses'] ?? [], CertinsModel::USES), [$use])));
+        $c->setUseSpecifications($this->str($data, 'useSpecifications'));
+        foreach (['streetType', 'streetName', 'portal', 'bis', 'stair', 'floor', 'door', 'population', 'distributor'] as $k) {
+            $c->{'set' . ucfirst($k)}($this->str($data, $k));
+        }
+        $source = (string) ($data['supplySource'] ?? 'red');
+        $c->setSupplySource(isset(CertinsModel::SOURCES[$source]) ? $source : 'red');
+        $c->setSpecificRisks(CertinsModel::pick($data['specificRisks'] ?? [], CertinsModel::RISKS));
+        // The one-line address: as typed, or composed from the CERTINS parts.
+        $address = trim((string) ($data['address'] ?? ''));
+        $c->setAddress($address !== '' ? $address : $c->composedAddress());
         $c->setLocality($this->str($data, 'locality'));
         $c->setProvince($this->str($data, 'province'));
         $c->setPostalCode($this->str($data, 'postalCode'));
@@ -155,6 +198,12 @@ class CertificateController extends AbstractController
         $c->setCompanyNif($this->str($data, 'companyNif'));
         $c->setInstallerName($this->str($data, 'installerName'));
         $c->setInstallerLicense($this->str($data, 'installerLicense'));
+        $nif = \App\Util\Nif::normalize((string) ($data['installerNif'] ?? ''));
+        $c->setInstallerNif($nif !== '' ? $nif : null);
+        $basis = (string) ($data['designBasis'] ?? 'mtd');
+        $c->setDesignBasis(isset(CertinsModel::DESIGN_BASIS[$basis]) ? $basis : 'mtd');
+        $c->setDesignDate(!empty($data['designDate']) ? new \DateTimeImmutable((string) $data['designDate']) : null);
+        $c->setInsulationResistance($this->str($data, 'insulationResistance'));
 
         $c->setMaxPower($this->decimal($data, 'maxPower'));
         $c->setInstalledPower($this->decimal($data, 'installedPower'));
@@ -179,7 +228,8 @@ class CertificateController extends AbstractController
 
     private function decimal(array $data, string $key): ?string
     {
-        $v = trim((string) ($data[$key] ?? ''));
+        // "5,75" is how a power is written in Spain: accept the decimal comma (it used to be dropped silently).
+        $v = str_replace(',', '.', trim((string) ($data[$key] ?? '')));
 
         return is_numeric($v) ? number_format((float) $v, 3, '.', '') : null;
     }
@@ -213,6 +263,23 @@ class CertificateController extends AbstractController
             'titularNif'              => $c->getTitularNif(),
             'titularAddress'          => $c->getTitularAddress(),
             'cups'                    => $c->getCups(),
+            'streetType'              => $c->getStreetType(),
+            'streetName'              => $c->getStreetName(),
+            'portal'                  => $c->getPortal(),
+            'bis'                     => $c->getBis(),
+            'stair'                   => $c->getStair(),
+            'floor'                   => $c->getFloor(),
+            'door'                    => $c->getDoor(),
+            'population'              => $c->getPopulation(),
+            'supplySource'            => $c->getSupplySource(),
+            'distributor'             => $c->getDistributor(),
+            'specificRisks'           => $c->getSpecificRisks(),
+            'secondaryUses'           => $c->getSecondaryUses(),
+            'useSpecifications'       => $c->getUseSpecifications(),
+            'designBasis'             => $c->getDesignBasis(),
+            'designDate'              => $c->getDesignDate()?->format('Y-m-d'),
+            'insulationResistance'    => $c->getInsulationResistance(),
+            'installerNif'            => $c->getInstallerNif(),
             'companyName'             => $c->getCompanyName(),
             'companyRegNumber'        => $c->getCompanyRegNumber(),
             'companyNif'              => $c->getCompanyNif(),

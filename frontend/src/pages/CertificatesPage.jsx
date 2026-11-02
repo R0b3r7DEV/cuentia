@@ -15,7 +15,7 @@ export default function CertificatesPage() {
   return (
     <>
       <h1 className="page-title">{t('bill.certificates')}</h1>
-      <CertificatesTab prefill={state?.prefill ?? null} />
+      <CertificatesTab prefill={state?.prefill ?? null} editId={state?.edit ?? null} />
     </>
   )
 }

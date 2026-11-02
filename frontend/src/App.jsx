@@ -10,6 +10,7 @@ import ChatPage from './pages/ChatPage'
 import WorkOrdersPage from './pages/WorkOrdersPage'
 import WorkOrderPage from './pages/WorkOrderPage'
 import MyDataPage from './pages/MyDataPage'
+import CertificateGvaPage from './pages/CertificateGvaPage'
 import AccountPage from './pages/AccountPage'
 import AuthPage from './pages/AuthPage'
 import { useAuth } from './auth/AuthContext'
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/partes" element={<WorkOrdersPage />} />
           <Route path="/partes/:id" element={<WorkOrderPage />} />
           <Route path="/certificates" element={<CertificatesPage />} />
+          <Route path="/certificates/:id/gva" element={<CertificateGvaPage />} />
           <Route path="/installation" element={<InstallationPage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/mis-datos" element={<MyDataPage />} />

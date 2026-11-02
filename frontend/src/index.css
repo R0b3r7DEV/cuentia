@@ -736,3 +736,25 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 0
 .wiz-nav { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; }
 .wiz-nav .btn { min-height: 46px; flex: 1; }
 .wiz-done .btn { display: inline-block; margin: 4px 0; text-decoration: none; }
+
+/* CERTINS sections in the assistant + "Para la GVA" / Secciones CERTINS y vista «Para la GVA» */
+.wiz-section { margin: 4px 0 0; font-size: 12px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: var(--text-muted); }
+.wiz-multi { border: 1px solid var(--field-border); border-radius: var(--radius-sm); padding: 8px 12px 10px; margin: 0 0 12px; }
+.wiz-multi legend { font-size: 12px; font-weight: 600; color: var(--text-muted); padding: 0 4px; }
+.wiz-check-item { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; font-size: 15px; line-height: 1.3; }
+.wiz-check-item input { width: 22px; height: 22px; flex: none; margin-top: 1px; }
+.gva-how ol { padding-left: 20px; margin: 0 0 8px; line-height: 1.5; }
+.gva-claude summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
+.gva-prompt { white-space: pre-wrap; background: var(--surface-2); border-radius: var(--radius-sm); padding: 10px 12px; font: inherit; font-size: 13px; line-height: 1.45; }
+.gva-sec h2 { font-size: 15px; margin: 0 0 8px; display: flex; gap: 8px; align-items: baseline; }
+.gva-code { background: var(--text); color: var(--surface-solid); border-radius: 4px; padding: 1px 7px; font-size: 13px; flex: none; }
+.gva-mtd { opacity: .85; }
+.gva-sec dl { margin: 0; }
+.gva-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); align-items: center; }
+.gva-row dt { color: var(--text-muted); font-size: 13px; }
+.gva-row dd { margin: 0; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.gva-value { font-weight: 700; font-size: 15px; word-break: break-word; }
+.gva-missing { color: var(--neg); font-weight: 700; font-size: 13px; }
+.gva-copy { flex: none; width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border-strong); background: var(--surface-solid); cursor: pointer; font-size: 16px; }
+.cie-actions { white-space: nowrap; }
+@media (max-width: 520px) { .gva-row { grid-template-columns: 1fr; gap: 2px; } }
