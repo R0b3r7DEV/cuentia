@@ -76,7 +76,7 @@ class CiePdf
             <div class="sec">2 · Titular de la instalación</div>
             <table class="kv">
               <tr><td>' . $this->kv('Nombre / Razón social', $c->getTitularName()) . '</td><td>' . $this->kv('NIF / DNI', $c->getTitularNif()) . '</td></tr>
-              <tr><td colspan="2">' . $this->kv('Domicilio', $c->getTitularAddress()) . '</td></tr>
+              <tr><td>' . $this->kv('Domicilio', $c->getTitularAddress()) . '</td><td>' . $this->kv('CUPS', $c->getCups()) . '</td></tr>
             </table>
 
             <div class="sec">3 · Empresa instaladora e instalador habilitado</div>

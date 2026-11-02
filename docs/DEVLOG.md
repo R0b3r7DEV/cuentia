@@ -12,6 +12,17 @@ recientes van arriba.*
 
 ## English
 
+### 2026-11-02 — Entry 056: The CIE, step by step — with Claude reading the bill
+**Done**
+- **🧭 Step-by-step CIE**: six steps with a fixed guide each, on the phone. Three Claude helpers on Claude
+  Opus 5.5 through the official PHP SDK with structured outputs and server-side fallback: read the client's
+  electricity bill (photo or PDF) into the form, "what goes here?", and a final review.
+- Each user's own Anthropic key; without one, the guide works and Claude is off. 40 calls/hour per user.
+- Safeguards: Claude only fills empty fields, marked ✨; CUPS and NIF are checked by rule (⚠️ on a misread
+  digit); contracted power is offered, not written as maximum power; compliance is never Claude's; the bill
+  is not stored and help/review never send the client's personal data.
+- New `certificate.cups`. 173 backend tests, 774 assertions; 50 Vitest tests; mobile E2E. Guide 44.
+
 ### 2026-11-02 — Entry 055: "Mis datos" — the issuer's own data, once, everywhere
 **Done**
 - New **🏢 Mis datos** page: name, NIF, tax address (required on invoices), installer register number
@@ -941,6 +952,18 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-11-02 — Entrada 056: El CIE paso a paso — con Claude leyendo la factura
+**Hecho**
+- **🧭 CIE paso a paso**: seis pasos con su guía fija, en el móvil. Tres ayudas de Claude (Claude Opus 5.5,
+  SDK oficial de PHP, salida estructurada y fallback en servidor): leer la factura de la luz del cliente
+  (foto o PDF) y rellenar el formulario, «¿Qué pongo aquí?» y un repaso final.
+- Cada usuario con su propia clave de Anthropic; sin clave, la guía funciona y Claude queda desactivado.
+  40 llamadas/hora por usuario.
+- Salvaguardas: Claude solo rellena lo vacío, marcado ✨; CUPS y NIF comprobados por regla (⚠️ si un dígito
+  se lee mal); la potencia contratada se ofrece, no se escribe como potencia máxima; el cumplimiento nunca lo
+  decide Claude; la factura no se guarda y la ayuda y el repaso no envían datos personales del cliente.
+- Nuevo `certificate.cups`. 173 tests de backend, 774 aserciones; 50 de Vitest; E2E en móvil. Guía 44.
 
 ### 2026-11-02 — Entrada 055: «Mis datos» — los datos propios, una vez y en todas partes
 **Hecho**
