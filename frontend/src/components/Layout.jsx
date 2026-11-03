@@ -14,12 +14,12 @@ export default function Layout() {
   const { t } = useTranslation()
 
   return (
-    <>
+    <div className="shell">
       <Navbar />
       <main className="app-main">
         {data.error && <p className="msg error">{t('common.apiError', { msg: data.error })}</p>}
         <Outlet context={data} />
       </main>
-    </>
+    </div>
   )
 }
