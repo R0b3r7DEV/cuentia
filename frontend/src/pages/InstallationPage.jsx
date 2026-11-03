@@ -14,7 +14,7 @@ export default function InstallationPage() {
 
   const go = (target, data) => {
     if (target === 'certificates') navigate('/certificates', { state: { prefill: data } })
-    else navigate('/invoices', { state: { tab: 'quotes', prefill: data } })
+    else navigate('/presupuestos', { state: { prefill: data } })
   }
 
   return (

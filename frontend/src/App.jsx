@@ -52,7 +52,10 @@ export default function App() {
           <Route path="/movements" element={<MovementsPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/taxes" element={<TaxesPage />} />
-          <Route path="/invoices" element={<BillingPage />} />
+          <Route path="/invoices" element={<BillingPage tab="invoices" />} />
+          <Route path="/presupuestos" element={<BillingPage tab="quotes" />} />
+          <Route path="/clientes" element={<BillingPage tab="customers" />} />
+          <Route path="/servicios" element={<BillingPage tab="services" />} />
           <Route path="/partes" element={<WorkOrdersPage />} />
           <Route path="/partes/:id" element={<WorkOrderPage />} />
           <Route path="/certificates" element={<CertificatesPage />} />

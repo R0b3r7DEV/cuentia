@@ -1,52 +1,44 @@
-import { useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import { useTranslation } from '../i18n/LanguageContext'
 import InvoicesTab from '../components/billing/InvoicesTab'
 import QuotesTab from '../components/billing/QuotesTab'
 import CustomersTab from '../components/billing/CustomersTab'
 import ServicesTab from '../components/billing/ServicesTab'
 
+// Each part of billing has its own address, so the side menu can list them and a link can open one.
+// ES: Cada parte de la facturación tiene su dirección: el menú lateral las lista y un enlace abre una.
+const BILLING_TABS = [
+  ['invoices', '/invoices', 'bill.invoices'],
+  ['quotes', '/presupuestos', 'bill.quotes'],
+  ['customers', '/clientes', 'bill.customers'],
+  ['services', '/servicios', 'bill.services'],
+]
+
 /**
- * The billing section: invoices, quotes, and the catalogs they draw from (customers, services).
- * Certificates and the installation designer used to live here as sub-tabs; they are top-level routes now.
- * ES: El apartado de facturación: facturas, presupuestos y los catálogos de los que tiran (clientes,
- * servicios). Certificados e Instalación vivían aquí como sub-pestañas; ahora son rutas propias.
+ * The billing section: invoices, quotes, and the catalogs they draw from (customers, services). The tab comes
+ * from the address; on a phone the sub-tabs switch between them, on a computer the side menu does.
+ * ES: El apartado de facturación. La pestaña sale de la dirección; en el móvil se cambia con las
+ * sub-pestañas y en el ordenador con el menú lateral.
  */
-export default function BillingPage() {
+export default function BillingPage({ tab = 'invoices' }) {
   const { t } = useTranslation()
   const { state } = useLocation()
-  // Arriving from the installation designer opens the quotes tab with its materials already loaded.
-  const [tab, setTab] = useState(state?.tab ?? 'invoices')
-  const [prefill, setPrefill] = useState(state?.tab ? { tab: state.tab, data: state.prefill } : null)
-
-  const selectTab = (key) => { setPrefill(null); setTab(key) }
-  const pf = (key) => (prefill && prefill.tab === key ? prefill.data : null)
-
-  const tabs = [
-    ['invoices', t('bill.invoices')],
-    ['quotes', t('bill.quotes')],
-    ['customers', t('bill.customers')],
-    ['services', t('bill.services')],
-  ]
+  // Arriving from the installation designer opens the quotes with its materials already loaded.
+  const prefill = tab === 'quotes' ? state?.prefill ?? null : null
 
   return (
     <>
-      <h1 className="page-title">{t('bill.title')}</h1>
+      {/* the open part as the title (the side menu already says it is billing) / la parte abierta como título */}
+      <h1 className="page-title">{t(BILLING_TABS.find(([key]) => key === tab)?.[2] ?? 'bill.title')}</h1>
 
-      <div className="subtabs">
-        {tabs.map(([key, label]) => (
-          <button
-            key={key}
-            className={`subtab${tab === key ? ' active' : ''}`}
-            onClick={() => selectTab(key)}
-          >
-            {label}
-          </button>
+      <nav className="subtabs billing-subtabs" aria-label={t('bill.title')}>
+        {BILLING_TABS.map(([key, to, label]) => (
+          <NavLink key={key} to={to} className={`subtab${tab === key ? ' active' : ''}`}>{t(label)}</NavLink>
         ))}
-      </div>
+      </nav>
 
       {tab === 'invoices' && <InvoicesTab />}
-      {tab === 'quotes' && <QuotesTab prefill={pf('quotes')} />}
+      {tab === 'quotes' && <QuotesTab prefill={prefill} />}
       {tab === 'customers' && <CustomersTab />}
       {tab === 'services' && <ServicesTab />}
     </>
