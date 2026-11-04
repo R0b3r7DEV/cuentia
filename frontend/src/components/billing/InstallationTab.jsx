@@ -3,6 +3,7 @@ import { useTranslation } from '../../i18n/LanguageContext'
 import FloorPlanEditor from './FloorPlanEditor'
 import CompliancePanel from './CompliancePanel'
 import PanelBoard from './PanelBoard'
+import Icon from '../Icon'
 
 // Three.js is heavy, so the 3D view is loaded only when the user opens it (its own chunk).
 const FloorPlan3D = lazy(() => import('./FloorPlan3D'))
@@ -231,10 +232,10 @@ export default function InstallationTab({ onNavigate }) {
               </span>
               <span className="muted num">{t('inst.resPower')}: {result.contractedPower} W · {result.voltage} V</span>
               {result.layoutCable
-                ? <span className="chain-badge chain-ok num">🔌 {t('inst.plan.exactCable')}: {result.layoutCable.totalM} m</span>
+                ? <span className="chain-badge chain-ok num">{t('inst.plan.exactCable')}: {result.layoutCable.totalM} m</span>
                 : <span className="muted num">{t('inst.cable')}: ~{result.cable.totalM} m</span>}
             </div>
-            {result.notes?.map((n, i) => <p key={i} className="msg" style={{ color: 'var(--warn-text)' }}>⚠️ {n}</p>)}
+            {result.notes?.map((n, i) => <p key={i} className="msg" style={{ color: 'var(--warn-text)' }}><Icon name="alert" size={16} />️ {n}</p>)}
             {onNavigate && (
               <div className="verify-bar" style={{ marginTop: 12 }}>
                 <button className="btn btn-glass btn-sm" onClick={toCertificate} disabled={blocked}
@@ -242,7 +243,7 @@ export default function InstallationTab({ onNavigate }) {
                 <button className="btn btn-glass btn-sm" onClick={toQuote}>{t('inst.createQuote')}</button>
               </div>
             )}
-            {blocked && <p className="msg" style={{ color: 'var(--neg)', marginBottom: 0 }}>🚫 {t('inst.check.blocked')}</p>}
+            {blocked && <p className="msg" style={{ color: 'var(--neg)', marginBottom: 0 }}><Icon name="alert" size={16} /> {t('inst.check.blocked')}</p>}
           </div>
 
           <CompliancePanel validation={validation} t={t} />

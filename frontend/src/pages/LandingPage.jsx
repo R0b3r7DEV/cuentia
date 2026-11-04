@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from '../i18n/LanguageContext'
 import Icon from '../components/Icon'
+import AppGlow from '../components/AppGlow'
 
 const STEPS = ['wo', 'inv', 'cie'] // C1 · C2 · C3
 const FAQ = ['computer', 'mtd', 'submit']
@@ -19,6 +20,7 @@ export default function LandingPage() {
 
   return (
     <div className="landing">
+      <AppGlow />
       <header className="landing-hero">
         <div className="landing-bar">
           <span className="landing-logo"><b>Cuentia<i>.</i></b><small>{t('landing.tag')}</small><span className="earth" aria-hidden="true" /></span>

@@ -3,18 +3,18 @@ import { createContext, useContext, useEffect, useState } from 'react'
 const ThemeContext = createContext(null)
 
 /**
- * Light/dark theme with a manual toggle that persists. Light is the default whatever the OS prefers: the app
- * is used on site, often in the sun, where the light theme reads best.
- * ES: Tema claro/oscuro con un botón que se recuerda. Claro por defecto aunque el SO prefiera oscuro: la app
- * se usa en la obra, muchas veces al sol, y ahí se lee mejor el claro.
+ * Light/dark theme with a manual toggle that persists. Dark is the default: the app is used at home on a
+ * computer, and its glass style shines on black. Light stays one tap away.
+ * ES: Tema claro/oscuro con un botón que se recuerda. Oscuro por defecto: la app se usa en casa, en el
+ * ordenador, y el estilo de cristal luce sobre negro. El claro sigue a un toque.
  */
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
     try {
       const saved = localStorage.getItem('theme')
       if (saved === 'light' || saved === 'dark') return saved
-    } catch { /* storage blocked: fall back to light */ }
-    return 'light'
+    } catch { /* storage blocked: fall back to dark */ }
+    return 'dark'
   })
 
   useEffect(() => {

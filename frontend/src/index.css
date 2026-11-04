@@ -35,18 +35,22 @@
   --accent-weak: rgba(21, 88, 201, 0.10);
   --on-accent: #ffffff;
 
-  /* Former "glass" tokens: kept so existing rules still resolve, now plain solid surfaces.
-     ES: Los antiguos tokens de «cristal» siguen existiendo, pero ahora son superficies sólidas. */
-  --glass: #ffffff;
-  --glass-strong: #ffffff;
-  --glass-border: #dadcd3;
-  --glass-hi: transparent;
+  /* Glass: translucent panes over soft light sources (see .app-glow). Light = frosted white.
+     ES: Cristal: paneles translúcidos sobre luces suaves (ver .app-glow). En claro, cristal esmerilado blanco. */
+  --glass: rgba(255, 255, 255, 0.62);
+  --glass-strong: rgba(255, 255, 255, 0.86);
+  --glass-border: rgba(3, 4, 7, 0.09);
+  --glass-hi: rgba(255, 255, 255, 0.95);
   --active-bg: rgba(21, 88, 201, 0.10);
   --active-hi: transparent;
-  --blur: 0px;
-  --glass-sat: 100%;
+  --blur: 18px;
+  --glass-sat: 150%;
+  --glow-a: rgba(21, 88, 201, 0.30);
+  --glow-b: rgba(212, 255, 36, 0.32);
+  --glow-c: rgba(21, 88, 201, 0.18);
+  --wire: rgba(21, 88, 201, 0.10);
 
-  --page-bg: #f4f5f0;
+  --page-bg: #eceee8;
 
   --pos: #1e7a46;                           /* 5.3:1 */
   --neg: #b3261e;                           /* 6.0:1 */
@@ -60,11 +64,11 @@
   --chart-muted: #5d636e;
 
   /* shape: squarer than before, like a panel — not pills / forma: más cuadrada, como un cuadro */
-  --radius: 14px;
+  --radius: 18px;
   --radius-sm: 10px;
   --radius-btn: 10px;
   --radius-pill: 999px;
-  --shadow: 0 1px 2px rgba(3, 4, 7, 0.06), 0 4px 14px rgba(3, 4, 7, 0.06);
+  --shadow: 0 1px 2px rgba(3, 4, 7, 0.05), 0 10px 30px rgba(3, 4, 7, 0.08);
   --shadow-soft: none;
 
   --display: "Big Shoulders Display", "Arial Narrow", system-ui, sans-serif;
@@ -86,18 +90,25 @@
   --text: #f2f4f7;
   --text-muted: #9aa0ab;                    /* 7.8:1 on black */
   --surface-solid: #0e1117;
-  --surface-2: #161b24;
-  --border: #232935;
-  --border-strong: #353d4c;
-  --field-bg: #0a0d12;
+  --surface-2: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --field-bg: rgba(255, 255, 255, 0.04);
   --field-border: #424b5c;
   --field-shadow: none;
   --accent: #6e9bf2;                        /* 7.5:1 on black */
   --accent-weak: rgba(110, 155, 242, 0.16);
   --on-accent: #030407;
-  --glass: #0e1117;
-  --glass-strong: #0e1117;
-  --glass-border: #232935;
+  --glass: rgba(255, 255, 255, 0.05);
+  --glass-strong: rgba(14, 17, 23, 0.80);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-hi: rgba(255, 255, 255, 0.20);
+  --blur: 22px;
+  --glass-sat: 140%;
+  --glow-a: rgba(21, 88, 201, 0.75);
+  --glow-b: rgba(212, 255, 36, 0.30);
+  --glow-c: rgba(21, 88, 201, 0.45);
+  --wire: rgba(110, 155, 242, 0.14);
   --active-bg: rgba(110, 155, 242, 0.16);
   --page-bg: #030407;
   --pos: #57d98a;
@@ -109,7 +120,7 @@
   --chart-2: #ff6b6b;
   --chart-grid: rgba(242, 244, 247, 0.10);
   --chart-muted: #9aa0ab;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 6px 18px rgba(0, 0, 0, 0.4);
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
   color-scheme: dark;
 }
 
@@ -212,12 +223,13 @@ a { color: inherit; }
 
 /* ── Glass cards ────────────────────────────────────────────────────────── */
 .card {
-  background: linear-gradient(155deg, var(--glass-hi), transparent 42%), var(--glass);
+  background: var(--glass);
   -webkit-backdrop-filter: blur(var(--blur)) saturate(var(--glass-sat));
   backdrop-filter: blur(var(--blur)) saturate(var(--glass-sat));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-hi);
+  /* a lit top edge: the pane catches the light / canto superior iluminado */
+  box-shadow: inset 0 1px 0 var(--glass-hi), var(--shadow);
   padding: 1.25rem 1.5rem;
   margin-bottom: 1.25rem;
 }
@@ -764,3 +776,109 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 0
 }
 
 a.subtab { text-decoration: none; display: inline-flex; align-items: center; }
+
+/* ══ Glass layer ══════════════════════════════════════════════════════════════
+   Glassmorphism across the app: panes are translucent and blur the light sources behind them (.app-glow).
+   Lime stays a solid fill with black ink, and text never sits on raw transparency: every pane keeps a fill
+   dark (or light) enough for the text on it. Respects "reduce transparency" and "reduce motion".
+   ES: Cristal en toda la app: los paneles son translúcidos y desenfocan las luces de detrás. La lima sigue
+   siendo relleno sólido con letra negra, y el texto nunca va sobre transparencia pura. */
+.app-glow { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; background: var(--page-bg); }
+.app-glow i { position: absolute; border-radius: 50%; filter: blur(80px); }
+.app-glow .glow-a { width: 46vw; height: 46vw; max-width: 640px; max-height: 640px; left: -10vw; top: -14vw; background: radial-gradient(circle, var(--glow-a), transparent 68%); }
+.app-glow .glow-b { width: 34vw; height: 34vw; max-width: 480px; max-height: 480px; right: -6vw; top: 28vh; background: radial-gradient(circle, var(--glow-b), transparent 70%); }
+.app-glow .glow-c { width: 50vw; height: 50vw; max-width: 720px; max-height: 720px; left: 26vw; bottom: -26vw; background: radial-gradient(circle, var(--glow-c), transparent 70%); }
+.app-glow svg { position: absolute; inset: 0; width: 100%; height: 100%; stroke: var(--wire); }
+.app-glow svg circle { fill: var(--wire); }
+@media (prefers-reduced-motion: no-preference) {
+  .app-glow .glow-a { animation: glow-drift 18s ease-in-out infinite alternate; }
+  .app-glow .glow-b { animation: glow-drift 14s ease-in-out infinite alternate-reverse; }
+}
+@keyframes glow-drift { to { transform: translate(5vw, 3vw) scale(1.08); } }
+body { background: var(--page-bg); }
+
+/* side menu and phone bars: dark glass in both themes / menú lateral y barras del móvil: cristal oscuro */
+.sidebar { background: rgba(3, 4, 7, 0.62); -webkit-backdrop-filter: blur(24px) saturate(140%); backdrop-filter: blur(24px) saturate(140%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08); box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04); }
+.sidebar-link.active { background: rgba(255, 255, 255, 0.08); }
+.sidebar-link:hover { background: rgba(255, 255, 255, 0.06); }
+.sidebar-btn { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.12); }
+@media (max-width: 820px) {
+  .navbar { background: var(--glass-strong); -webkit-backdrop-filter: blur(20px) saturate(140%); backdrop-filter: blur(20px) saturate(140%); border-bottom-color: var(--glass-border); }
+  .tabbar { background: rgba(3, 4, 7, 0.82); -webkit-backdrop-filter: blur(20px) saturate(140%); backdrop-filter: blur(20px) saturate(140%); border-top-color: rgba(255, 255, 255, 0.08); }
+}
+
+/* buttons: glass, except the lime action / botones de cristal, salvo la acción lima */
+.btn { background: var(--glass); border-color: var(--glass-border); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: inset 0 1px 0 var(--glass-hi); }
+.btn:hover:not(:disabled) { background: var(--surface-2); }
+.btn-glass, .btn-danger-glass { background: var(--glass); border-color: var(--glass-border); box-shadow: inset 0 1px 0 var(--glass-hi); }
+.btn-primary { background: var(--lime); color: var(--black); border-color: transparent; box-shadow: 0 0 0 1px rgba(212, 255, 36, 0.25), 0 8px 24px rgba(212, 255, 36, 0.18); }
+.btn-primary:hover:not(:disabled) { background: var(--lime); filter: brightness(1.05); }
+:root:not([data-theme="dark"]) .btn-primary { border-color: rgba(3, 4, 7, 0.35); box-shadow: 0 8px 22px rgba(120, 150, 0, 0.18); }
+
+/* fields: a touch of glass, still clearly a field / campos: algo de cristal, pero se ven como campos */
+.field input, .lines-table input, .wo-line-desc, .wo-inline input, .bank-select, .cie-textarea, .wo-textarea, .chat-input, .wiz-ask input {
+  background: var(--field-bg); border-color: var(--field-border); }
+:root[data-theme="dark"] .bank-select option { background: #0e1117; }
+
+/* sub-tabs and chips / sub-pestañas y etiquetas */
+.subtab.active { background: var(--glass); border-color: var(--glass-border); box-shadow: inset 0 1px 0 var(--glass-hi); }
+.table tbody tr:hover { background: var(--surface-2); }
+
+/* lists as cards on a phone, and the "Más" sheet / listados en tarjeta y hoja «Más» */
+@media (max-width: 640px) {
+  .table-cards tbody tr, .table-cards tbody tr:hover { background: var(--glass); -webkit-backdrop-filter: blur(var(--blur)) saturate(var(--glass-sat));
+    backdrop-filter: blur(var(--blur)) saturate(var(--glass-sat)); border-color: var(--glass-border); box-shadow: inset 0 1px 0 var(--glass-hi); }
+}
+.sheet { background: var(--glass-strong); -webkit-backdrop-filter: blur(28px) saturate(140%); backdrop-filter: blur(28px) saturate(140%); border-top: 1px solid var(--glass-border); }
+.sheet-item { background: var(--glass); border-color: var(--glass-border); }
+.nav-menu { background: var(--glass-strong); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); }
+.gva-copy { background: var(--glass); border-color: var(--glass-border); color: var(--text); }
+.wo-actionbar { background: var(--glass-strong); border-top-color: var(--glass-border); }
+
+/* "Hoy": the money tile is cobalt glass / la cifra del mes, cristal cobalto */
+.today-kpi-hot { background: linear-gradient(135deg, rgba(21, 88, 201, 0.85), rgba(21, 88, 201, 0.55)); border-color: rgba(110, 155, 242, 0.45); }
+:root[data-theme="dark"] .today-kpi-hot b { text-shadow: 0 0 24px rgba(212, 255, 36, 0.35); }
+
+/* landing: always dark glass over its own lights / portada: siempre cristal oscuro sobre sus luces */
+.landing { --glow-a: rgba(21, 88, 201, 0.8); --glow-b: rgba(212, 255, 36, 0.38); --glow-c: rgba(21, 88, 201, 0.5); --wire: rgba(110, 155, 242, 0.14);
+  --page-bg: #030407; background: transparent; position: relative; isolation: isolate; }
+.landing-hero { border-bottom: 0; }
+.landing-bar { position: sticky; top: 12px; z-index: 20; margin-top: 12px; padding: 10px 12px 10px 18px; border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 18px 40px rgba(0, 0, 0, 0.35); }
+.landing-panel, .landing-steps, .landing-faq, .landing-label, .landing-trust li, .landing-ghost {
+  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 18px 40px rgba(0, 0, 0, 0.3); }
+.landing-panel, .landing-steps, .landing-faq { border-radius: 18px; }
+.landing-trust li { padding: 16px 18px; border-radius: 16px; }
+.landing-label { border-radius: 6px; }
+.landing-block { background: linear-gradient(135deg, rgba(21, 88, 201, 0.6), rgba(21, 88, 201, 0.25)); border: 1px solid rgba(110, 155, 242, 0.45);
+  -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px); border-radius: 18px; }
+.landing h1 mark { text-shadow: 0 0 28px rgba(212, 255, 36, 0.35); }
+.landing-n { box-shadow: 0 0 22px rgba(212, 255, 36, 0.35); }
+.landing .btn-primary { box-shadow: 0 0 0 1px rgba(212, 255, 36, 0.25), 0 8px 26px rgba(212, 255, 36, 0.22); }
+@media (min-width: 860px) { .landing-trust { grid-template-columns: repeat(3, 1fr); } }
+
+/* login: glass header and a glass form card / login: cabecera y formulario de cristal */
+.auth { background: transparent; position: relative; isolation: isolate; --glow-a: rgba(21, 88, 201, 0.8); --glow-b: rgba(212, 255, 36, 0.34); --glow-c: rgba(21, 88, 201, 0.5); --wire: rgba(110, 155, 242, 0.14); --page-bg: #030407; }
+.auth-head { background: transparent; }
+.auth-body { background: var(--glass-strong); border: 1px solid var(--glass-border); -webkit-backdrop-filter: blur(24px) saturate(140%); backdrop-filter: blur(24px) saturate(140%);
+  border-radius: 18px; margin-top: 0; box-shadow: inset 0 1px 0 var(--glass-hi), var(--shadow); }
+
+/* "reduce transparency": solid panes, no blur / «reducir transparencia»: paneles sólidos */
+@media (prefers-reduced-transparency: reduce) {
+  .card, .btn, .sheet, .sidebar, .navbar, .tabbar, .landing-bar, .landing-panel, .landing-steps, .landing-faq, .auth-body, .table-cards tbody tr {
+    -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  .card, .table-cards tbody tr, .sheet { background: var(--surface-solid) !important; }
+}
+
+/* the work order's bottom action bar starts after the side menu on a computer / la barra del parte empieza
+   después del menú lateral en el ordenador */
+@media (min-width: 1101px) { .wo-actionbar { left: 248px; } }
+@media (min-width: 821px) and (max-width: 1100px) { .wo-actionbar { left: 76px; } }
+/* light theme: dark glass over a light page turns muddy grey, so the menu is near-solid black, and the
+   month tile is solid cobalt so the lime figure keeps its contrast / tema claro: menú casi negro y cifra del
+   mes sobre cobalto sólido para que la lima no pierda contraste */
+:root:not([data-theme="dark"]) .sidebar { background: rgba(3, 4, 7, 0.94); }
+:root:not([data-theme="dark"]) .today-kpi-hot { background: linear-gradient(135deg, #1558c9, #0f47a8); border-color: #0f47a8; }

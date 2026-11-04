@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from '../i18n/LanguageContext'
+import Icon from '../components/Icon'
 
 const SEDE_URL = 'https://sede.gva.es/es/detall-tramit?id_proc=440'
 
@@ -40,7 +41,7 @@ export default function CertificateGvaPage() {
   return (
     <div className="gva">
       <Link to="/certificates" className="link-btn">← {t('bill.certificates')}</Link>
-      <h1 className="page-title">🏛️ {t('gva.title')}</h1>
+      <h1 className="page-title">{t('gva.title')}</h1>
       <p className="page-subtitle">{t('gva.subtitle')}</p>
 
       <div className="card gva-how">
@@ -50,11 +51,11 @@ export default function CertificateGvaPage() {
           <li><strong>{t('gva.how3')}</strong></li>
         </ol>
         <details className="gva-claude">
-          <summary>🤖 {t('gva.claudeTitle')}</summary>
+          <summary>{t('gva.claudeTitle')}</summary>
           <p className="muted">{t('gva.claudeDesc')}</p>
           <pre className="gva-prompt">{prompt}</pre>
           <button type="button" className="btn btn-glass btn-sm" onClick={() => copy('prompt', prompt)}>
-            {copied === 'prompt' ? `✓ ${t('gva.copied')}` : `📋 ${t('gva.copyPrompt')}`}
+            {copied === 'prompt' ? `✓ ${t('gva.copied')}` : <><Icon name="copy" size={16} /> {t('gva.copyPrompt')}</>}
           </button>
         </details>
       </div>
@@ -78,7 +79,7 @@ export default function CertificateGvaPage() {
                     : <span className={r.required ? 'gva-missing' : 'muted'}>{r.required ? t('gva.fieldMissing') : '—'}</span>}
                   {r.value && (
                     <button type="button" className="gva-copy" aria-label={t('gva.copyField', { field: r.label })} onClick={() => copy(r.key, r.value)}>
-                      {copied === r.key ? '✓' : '📋'}
+                      {copied === r.key ? '✓' : <Icon name="copy" size={18} />}
                     </button>
                   )}
                 </dd>
@@ -90,7 +91,7 @@ export default function CertificateGvaPage() {
 
       <p className="small muted">{t('gva.version', { v: sheet.version })}</p>
       <div className="wo-add-row">
-        <Link className="btn btn-glass" to="/certificates" state={{ edit: sheet.id }}>✏️ {t('cie.edit')}</Link>
+        <Link className="btn btn-glass" to="/certificates" state={{ edit: sheet.id }}><Icon name="pen" size={16} /> {t('cie.edit')}</Link>
         <a className="btn btn-glass" href={`/api/certificates/${sheet.id}/pdf`}>{t('cie.download')}</a>
       </div>
     </div>

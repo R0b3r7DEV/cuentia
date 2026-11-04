@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from '../../i18n/LanguageContext'
 import { MULTI, STEPS, applyBill, canSave, mergeEmpty, missingInStep, missingRequired, payload } from '../../lib/cie'
 import { downscalePhoto } from '../../lib/photo'
+import Icon from '../Icon'
 
 const NUMERIC = ['maxPower', 'installedPower', 'voltage', 'circuits']
 const TEXTAREA = ['useSpecifications', 'observations']
@@ -148,7 +149,7 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
   const label = (k) => (
     <span>
       {t('cie.' + k)}
-      {aiFields.includes(k) && <em className="wiz-ai" title={t('wiz.aiTitle')}> ✨ {t('wiz.aiTag')}</em>}
+      {aiFields.includes(k) && <em className="wiz-ai" title={t('wiz.aiTitle')}> <Icon name="sparkle" size={14} /> {t('wiz.aiTag')}</em>}
     </span>
   )
   const hint = (k) => (t(`wiz.hint.${k}`) !== `wiz.hint.${k}` ? <small className="muted">{t(`wiz.hint.${k}`)}</small> : null)
@@ -159,7 +160,7 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
         <div key={k} className="field">
           {label(k)}
           {modelFailed ? (
-            <small className="wiz-check-msg">⚠️ {t('wiz.modelError')}{' '}
+            <small className="wiz-check-msg"><Icon name="alert" size={14} /> {t('wiz.modelError')}{' '}
               <button type="button" className="link-btn" onClick={loadModel}>{t('wiz.retry')}</button>
             </small>
           ) : <small className="muted">{t('wo.loading')}</small>}
@@ -196,7 +197,7 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
             maxLength={model?.maxLength?.[k]}
             onChange={(e) => set(k, e.target.value)} aria-invalid={checks.includes(k) || undefined} />
         )}
-        {checks.includes(k) && <small className="wiz-check-msg">⚠️ {t('wiz.checkFailed')}</small>}
+        {checks.includes(k) && <small className="wiz-check-msg"><Icon name="alert" size={14} /> {t('wiz.checkFailed')}</small>}
         {hint(k)}
       </label>
     )
@@ -219,16 +220,16 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
       </div>
       {current.section && <p className="wiz-section">{t('wiz.sectionOf', { s: current.section })}</p>}
 
-      <p className="wiz-guide">🧭 {t(`wiz.guide.${current.id}`)}</p>
+      <p className="wiz-guide"><Icon name="compass" size={18} /> {t(`wiz.guide.${current.id}`)}</p>
 
       {current.id === 'start' && (
         <div className="wiz-choices">
           <Link to="/installation" className="card wiz-choice">
-            <strong>⚡ {t('wiz.fromInstallation')}</strong>
+            <strong><Icon name="zap" size={18} /> {t('wiz.fromInstallation')}</strong>
             <span className="muted">{t('wiz.fromInstallationDesc')}</span>
           </Link>
           <button type="button" className="card wiz-choice" onClick={() => go(1)}>
-            <strong>📝 {t('wiz.fromScratch')}</strong>
+            <strong><Icon name="pen" size={18} /> {t('wiz.fromScratch')}</strong>
             <span className="muted">{t('wiz.fromScratchDesc')}</span>
           </button>
         </div>
@@ -275,7 +276,7 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
               <ul>
                 {review.items.map((it, i) => (
                   <li key={i} className={`wiz-item wiz-${it.severity}`}>
-                    {it.severity === 'warning' ? '⚠️' : 'ℹ️'} {it.field && <strong>{t('cie.' + it.field)}: </strong>}{it.message}
+                    <Icon name={it.severity === 'warning' ? 'alert' : 'info'} size={16} /> {it.field && <strong>{t('cie.' + it.field)}: </strong>}{it.message}
                   </li>
                 ))}
               </ul>
@@ -286,7 +287,7 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
             <div className="card wiz-done">
               <p>✓ {t('wiz.saved')}</p>
               <p className="wo-add-row" style={{ marginTop: 0 }}>
-                <Link className="btn btn-primary" to={`/certificates/${savedId}/gva`}>🏛️ {t('gva.open')}</Link>
+                <Link className="btn btn-primary" to={`/certificates/${savedId}/gva`}>{t('gva.open')}</Link>
                 <a className="btn btn-glass" href={`/api/certificates/${savedId}/pdf`}>{t('cie.download')}</a>
               </p>
               <p className="muted">{t('wiz.nextSteps')}</p>
@@ -308,7 +309,7 @@ export default function CieWizard({ initial, onSaved, onCancel }) {
           </button>
         </form>
       )}
-      {answer && <div className="card wiz-answer">💬 {answer}<br /><small className="muted">{t('wiz.answerDisclaimer')}</small></div>}
+      {answer && <div className="card wiz-answer">{answer}<br /><small className="muted">{t('wiz.answerDisclaimer')}</small></div>}
 
       {error && <p className="msg error" role="alert">{error}</p>}
 

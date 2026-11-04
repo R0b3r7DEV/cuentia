@@ -53,7 +53,7 @@ export default function TodayPage() {
         </Link>
         <Link to="/invoices" className="card today-kpi today-kpi-hot">
           <b className="num">{eur(data.month.total)}</b>
-          <span>{t('today.kpiMonth', { n: data.month.count })}</span>
+          <span>{data.month.count === 1 ? t('today.kpiMonthOne') : t('today.kpiMonth', { n: data.month.count })}</span>
         </Link>
       </div>
 

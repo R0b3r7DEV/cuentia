@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from '../../i18n/LanguageContext'
 import { BLANK_CIE, formFromCertificate, mergeEmpty, profileDefaults } from '../../lib/cie'
 import CieWizard from './CieWizard'
+import Icon from '../Icon'
 
 /**
  * The certificates: how to file them at the GVA, the step-by-step assistant (to create AND to edit — the old
@@ -90,7 +91,7 @@ export default function CertificatesTab({ prefill, editId }) {
                 <Link to="/mis-datos" className="link-btn">{t('my.goFill')}</Link>
               </p>
             )}
-            <button className="btn btn-primary" onClick={openNew}>🧭 {t('wiz.open')}</button>
+            <button className="btn btn-primary" onClick={openNew}><Icon name="compass" size={18} /> {t('wiz.open')}</button>
           </>
         )}
       </div>
