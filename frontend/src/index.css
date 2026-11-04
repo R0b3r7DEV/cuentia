@@ -150,7 +150,7 @@ a { color: inherit; }
    pestañas abajo; «Más» abre una hoja. */
 .shell { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100svh; }
 .navbar { display: none; }
-.brand { font-family: var(--display); font-weight: 800; font-size: 26px; line-height: 1; text-decoration: none; color: var(--text); }
+.brand { font-family: var(--display); font-weight: 800; font-size: 30px; line-height: 1; text-decoration: none; color: var(--text); }
 .brand-dot { color: var(--accent); }
 :root[data-theme="dark"] .brand-dot { color: var(--lime); }
 .nav-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
@@ -161,9 +161,9 @@ a { color: inherit; }
 .sidebar { position: sticky; top: 0; height: 100svh; overflow-y: auto; display: flex; flex-direction: column; gap: 14px;
   padding: 16px 12px 12px; background: var(--black); color: #c9ced6; border-right: 1px solid #1c2029; scrollbar-width: thin; }
 .sidebar-brand { display: inline-flex; flex-direction: column; line-height: 1; padding: 0 10px; text-decoration: none; color: #f2f4f7; }
-.sidebar-brand b { font-family: var(--display); font-weight: 800; font-size: 30px; }
+.sidebar-brand b { font-family: var(--display); font-weight: 800; font-size: 34px; }
 .sidebar-brand b i { font-style: normal; color: var(--lime); }
-.sidebar-brand small { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; margin-top: 4px; color: #8a919c; }
+.sidebar-brand small { font-family: var(--mono); font-size: 10.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; margin-top: 4px; color: #8a919c; }
 .sidebar-nav { display: flex; flex-direction: column; gap: 10px; }
 .sidebar-group { display: flex; flex-direction: column; gap: 2px; }
 .sidebar-heading { font-family: var(--mono); font-size: 10.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #6f7784; padding: 0 12px 4px; }
@@ -324,11 +324,11 @@ label.btn { display: inline-block; }
 .landing-bar, .auth-head-bar { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 16px 0 8px; gap: 12px; }
 .landing-bar-actions, .auth-head-actions { display: flex; align-items: center; gap: 10px; }
 .landing-logo { display: inline-flex; flex-direction: column; line-height: 1; text-decoration: none; color: inherit; }
-.landing-logo b { font-family: var(--display); font-weight: 800; font-size: 30px; }
+.landing-logo b { font-family: var(--display); font-weight: 800; font-size: 38px; }
 .landing-logo b i { font-style: normal; color: var(--lime); }
-.landing-logo small { font-family: var(--mono); font-size: 10.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; margin-top: 4px; color: #a9afba; }
+.landing-logo small { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; margin-top: 4px; color: #a9afba; }
 /* the earth conductor's green-yellow stripe under the logo / la franja verde-amarilla del cable de tierra */
-.earth { display: block; height: 4px; width: 54px; margin-top: 5px; border-radius: 2px; background: repeating-linear-gradient(120deg, #2e9e4f 0 8px, #f2c500 8px 16px); }
+.earth { display: block; height: 4px; width: 64px; margin-top: 6px; border-radius: 2px; background: repeating-linear-gradient(120deg, #2e9e4f 0 8px, #f2c500 8px 16px); }
 .landing-lang { font: inherit; font-size: 13px; font-weight: 700; padding: 8px 10px; border-radius: var(--radius-btn); border: 1px solid #353d4c; background: transparent; color: #f2f4f7; cursor: pointer; }
 .landing-enter-sm { min-height: 42px; display: inline-flex; align-items: center; text-decoration: none; }
 .landing-hero-grid { max-width: 1100px; margin: 0 auto; display: grid; gap: 22px; padding-top: 18px; }
