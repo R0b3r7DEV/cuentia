@@ -18,12 +18,19 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
  */
 class ImportController extends AbstractController
 {
+    /** A year of movements is a few hundred kB; 2 MB leaves room without letting a huge file load the server. */
+    private const MAX_BYTES = 2 * 1024 * 1024;
+
     #[Route('/api/import/csv', name: 'api_import_csv', methods: ['POST'])]
     public function importCsv(Request $request, ImportService $import, #[CurrentUser] User $user): JsonResponse
     {
         // Accept either an uploaded file (field "file") or the raw request body.
         // ES: Acepta un fichero subido (campo "file") o el cuerpo crudo de la petición.
         $file = $request->files->get('file');
+        $size = $file ? (int) $file->getSize() : strlen($request->getContent());
+        if ($size > self::MAX_BYTES) {
+            return $this->json(['error' => 'file_too_large'], 413);
+        }
         $csv = $file ? file_get_contents($file->getPathname()) : $request->getContent();
 
         if (!is_string($csv) || trim($csv) === '') {

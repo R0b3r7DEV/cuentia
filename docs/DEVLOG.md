@@ -12,6 +12,25 @@ recientes van arriba.*
 
 ## English
 
+### 2026-11-04 — Entry 063: Security review of the whole codebase
+**Found and fixed**
+- **Login brute force:** the failure handler already answered `too_many_attempts`, but `login_throttling` was
+  never enabled — passwords could be tried without limit. Now 5 failures per minute per e-mail and IP.
+  **Sign-ups** are limited too (10 per hour per IP).
+- **Dependencies:** Symfony 8.1.1 → 8.1.11 (access rules bypassable with HEAD, client-chosen hosts in generated
+  URLs, XXE in the config XML reader, ReDoS…) and Dompdf 3.1.5 → 3.1.6 (local file read and chroot bypass through
+  SVG); `npm audit fix` (react-router, fflate). `composer audit` and `npm audit`: 0 vulnerabilities.
+- **Invoice PDF** rendered with `isRemoteEnabled = true`; now `false` (the QR and the logo are inline; a test
+  checks the QR still draws).
+- **No security headers** on the web app: CSP, `frame-ancestors 'none'`/X-Frame-Options (clickjacking), nosniff,
+  Referrer-Policy, Permissions-Policy, HSTS, COOP — checked on all 16 screens with no CSP violation.
+- **Open banking:** the bank's return URL came from the request (open redirect); now only our own frontend. Its
+  errors no longer echo the external API's message (logged instead). **CSV import** capped at 2 MB.
+
+**Checked, fine:** every entity lookup checks its owner; no SQL built from strings; no XML from users; every user
+string escaped in the PDFs; uploads re-encoded; API keys AES-256-GCM; `APP_DEBUG=0` in production; only theme
+and language in `localStorage`.
+
 ### 2026-11-04 — Entry 062: A working distribution board in 3D on the landing page
 **Done**
 - The landing's centrepiece is now a **3D distribution board that behaves like a real one** (React Three Fiber):
@@ -1025,6 +1044,25 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-11-04 — Entrada 063: Revisión de seguridad de todo el código
+**Encontrado y arreglado**
+- **Fuerza bruta en el login:** el gestor de fallos ya respondía `too_many_attempts`, pero `login_throttling` nunca
+  se activó: se podían probar contraseñas sin límite. Ahora, 5 fallos por minuto por email e IP. Las **altas**
+  también tienen límite (10 por hora por IP).
+- **Dependencias:** Symfony 8.1.1 → 8.1.11 (reglas de acceso saltables con HEAD, host elegido por el cliente en
+  URLs generadas, XXE en el lector XML de configuración, ReDoS…) y Dompdf 3.1.5 → 3.1.6 (lectura de archivos
+  locales y salto del chroot con SVG); `npm audit fix` (react-router, fflate). `composer audit` y `npm audit`: 0.
+- **PDF de facturas** con `isRemoteEnabled = true`; ahora `false` (el QR y el logo van incrustados; un test
+  comprueba que el QR se sigue dibujando).
+- **Sin cabeceras de seguridad** en la web: CSP, `frame-ancestors 'none'`/X-Frame-Options (clickjacking), nosniff,
+  Referrer-Policy, Permissions-Policy, HSTS, COOP — comprobadas en las 16 pantallas sin ningún bloqueo de CSP.
+- **Banca abierta:** la URL de vuelta del banco venía de la petición (redirección abierta); ahora solo nuestro
+  frontend. Sus errores ya no reenvían el mensaje de la API externa (van al log). **Importación CSV**: máx. 2 MB.
+
+**Revisado y correcto:** cada búsqueda por id comprueba el propietario; ningún SQL construido con texto; ningún
+XML de usuarios; todo texto del usuario escapado en los PDF; subidas recodificadas; claves AES-256-GCM;
+`APP_DEBUG=0` en producción; en `localStorage` solo tema e idioma.
 
 ### 2026-11-04 — Entrada 062: Un cuadro eléctrico en 3D que funciona, en la portada
 **Hecho**

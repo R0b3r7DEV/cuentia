@@ -27,6 +27,13 @@ security:
                 # ES: Errores JSON limpios con un `code` estable; genéricos a propósito.
                 failure_handler: App\Security\AuthenticationFailureHandler
 
+            # Brute-force protection: 5 failed logins per minute for an e-mail from one IP (and 25 per IP).
+            # The failure handler already answers 429 / too_many_attempts.
+            # ES: Protección contra fuerza bruta: 5 intentos fallidos por minuto por email e IP (y 25 por IP).
+            login_throttling:
+                max_attempts: 5
+                interval: '1 minute'
+
             logout:
                 path: api_logout
 

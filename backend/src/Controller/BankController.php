@@ -6,7 +6,9 @@ use App\Entity\User;
 use App\Service\CredentialStore;
 use App\Service\GoCardlessClient;
 use App\Service\OpenBankingService;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -43,7 +45,8 @@ class BankController extends AbstractController
     }
 
     #[Route('/api/bank/connect', name: 'api_bank_connect', methods: ['POST'])]
-    public function connect(Request $request, GoCardlessClient $client, CredentialStore $credentials, OpenBankingService $service, #[CurrentUser] User $user): JsonResponse
+    public function connect(Request $request, GoCardlessClient $client, CredentialStore $credentials, OpenBankingService $service, LoggerInterface $logger,
+        #[Autowire(env: 'FRONTEND_URL')] string $frontendUrl, #[CurrentUser] User $user): JsonResponse
     {
         if (!$this->ready($client, $credentials, $user)) {
             return $this->disabled();
@@ -53,18 +56,24 @@ class BankController extends AbstractController
         if ($institutionId === '') {
             return $this->json(['error' => 'institutionId is required'], 400);
         }
-        $redirect = (is_array($data) ? ($data['redirect'] ?? null) : null)
-            ?: $request->getSchemeAndHttpHost();
+        // The bank sends the user back here: only to our own frontend, never to a URL chosen by the request.
+        // ES: El banco devuelve al usuario aquí: solo a nuestro frontend, nunca a una URL que diga la petición.
+        $redirect = (string) (is_array($data) ? ($data['redirect'] ?? '') : '');
+        if (!self::sameOrigin($redirect, $frontendUrl)) {
+            $redirect = rtrim($frontendUrl, '/') . '/movements';
+        }
 
         try {
-            return $this->json($service->begin($user, $institutionId, (string) $redirect));
+            return $this->json($service->begin($user, $institutionId, $redirect));
         } catch (\Throwable $e) {
-            return $this->json(['error' => $e->getMessage()], 502);
+            $logger->error('Open banking: could not start the connection', ['exception' => $e]);
+
+            return $this->json(['error' => 'bank_unavailable'], 502);
         }
     }
 
     #[Route('/api/bank/import', name: 'api_bank_import', methods: ['POST'])]
-    public function import(Request $request, GoCardlessClient $client, CredentialStore $credentials, OpenBankingService $service, #[CurrentUser] User $user): JsonResponse
+    public function import(Request $request, GoCardlessClient $client, CredentialStore $credentials, OpenBankingService $service, LoggerInterface $logger, #[CurrentUser] User $user): JsonResponse
     {
         if (!$this->ready($client, $credentials, $user)) {
             return $this->disabled();
@@ -78,8 +87,24 @@ class BankController extends AbstractController
         try {
             return $this->json($service->import($user, $requisitionId));
         } catch (\Throwable $e) {
-            return $this->json(['error' => $e->getMessage()], 502);
+            // The real error goes to the log, not to the browser. / El error real, al log; no al navegador.
+            $logger->error('Open banking: import failed', ['exception' => $e]);
+
+            return $this->json(['error' => 'bank_unavailable'], 502);
         }
+    }
+
+    /** Same scheme, host and port as our frontend. / Mismo esquema, host y puerto que nuestro frontend. */
+    private static function sameOrigin(string $url, string $frontendUrl): bool
+    {
+        $a = parse_url($url);
+        $b = parse_url($frontendUrl);
+        if (!is_array($a) || !is_array($b) || !isset($a['scheme'], $a['host'], $b['scheme'], $b['host'])) {
+            return false;
+        }
+
+        return strtolower($a['scheme']) === strtolower($b['scheme']) && strtolower($a['host']) === strtolower($b['host'])
+            && ($a['port'] ?? null) === ($b['port'] ?? null);
     }
 
     /** Configure the client with the user's credentials and report whether open banking is usable. */

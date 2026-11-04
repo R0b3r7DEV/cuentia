@@ -18,6 +18,11 @@ framework:
             policy: sliding_window
             limit: 10
             interval: '15 minutes'
+        # sign-ups per client IP: no mass account creation / altas por IP: sin crear cuentas en masa
+        registration_ip:
+            policy: sliding_window
+            limit: 10
+            interval: '1 hour'
         # Claude calls of the CIE assistant, per user: they spend the user's own API credit.
         # ES: llamadas a Claude del asistente del CIE, por usuario: gastan el crédito de su propia clave.
         cie_assistant:
