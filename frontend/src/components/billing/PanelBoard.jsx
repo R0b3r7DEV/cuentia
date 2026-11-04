@@ -1,3 +1,4 @@
+import Icon from '../Icon'
 const MOD_W = 26          // width of one DIN module, in px
 const DEV_MODULES = 2     // a 2P / 1P+N device takes two modules
 const DEV_W = MOD_W * DEV_MODULES
@@ -86,7 +87,7 @@ export default function PanelBoard({ board, t }) {
       </p>
       {board.orphanSockets > 0 && (
         <p className="msg" style={{ color: 'var(--warn-text)', marginBottom: 0 }}>
-          ⚠️ {t('inst.board.orphans', { n: board.orphanSockets })}
+          <Icon name="alert" size={16} /> {t('inst.board.orphans', { n: board.orphanSockets })}
         </p>
       )}
       <p className="muted" style={{ fontSize: 12, marginTop: 8, marginBottom: 0 }}>{t('inst.board.scope')}</p>

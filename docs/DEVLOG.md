@@ -12,6 +12,17 @@ recientes van arriba.*
 
 ## English
 
+### 2026-11-04 — Entry 060: Glass across the app, dark by default — and the last emoji gone
+**Done**
+- The app is used at home on a computer, not in the sun: **dark is now the default** and the whole app takes
+  the **glass** style the user approved on the landing prototype. Translucent panes blur cobalt and lime light
+  sources and a faint single-line diagram fixed behind every screen; lime stays a solid fill with black ink.
+  Light theme keeps a frosted-white glass, with a near-solid menu and a solid cobalt tile so contrast holds.
+- Respects "reduce transparency" (solid panes, no blur) and "reduce motion" (the lights stand still).
+- **Old-style audit** of every screen in both themes: 31 emoji in screens and 38 in texts replaced by SVG icons
+  (copy, warning, filled-by-Claude, chain lock) or removed; the work order's action bar no longer covers the side
+  menu; "1 facturas" → "1 factura".
+
 ### 2026-11-03 — Entry 059: A redesign for electricians — palette, "Hoy", cards and a landing page
 **Done** (PRs #12–#15, stacked)
 - **The user's palette:** midnight black, electric cobalt, acid lime. Light by default (it reads best in the
@@ -994,6 +1005,18 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-11-04 — Entrada 060: Cristal en toda la app, oscuro por defecto — y fuera los últimos emojis
+**Hecho**
+- La app se usa en casa, en el ordenador, no al sol: **el oscuro pasa a ser el tema por defecto** y toda la app
+  toma el estilo de **cristal** que el usuario aprobó en el prototipo de la portada. Paneles translúcidos que
+  desenfocan focos de luz cobalto y lima y un esquema unifilar tenue fijo detrás de cada pantalla; la lima sigue
+  siendo relleno sólido con letra negra. En claro, cristal esmerilado blanco, con el menú casi opaco y la cifra
+  del mes sobre cobalto sólido para no perder contraste.
+- Respeta «reducir transparencia» (paneles sólidos, sin desenfoque) y «reducir movimiento» (las luces quietas).
+- **Revisión del estilo antiguo** en todas las pantallas y en los dos temas: 31 emojis en pantallas y 38 en
+  textos cambiados por iconos SVG (copiar, aviso, rellenado por Claude, candado de la cadena) o quitados; la barra
+  de acciones del parte ya no tapa el menú lateral; «1 facturas» → «1 factura».
 
 ### 2026-11-03 — Entrada 059: Rediseño para electricistas — paleta, «Hoy», tarjetas y portada
 **Hecho** (PRs #12–#15, encadenados)

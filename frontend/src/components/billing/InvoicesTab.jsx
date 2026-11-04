@@ -2,6 +2,7 @@ import { Fragment, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { eur } from '../../lib/format'
 import { useTranslation } from '../../i18n/LanguageContext'
+import Icon from '../Icon'
 
 const emptyLine = () => ({ description: '', quantity: 1, unitPrice: '', vatRate: '21' })
 
@@ -130,7 +131,7 @@ export default function InvoicesTab() {
       {/* Verifactu chain status — only in demo mode. In standard mode the chain runs silently underneath. */}
       {demoMode && (
         <div className="card">
-          <p className="demo-note">⚠️ {t('inv.demoBanner')}</p>
+          <p className="demo-note"><Icon name="alert" size={16} /> {t('inv.demoBanner')}</p>
           <div className="verify-bar">
             <button className="btn btn-glass btn-sm" onClick={runVerify} disabled={verifying}>
               {verifying ? t('inv.verifying') : t('inv.verify')}
@@ -139,10 +140,10 @@ export default function InvoicesTab() {
               verify.count === 0 ? (
                 <span className="chain-badge chain-empty">{t('inv.chainEmpty')}</span>
               ) : verify.ok ? (
-                <span className="chain-badge chain-ok">🔒 {t('inv.chainOk', { n: verify.count })}</span>
+                <span className="chain-badge chain-ok"><Icon name="lock" size={14} /> {t('inv.chainOk', { n: verify.count })}</span>
               ) : (
                 <span className="chain-badge chain-broken">
-                  ⚠️ {t('inv.chainBroken', { at: verify.brokenAt, reason: reasonText(verify.reason) })}
+                  <Icon name="alert" size={16} /> {t('inv.chainBroken', { at: verify.brokenAt, reason: reasonText(verify.reason) })}
                 </span>
               )
             )}

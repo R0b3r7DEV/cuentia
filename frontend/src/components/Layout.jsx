@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom'
 import Navbar from './Navbar'
+import AppGlow from './AppGlow'
 import { useFinanceData } from '../hooks/useFinanceData'
 import { useTranslation } from '../i18n/LanguageContext'
 
@@ -15,6 +16,7 @@ export default function Layout() {
 
   return (
     <div className="shell">
+      <AppGlow />
       <Navbar />
       <main className="app-main">
         {data.error && <p className="msg error">{t('common.apiError', { msg: data.error })}</p>}
