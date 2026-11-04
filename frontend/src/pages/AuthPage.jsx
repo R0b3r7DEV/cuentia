@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { useTranslation } from '../i18n/LanguageContext'
 import AppGlow from '../components/AppGlow'
+import LogoWord from '../components/LogoWord'
 
 /**
  * Log in, sign up, forgot / reset password — reached from the landing page's "Entrar". A black header with the
@@ -101,7 +102,7 @@ export default function AuthPage({ initialMode = 'login' }) {
       <AppGlow />
       <header className="auth-head">
         <div className="auth-head-bar">
-          <Link to="/" className="landing-logo"><b>Cuentia<i>.</i></b><small>{t('landing.tag')}</small><span className="earth" aria-hidden="true" /></Link>
+          <Link to="/" className="landing-logo"><LogoWord auto /><small>{t('landing.tag')}</small></Link>
           <div className="auth-head-actions">
             <button type="button" className="landing-lang" onClick={() => setLang(lang === 'es' ? 'en' : 'es')}>{lang === 'es' ? 'EN' : 'ES'}</button>
             <Link to="/" className="auth-back">{t('landing.back')}</Link>
