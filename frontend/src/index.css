@@ -882,3 +882,11 @@ body { background: var(--page-bg); }
    mes sobre cobalto sólido para que la lima no pierda contraste */
 :root:not([data-theme="dark"]) .sidebar { background: rgba(3, 4, 7, 0.94); }
 :root:not([data-theme="dark"]) .today-kpi-hot { background: linear-gradient(135deg, #1558c9, #0f47a8); border-color: #0f47a8; }
+
+/* invoices: paid / unpaid, and "Por cobrar" on Hoy / facturas cobradas y por cobrar */
+.tag-unpaid { background: var(--warn-bg); color: var(--warn-text); border: 1px solid var(--warn-border); }
+.today-unpaid { --wo-color: var(--warn-text); display: grid; gap: 4px; }
+.today-unpaid.is-late { --wo-color: var(--neg); }
+.today-amount { font-family: var(--display); font-weight: 800; font-size: 22px; }
+.today-age { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--warn-text); white-space: nowrap; }
+.today-age.late { color: var(--neg); }

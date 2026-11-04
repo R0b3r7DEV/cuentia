@@ -715,6 +715,42 @@ class ApiIntegrationTest extends WebTestCase
         self::assertSame(404, $other, 'another user never sees the sheet');
     }
 
+    /** Marking an invoice paid is bookkeeping: it never touches the Verifactu chain. */
+    public function testAnInvoiceCanBeMarkedPaidWithoutTouchingTheChain(): void
+    {
+        $this->registerAndLogin('cobros@test.local');
+        $line = ['description' => 'Cambio de diferencial', 'quantity' => '1', 'unitPrice' => '100.00', 'vatRate' => '21.00'];
+        [, $a] = $this->json('POST', '/api/invoices', ['customer' => ['name' => 'Bar La Plaça', 'taxId' => 'B12345674'], 'lines' => [$line]]);
+        [, $b] = $this->json('POST', '/api/invoices', ['customer' => ['name' => 'Talleres Roig', 'taxId' => 'B98765432'], 'lines' => [$line]]);
+        self::assertNull($a['paidAt'], 'a new invoice is unpaid');
+        [, $before] = $this->json('GET', '/api/invoices/verify');
+
+        [$s, $paid] = $this->json('POST', '/api/invoices/' . $a['id'] . '/paid', ['paid' => true]);
+        self::assertSame(200, $s);
+        self::assertNotNull($paid['paidAt']);
+        [, $again] = $this->json('POST', '/api/invoices/' . $a['id'] . '/paid', ['paid' => true]);
+        self::assertSame($paid['paidAt'], $again['paidAt'], 'marking it again keeps the first date');
+
+        [, $list] = $this->json('GET', '/api/invoices');
+        $byId = array_column($list, 'paidAt', 'id');
+        self::assertNotNull($byId[$a['id']]);
+        self::assertNull($byId[$b['id']]);
+
+        [, $after] = $this->json('GET', '/api/invoices/verify');
+        self::assertTrue($after['ok']);
+        self::assertSame($before, $after, 'the chain is exactly as before');
+
+        [, $undone] = $this->json('POST', '/api/invoices/' . $a['id'] . '/paid', ['paid' => false]);
+        self::assertNull($undone['paidAt']);
+        [$bad] = $this->json('POST', '/api/invoices/' . $a['id'] . '/paid', ['paid' => 'yes']);
+        self::assertSame(400, $bad);
+
+        $this->json('POST', '/api/logout');
+        $this->registerAndLogin('otro-cobros@test.local');
+        [$other] = $this->json('POST', '/api/invoices/' . $a['id'] . '/paid', ['paid' => true]);
+        self::assertSame(404, $other, 'another user cannot touch it');
+    }
+
     /** What the code review found: bad dates and over-long texts are a 400 naming the field, never a 500. */
     public function testCertificateRefusesBadInputByField(): void
     {

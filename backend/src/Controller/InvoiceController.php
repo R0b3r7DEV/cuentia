@@ -12,6 +12,8 @@ use App\Service\InvoiceService;
 use App\Service\VerifactuChain;
 use App\Service\VerifactuQr;
 use App\Service\VerifactuXml;
+use App\Time\BusinessClock;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +34,7 @@ class InvoiceController extends AbstractController
                 'issuedAt' => $i->getIssuedAt()->format('Y-m-d'),
                 'total'    => $i->getTotal(),
                 'status'   => $i->getStatus(),
+                'paidAt'   => $i->getPaidAt()?->format(\DateTimeInterface::ATOM),
             ],
             $repo->findForUser($user),
         );
@@ -69,6 +72,31 @@ class InvoiceController extends AbstractController
         if ($invoice === null || $invoice->getUser() !== $user) {
             return $this->json(['error' => 'Not found'], 404);
         }
+
+        return $this->json($this->detail($invoice, $records));
+    }
+
+    /**
+     * Mark an invoice paid or unpaid. Body: {"paid": true|false}. The Verifactu record is not touched.
+     * ES: Marcar una factura como cobrada o no. No toca el registro Verifactu.
+     */
+    #[Route('/api/invoices/{id}/paid', name: 'api_invoices_paid', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function paid(int $id, Request $request, InvoiceRepository $repo, InvoiceRecordRepository $records, EntityManagerInterface $em, BusinessClock $clock, #[CurrentUser] User $user): JsonResponse
+    {
+        $invoice = $repo->find($id);
+        if ($invoice === null || $invoice->getUser() !== $user) {
+            return $this->json(['error' => 'Not found'], 404);
+        }
+        $data = json_decode($request->getContent(), true);
+        if (!is_array($data) || !is_bool($data['paid'] ?? null)) {
+            return $this->json(['error' => 'paid_required'], 400);
+        }
+        if ($invoice->getStatus() !== 'issued') {
+            return $this->json(['error' => 'not_issued'], 409);
+        }
+        // Marking it again keeps the first date / marcarla otra vez conserva la primera fecha.
+        $invoice->setPaidAt($data['paid'] ? ($invoice->getPaidAt() ?? $clock->now()) : null);
+        $em->flush();
 
         return $this->json($this->detail($invoice, $records));
     }
@@ -148,6 +176,7 @@ class InvoiceController extends AbstractController
             'series'   => $i->getSeries(),
             'issuedAt' => $i->getIssuedAt()->format('Y-m-d'),
             'status'   => $i->getStatus(),
+            'paidAt'   => $i->getPaidAt()?->format(\DateTimeInterface::ATOM),
             'customer' => [
                 'name'  => $i->getCustomer()?->getName(),
                 'taxId' => $i->getCustomer()?->getTaxId(),
