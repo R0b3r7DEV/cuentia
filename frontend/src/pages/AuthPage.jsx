@@ -107,10 +107,10 @@ export default function AuthPage({ initialMode = 'login' }) {
             <Link to="/" className="auth-back">{t('landing.back')}</Link>
           </div>
         </div>
-        <h1 className="auth-title">{t({ login: 'auth.hello', register: 'auth.registerTitle', forgot: 'auth.forgotTitle', reset: 'auth.resetTitle' }[mode])}</h1>
       </header>
 
       <div className="auth-body">
+        <h1 className="auth-title">{t({ login: 'auth.hello', register: 'auth.registerTitle', forgot: 'auth.forgotTitle', reset: 'auth.resetTitle' }[mode])}</h1>
         {mode === 'forgot' && <p className="msg" style={{ marginTop: 0 }}>{t('auth.forgotDesc')}</p>}
         <form onSubmit={submit} className="auth-form">
           {mode !== 'reset' && (

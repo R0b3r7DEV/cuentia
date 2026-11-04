@@ -379,12 +379,13 @@ label.btn { display: inline-block; }
 }
 
 /* Login: the landing's black header + the form on the app's page / Login: cabecera negra + formulario */
-.auth { min-height: 100svh; background: var(--page-bg); }
-.auth-head { background: var(--black); color: #f2f4f7; padding: 0 20px 34px; }
+/* the brand bar on top and the form card centred on the screen / barra arriba y formulario centrado */
+.auth { min-height: 100svh; background: var(--page-bg); display: flex; flex-direction: column; padding-bottom: 76px; }
+.auth-head { background: var(--black); color: #f2f4f7; padding: 0 20px; }
 .auth-back { color: #f2f4f7; font-weight: 600; text-underline-offset: 3px; }
-.auth-title { max-width: 440px; margin: 20px auto 0; font-size: 44px; color: #f2f4f7; }
-.auth-body { max-width: 440px; margin: -14px auto 0; padding: 22px 20px 32px; background: var(--page-bg); border-radius: 16px 16px 0 0; position: relative; }
-.auth-head-bar { max-width: 440px; }
+.auth-title { margin: 0 0 18px; font-size: 42px; color: var(--text); }
+.auth-body { width: calc(100% - 40px); max-width: 440px; margin: auto; padding: 28px 24px 24px; background: var(--page-bg); border-radius: 16px 16px 0 0; position: relative; }
+.auth-head-bar { max-width: 1100px; }
 .auth-form { display: flex; flex-direction: column; gap: 14px; margin: 0 0 14px; }
 .auth-form .field { min-width: 0; }
 .auth-form .field > span { font-size: 14px; color: var(--text); }
@@ -864,7 +865,7 @@ body { background: var(--page-bg); }
 .auth { background: transparent; position: relative; isolation: isolate; --glow-a: rgba(21, 88, 201, 0.8); --glow-b: rgba(212, 255, 36, 0.34); --glow-c: rgba(21, 88, 201, 0.5); --wire: rgba(110, 155, 242, 0.14); --page-bg: #030407; }
 .auth-head { background: transparent; }
 .auth-body { background: var(--glass-strong); border: 1px solid var(--glass-border); -webkit-backdrop-filter: blur(24px) saturate(140%); backdrop-filter: blur(24px) saturate(140%);
-  border-radius: 18px; margin-top: 0; box-shadow: inset 0 1px 0 var(--glass-hi), var(--shadow); }
+  border-radius: 18px; box-shadow: inset 0 1px 0 var(--glass-hi), var(--shadow); }
 
 /* "reduce transparency": solid panes, no blur / «reducir transparencia»: paneles sólidos */
 @media (prefers-reduced-transparency: reduce) {
