@@ -55,6 +55,15 @@ class Invoice
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
+    /**
+     * When the customer paid it (UTC), or null while unpaid. Bookkeeping only: it is NOT part of the Verifactu
+     * record or its fingerprint (those live in InvoiceRecord), so marking an invoice paid never touches the chain.
+     * ES: Cuándo la pagó el cliente (UTC), o null si está sin cobrar. Solo contabilidad: no forma parte del
+     * registro Verifactu ni de su huella, así que marcarla cobrada nunca toca la cadena.
+     */
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $paidAt = null;
+
     /** @var Collection<int, InvoiceLine> */
     #[ORM\OneToMany(mappedBy: 'invoice', targetEntity: InvoiceLine::class, cascade: ['persist'], orphanRemoval: true)]
     private Collection $lines;
@@ -96,6 +105,8 @@ class Invoice
     public function setTotal(string $total): self { $this->total = $total; return $this; }
 
     public function getStatus(): string { return $this->status; }
+    public function getPaidAt(): ?\DateTimeImmutable { return $this->paidAt; }
+    public function setPaidAt(?\DateTimeImmutable $paidAt): self { $this->paidAt = $paidAt; return $this; }
     public function setStatus(string $status): self { $this->status = $status; return $this; }
 
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }

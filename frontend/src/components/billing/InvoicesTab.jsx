@@ -106,6 +106,16 @@ export default function InvoicesTab() {
     }
   }
 
+  // Paid / unpaid is bookkeeping only: the Verifactu record and its chain are never touched.
+  // ES: Cobrada / sin cobrar es solo contabilidad: el registro Verifactu y su cadena no se tocan.
+  const setPaid = async (id, paid) => {
+    const r = await fetch(`/api/invoices/${id}/paid`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paid }) })
+    if (!r.ok) return
+    const detail = await r.json()
+    setExpanded((e) => (e?.id === id ? { id, detail } : e))
+    await loadInvoices()
+  }
+
   const toggleRow = async (id) => {
     if (expanded?.id === id) return setExpanded(null)
     setExpanded({ id, detail: null })
@@ -271,7 +281,11 @@ export default function InvoicesTab() {
                   <td className="tc-title">{inv.customer}</td>
                   <td className="muted tc-sub" style={{ whiteSpace: 'nowrap' }}>{inv.issuedAt}</td>
                   <td className="right num tc-amount">{eur(inv.total)}</td>
-                  <td className="tc-status"><span className="tag tag-sealed">{demoMode ? t('inv.sealed') : t('inv.issued')}</span></td>
+                  <td className="tc-status">
+                    {inv.paidAt
+                      ? <span className="tag tag-sealed">{t('inv.paid')}</span>
+                      : <span className="tag tag-unpaid">{t('inv.unpaid')}</span>}
+                  </td>
                 </tr>
                 {expanded?.id === inv.id && expanded.detail && (
                   <tr className="detail-row">
@@ -288,8 +302,14 @@ export default function InvoicesTab() {
                           ))}
                         </ul>
                         {/* The invoice PDF is always available; QR/XML/fingerprint only in Verifactu demo. */}
-                        <div className="doc-links" style={{ marginTop: 6 }}>
+                        <div className="doc-links" style={{ marginTop: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                           <a className="link-btn" href={`/api/invoices/${inv.id}/pdf`}>{t('inv.downloadPdf')}</a>
+                          {expanded.detail.status === 'issued' && (expanded.detail.paidAt
+                            ? <>
+                                <span className="muted small">{t('inv.paidOn', { date: expanded.detail.paidAt.slice(0, 10) })}</span>
+                                <button type="button" className="link-btn" onClick={() => setPaid(inv.id, false)}>{t('inv.markUnpaid')}</button>
+                              </>
+                            : <button type="button" className="btn btn-primary btn-sm" onClick={() => setPaid(inv.id, true)}>{t('inv.markPaid')}</button>)}
                         </div>
                         {expanded.detail.verifactu && (
                           <>

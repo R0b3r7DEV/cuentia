@@ -12,6 +12,15 @@ recientes van arriba.*
 
 ## English
 
+### 2026-11-04 — Entry 061: Paid or not — "Por cobrar" on Hoy
+**Done**
+- An invoice can be **marked paid** (and undone): new `invoice.paid_at`, `POST /api/invoices/{id}/paid`. It is
+  bookkeeping only — the Verifactu record and its fingerprint live in `InvoiceRecord`, so the chain is untouched
+  (a test asserts `verify` is identical before and after).
+- **Hoy** shows **Por cobrar** with the total owed and the unpaid invoices oldest first; after 30 days they show
+  as late. Invoices list paid / unpaid with a button in the detail.
+- 186 backend tests, 862 assertions; 71 Vitest; E2E (unpaid on Hoy → mark paid → gone from Hoy, chain intact).
+
 ### 2026-11-04 — Entry 060: Glass across the app, dark by default — and the last emoji gone
 **Done**
 - The app is used at home on a computer, not in the sun: **dark is now the default** and the whole app takes
@@ -1005,6 +1014,17 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-11-04 — Entrada 061: Cobrada o no — «Por cobrar» en Hoy
+**Hecho**
+- Una factura se puede **marcar como cobrada** (y deshacer): nuevo `invoice.paid_at` y
+  `POST /api/invoices/{id}/paid`. Es solo contabilidad: el registro Verifactu y su huella viven en
+  `InvoiceRecord`, así que la cadena no se toca (un test comprueba que `verify` es idéntico antes y después).
+- **Hoy** muestra **Por cobrar** con el total pendiente y las facturas sin cobrar de la más antigua a la más
+  nueva; pasados 30 días salen como vencidas. La lista de facturas marca cobrada / sin cobrar, con el botón en
+  el detalle.
+- 186 tests de backend, 862 aserciones; 71 de Vitest; E2E (sin cobrar en Hoy → marcar cobrada → desaparece de
+  Hoy, cadena intacta).
 
 ### 2026-11-04 — Entrada 060: Cristal en toda la app, oscuro por defecto — y fuera los últimos emojis
 **Hecho**

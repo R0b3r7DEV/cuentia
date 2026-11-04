@@ -37,3 +37,24 @@ export function invoicedThisMonth(invoices, today) {
 /** Today's date in Spain as YYYY-MM-DD (the backend stores business dates in Europe/Madrid too). */
 export const madridToday = (now = new Date()) =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now)
+
+/** Days a payment can wait before it counts as late (the usual 30 days of Spanish commercial practice). */
+export const PAYMENT_DAYS = 30
+
+/**
+ * Issued invoices not yet paid, oldest first, with their age in days and whether they are late; and the total
+ * owed, in euros. ES: Facturas emitidas sin cobrar, de la más antigua a la más nueva, con sus días y si van tarde.
+ */
+export function unpaidInvoices(invoices, today) {
+  const day = (iso) => Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10))
+  const now = day(String(today ?? ''))
+  const items = (invoices ?? [])
+    .filter((i) => (i.status ?? 'issued') === 'issued' && !i.paidAt)
+    .map((i) => {
+      const days = Math.max(0, Math.round((now - day(String(i.issuedAt))) / 86400000))
+      return { ...i, days, late: days > PAYMENT_DAYS }
+    })
+    .sort((a, b) => b.days - a.days)
+  const total = items.reduce((sum, i) => sum + Math.round(Number(i.total ?? 0) * 100), 0) / 100
+  return { total, items }
+}

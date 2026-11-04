@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from '../i18n/LanguageContext'
 import { formatCents } from '../lib/workOrders'
 import { eur } from '../lib/format'
-import { activeOrders, incompleteCertificates, invoicedThisMonth, madridToday, ordersToInvoice } from '../lib/today'
+import { activeOrders, incompleteCertificates, invoicedThisMonth, madridToday, ordersToInvoice, unpaidInvoices } from '../lib/today'
 import Icon from '../components/Icon'
 
 const getJson = (url) => fetch(url).then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
@@ -30,6 +30,7 @@ export default function TodayPage() {
           toInvoice: ordersToInvoice(v(orders)),
           certs: incompleteCertificates(v(certs), model.status === 'fulfilled' ? model.value : null),
           month: invoicedThisMonth(v(invoices), today),
+          unpaid: unpaidInvoices(v(invoices), today),
         })
       })
   }, [today])
@@ -39,7 +40,7 @@ export default function TodayPage() {
   if (failed) return <p className="msg error">{t('today.loadError')}</p>
   if (!data) return <p className="muted">{t('wo.loading')}</p>
 
-  const allClear = data.active.length === 0 && data.toInvoice.length === 0 && data.certs.length === 0
+  const allClear = data.active.length === 0 && data.toInvoice.length === 0 && data.certs.length === 0 && data.unpaid.items.length === 0
 
   return (
     <div className="today">
@@ -72,6 +73,33 @@ export default function TodayPage() {
                     <span className="num">{formatCents(o.totalCents)}</span>
                   </div>
                   <span className="muted">{o.customer}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {data.unpaid.items.length > 0 && (
+        <section className="today-sec">
+          <div className="today-sec-head">
+            <h2>{t('today.unpaid', { total: eur(data.unpaid.total) })}</h2>
+            <Link to="/invoices" className="link-btn">{t('today.seeAll')}</Link>
+          </div>
+          <ul className="wo-list">
+            {data.unpaid.items.slice(0, 5).map((i) => (
+              <li key={i.id}>
+                <Link to="/invoices" className={`card wo-card today-unpaid${i.late ? ' is-late' : ''}`}>
+                  <div className="wo-card-top">
+                    <strong className="today-title">{i.customer}</strong>
+                    <span className="num today-amount">{eur(i.total)}</span>
+                  </div>
+                  <div className="wo-card-top">
+                    <span className="muted mono">{i.number} · {i.issuedAt}</span>
+                    <span className={`today-age${i.late ? ' late' : ''}`}>
+                      {i.late ? t('today.late', { n: i.days }) : i.days === 0 ? t('today.issuedToday') : i.days === 1 ? t('today.dayAgo') : t('today.daysAgo', { n: i.days })}
+                    </span>
+                  </div>
                 </Link>
               </li>
             ))}
