@@ -23,6 +23,7 @@ class RegistrationController extends AbstractController
         UserPasswordHasherInterface $hasher,
         EntityManagerInterface $em,
         UserRepository $users,
+        \App\Service\EmailVerificationService $verification,
         #[Autowire(service: 'limiter.registration_ip')] RateLimiterFactoryInterface $registrationLimiter,
     ): JsonResponse {
         // No mass account creation from one place. / Sin crear cuentas en masa desde un mismo sitio.
@@ -53,7 +54,9 @@ class RegistrationController extends AbstractController
 
         $em->persist($user);
         $em->flush();
+        // The account opens once the e-mail is confirmed. / La cuenta se abre al confirmar el email.
+        $verification->send($user);
 
-        return $this->json(['email' => $user->getUserIdentifier()], 201);
+        return $this->json(['email' => $user->getUserIdentifier(), 'verification' => 'sent'], 201);
     }
 }

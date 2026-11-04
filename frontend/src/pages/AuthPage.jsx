@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { useTranslation } from '../i18n/LanguageContext'
@@ -21,10 +21,14 @@ const CODE_MESSAGES = {
   too_many_attempts: 'auth.tooManyAttempts',
   too_many_requests: 'auth.tooManyAttempts',
   invalid_token: 'auth.resetInvalidToken',
+  email_not_verified: 'auth.notVerified',
   network_error: 'auth.networkError',
 }
 
-/** The token of a reset link (…/restablecer#token=…). It travels after the # so no server ever sees it. */
+/**
+ * The token of a reset (…/restablecer#token=…) or confirmation link (…/verificar#token=…). It travels after the
+ * # so no server ever sees it. / El token va tras el «#», así ningún servidor lo ve.
+ */
 function tokenFromUrl() {
   const m = /[#&]token=([a-f0-9]{64})/.exec(window.location.hash)
   return m ? m[1] : null
@@ -46,15 +50,35 @@ async function postPublic(url, body) {
 export default function AuthPage({ initialMode = 'login' }) {
   const { login, register } = useAuth()
   const { t, lang, setLang } = useTranslation()
-  const [resetToken] = useState(tokenFromUrl)
-  // 'login' | 'register' | 'forgot' | 'reset'
-  const [mode, setMode] = useState(() => (resetToken ? 'reset' : initialMode))
+  const [verifying] = useState(() => window.location.pathname.startsWith('/verificar'))
+  const [linkToken] = useState(tokenFromUrl)
+  const resetToken = verifying ? null : linkToken
+  // 'login' | 'register' | 'forgot' | 'reset' | 'check' (inbox after sign-up) | 'verify' (link opened)
+  const [mode, setMode] = useState(() => (verifying ? 'verify' : resetToken ? 'reset' : initialMode))
   const [notice, setNotice] = useState(null) // a neutral, non-error message
+  const [unverified, setUnverified] = useState(false) // login refused: offer to resend the e-mail
 
   // Once read, take the token out of the address bar and the history entry.
   useEffect(() => {
-    if (resetToken) window.history.replaceState(null, '', '/entrar')
-  }, [resetToken])
+    if (linkToken || verifying) window.history.replaceState(null, '', '/entrar')
+  }, [linkToken, verifying])
+
+  // A confirmation link: send the token once, then show the login with the outcome.
+  // ES: Un enlace de confirmación: se envía el token una vez y se muestra el login con el resultado.
+  // A ref, not a flag in the effect: StrictMode runs effects twice in development and the token only works once.
+  const sent = useRef(false)
+  useEffect(() => {
+    if (!verifying || sent.current) return
+    sent.current = true
+    const fail = (err) => {
+      setMode('login')
+      setError(!err || err.code === 'invalid_token' ? t('auth.verifyInvalid') : messageFor(err))
+    }
+    if (!linkToken) { fail(null); return }
+    postPublic('/api/email/verify', { token: linkToken })
+      .then(() => { setMode('login'); setNotice(t('auth.verifyDone')) }, fail)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once, for the link that opened the page
+  }, [])
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [password2, setPassword2] = useState('')
@@ -72,16 +96,29 @@ export default function AuthPage({ initialMode = 'login' }) {
     return t('auth.error')
   }
 
-  const go = (next) => { setMode(next); setError(null); setNotice(null); setPassword(''); setPassword2('') }
+  const go = (next) => { setMode(next); setError(null); setNotice(null); setUnverified(false); setPassword(''); setPassword2('') }
+
+  /** Ask for a new confirmation e-mail. The answer is the same whether or not the account exists. */
+  const resend = async () => {
+    setError(null); setNotice(null); setBusy(true)
+    try {
+      await postPublic('/api/email/resend', { email })
+      setNotice(t('auth.resent'))
+    } catch (err) {
+      setError(messageFor(err))
+    } finally {
+      setBusy(false)
+    }
+  }
 
   const submit = async (e) => {
     e.preventDefault()
-    setError(null); setNotice(null)
+    setError(null); setNotice(null); setUnverified(false)
     if (mode === 'reset' && password !== password2) { setError(t('auth.resetMismatch')); return }
     setBusy(true)
     try {
       if (mode === 'login') await login(email, password)
-      else if (mode === 'register') await register(email, password)
+      else if (mode === 'register') { await register(email, password); go('check') }
       else if (mode === 'forgot') {
         await postPublic('/api/password/forgot', { email })
         setNotice(t('auth.resetSent'))
@@ -92,10 +129,13 @@ export default function AuthPage({ initialMode = 'login' }) {
       }
     } catch (err) {
       setError(messageFor(err))
+      if (err.code === 'email_not_verified') setUnverified(true)
     } finally {
       setBusy(false)
     }
   }
+
+  const TITLES = { login: 'auth.hello', register: 'auth.registerTitle', forgot: 'auth.forgotTitle', reset: 'auth.resetTitle', check: 'auth.checkTitle', verify: 'auth.verifyTitle' }
 
   return (
     <div className="auth">
@@ -111,9 +151,17 @@ export default function AuthPage({ initialMode = 'login' }) {
       </header>
 
       <div className="auth-body">
-        <h1 className="auth-title">{t({ login: 'auth.hello', register: 'auth.registerTitle', forgot: 'auth.forgotTitle', reset: 'auth.resetTitle' }[mode])}</h1>
+        <h1 className="auth-title">{t(TITLES[mode])}</h1>
         {mode === 'forgot' && <p className="msg" style={{ marginTop: 0 }}>{t('auth.forgotDesc')}</p>}
-        <form onSubmit={submit} className="auth-form">
+        {mode === 'check' && (
+          <div className="auth-form">
+            <p className="msg" style={{ marginTop: 0 }}>{t('auth.checkSent', { email })}</p>
+            {error && <p className="msg error">{error}</p>}
+            {notice && <p className="msg" role="status">{notice}</p>}
+            <button className="btn" type="button" onClick={resend} disabled={busy}>{t('auth.resendLink')}</button>
+          </div>
+        )}
+        {mode !== 'check' && mode !== 'verify' && <form onSubmit={submit} className="auth-form">
           {mode !== 'reset' && (
             <label className="field" htmlFor="auth-email"><span>{t('auth.email')}</span>
               <input id="auth-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
@@ -134,12 +182,15 @@ export default function AuthPage({ initialMode = 'login' }) {
           )}
           {error && <p className="msg error">{error}</p>}
           {notice && <p className="msg" role="status">{notice}</p>}
+          {unverified && mode === 'login' && (
+            <button className="btn" type="button" onClick={resend} disabled={busy}>{t('auth.resendLink')}</button>
+          )}
           {!(mode === 'forgot' && notice) && (
             <button className="btn btn-primary" type="submit" disabled={busy}>
               {t({ login: 'auth.login', register: 'auth.register', forgot: 'auth.forgotSend', reset: 'auth.resetSave' }[mode])}
             </button>
           )}
-        </form>
+        </form>}
 
         {mode === 'login' && (
           <p className="msg"><button className="link-btn" onClick={() => go('forgot')}>{t('auth.forgotLink')}</button></p>
@@ -151,7 +202,7 @@ export default function AuthPage({ initialMode = 'login' }) {
               {mode === 'login' ? t('auth.register') : t('auth.login')}
             </button>
           </p>
-        ) : (
+        ) : mode === 'verify' ? null : (
           <p className="msg"><button className="link-btn" onClick={() => go('login')}>← {t('auth.backToLogin')}</button></p>
         )}
       </div>

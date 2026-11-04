@@ -16,6 +16,8 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+            # no login until the e-mail is confirmed / no se entra sin confirmar el email
+            user_checker: App\Security\VerifiedEmailChecker
 
             # Session-based JSON login: POST /api/login with {email, password}.
             # ES: Login JSON con sesión: POST /api/login con {email, password}.
@@ -42,6 +44,7 @@ security:
     access_control:
         - { path: ^/api/(login|register|me|health), roles: PUBLIC_ACCESS }
         - { path: ^/api/password/(forgot|reset)$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/email/(verify|resend)$, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: ROLE_USER }
 
 when@test:

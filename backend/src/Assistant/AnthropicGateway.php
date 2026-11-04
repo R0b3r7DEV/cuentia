@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 /**
  * ClaudeGateway over the official Anthropic PHP SDK, with the user's own API key.
  *
- * - Model: Claude Opus 5.5. Effort is set per call: low for reading a bill or answering a question,
+ * - Model: Claude Opus 5.5. Effort is set per call: low for reading a bill, answering a question or the chat,
  *   medium for the final review.
  * - Structured outputs (`output_config.format` with a JSON Schema): the reply is guaranteed to be valid JSON
  *   in the expected shape — no parsing of free text.
@@ -31,6 +31,44 @@ final class AnthropicGateway implements ClaudeGateway
 
     public function structured(string $apiKey, string $system, array $content, array $schema, string $effort, int $maxTokens): array
     {
+        $message = $this->send($apiKey, $system, $content, ['effort' => $effort, 'format' => ['type' => 'json_schema', 'schema' => $schema]], $maxTokens);
+        foreach ($message->content as $block) {
+            if ($block->type === 'text') {
+                $data = json_decode($block->text, true);
+                if (is_array($data)) {
+                    return $data;
+                }
+            }
+        }
+
+        throw new AssistantException('bad_output');
+    }
+
+    public function text(string $apiKey, string $system, array $content, string $effort, int $maxTokens): string
+    {
+        $message = $this->send($apiKey, $system, $content, ['effort' => $effort], $maxTokens);
+        $text = '';
+        foreach ($message->content as $block) {
+            if ($block->type === 'text') {
+                $text .= $block->text;
+            }
+        }
+        if (trim($text) === '') {
+            throw new AssistantException('bad_output');
+        }
+
+        return trim($text);
+    }
+
+    /**
+     * One request: the user's key, Opus 5.5, server-side fallback; errors mapped to what the user can act on.
+     * ES: Una petición: clave del usuario, Opus 5.5, reintento en servidor; errores según lo que el usuario puede hacer.
+     *
+     * @param list<array<string,mixed>> $content
+     * @param array<string,mixed>       $outputConfig
+     */
+    private function send(string $apiKey, string $system, array $content, array $outputConfig, int $maxTokens): object
+    {
         if ($apiKey === '') {
             throw new AssistantException('no_api_key');
         }
@@ -42,10 +80,7 @@ final class AnthropicGateway implements ClaudeGateway
                 maxTokens: $maxTokens,
                 system: $system,
                 messages: [['role' => 'user', 'content' => $content]],
-                outputConfig: [
-                    'effort' => $effort,
-                    'format' => ['type' => 'json_schema', 'schema' => $schema],
-                ],
+                outputConfig: $outputConfig,
                 fallbacks: 'default',
                 betas: ['server-side-fallback-2026-07-01'],
             );
@@ -61,15 +96,7 @@ final class AnthropicGateway implements ClaudeGateway
         if ($message->stopReason === 'refusal') {
             throw new AssistantException('declined');
         }
-        foreach ($message->content as $block) {
-            if ($block->type === 'text') {
-                $data = json_decode($block->text, true);
-                if (is_array($data)) {
-                    return $data;
-                }
-            }
-        }
 
-        throw new AssistantException('bad_output');
+        return $message;
     }
 }

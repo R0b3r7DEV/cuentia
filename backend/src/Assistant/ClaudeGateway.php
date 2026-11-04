@@ -19,4 +19,13 @@ interface ClaudeGateway
      * @throws AssistantException
      */
     public function structured(string $apiKey, string $system, array $content, array $schema, string $effort, int $maxTokens): array;
+
+    /**
+     * A plain-text answer (the chat). / Una respuesta en texto libre (el chat).
+     *
+     * @param list<array<string,mixed>> $content user content blocks
+     *
+     * @throws AssistantException
+     */
+    public function text(string $apiKey, string $system, array $content, string $effort, int $maxTokens): string;
 }

@@ -28,3 +28,5 @@ services:
         sync: false                  # a sender verified in Brevo, e.g. "Cuentia <no-reply@yourdomain>"
       - key: FRONTEND_URL
         sync: false                  # public URL of the frontend, e.g. https://cuentia.vercel.app
+      - key: ALERT_EMAIL
+        sync: false                  # optional: where error alerts are e-mailed (empty = no alerts)

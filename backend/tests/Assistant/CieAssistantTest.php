@@ -11,21 +11,6 @@ use App\Service\ImageSanitizer;
 use App\Tests\Service\ImageSanitizerTest;
 use PHPUnit\Framework\TestCase;
 
-/** A ClaudeGateway that records what it was sent and answers with a canned object. */
-final class FakeClaude implements ClaudeGateway
-{
-    public array $calls = [];
-
-    public function __construct(private array $reply) {}
-
-    public function structured(string $apiKey, string $system, array $content, array $schema, string $effort, int $maxTokens): array
-    {
-        $this->calls[] = compact('apiKey', 'system', 'content', 'schema', 'effort', 'maxTokens');
-
-        return $this->reply;
-    }
-}
-
 class CieAssistantTest extends TestCase
 {
     private function assistant(ClaudeGateway $claude, string $key = 'sk-test'): CieAssistant

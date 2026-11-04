@@ -12,6 +12,33 @@ recientes van arriba.*
 
 ## English
 
+### 2026-11-04 — Entry 064: E-mail confirmation, error alerts, chat on the official SDK, VPS plan
+**E-mail confirmation at sign-up.** Until now anyone could open an account with someone else's address. Now a
+new account stays locked until its owner opens the link we e-mail (`/verificar#token=…`): a random 256-bit
+token, only its SHA-256 stored, valid 48 hours and once — the same design as the password reset. The check runs
+in a `UserChecker` *after* the password (`checkPostAuth`), so a wrong password never reveals whether an account
+exists or is confirmed. "Resend" always answers the same (no account enumeration) and is rate-limited per IP and
+per address. Existing accounts were marked as confirmed by the migration; resetting the password also confirms
+the address (it proves the same thing). The frontend no longer logs in after signing up: it shows "check your
+inbox" with a resend button, and a refused login offers the same button.
+
+**Error alerts.** `symfony/monolog-bundle` plus our own `AlertMailHandler`: in production, every error log is
+e-mailed to `ALERT_EMAIL` — the same error at most once an hour, never the request body, and a failing mailer
+cannot break the request (nor loop on itself). Off while `ALERT_EMAIL` is empty.
+
+**Chat on the official SDK.** The old chat called the Messages API by hand with HttpClient. It now goes through
+the same `ClaudeGateway` as the certificate assistant (official `anthropic-ai/sdk`, `claude-opus-5-5`, low
+effort, server-side fallback), with the user's own key; any failure falls back to the deterministic summary.
+The account data in the prompt is marked as data, never instructions.
+
+**Not done on purpose — the client's real IP.** Behind Vercel → Render the API sees Vercel's IP, so the per-IP
+limits count everybody together. Trusting `X-Forwarded-For` there would let anyone forge it by calling
+`cuentia-api.onrender.com` directly. It is fixed for real in the move to our VPS (`docs/PLAN-VPS.md`), where
+only Caddy can reach the API.
+
+**Tests:** 197 PHPUnit, 74 Vitest, plus a Playwright run of the whole flow (sign up → check inbox → refused
+login + resend → link → confirmed → link reused is rejected → log in).
+
 ### 2026-11-04 — Entry 063: Security review of the whole codebase
 **Found and fixed**
 - **Login brute force:** the failure handler already answered `too_many_attempts`, but `login_throttling` was
@@ -1044,6 +1071,34 @@ and language in `localStorage`.
 ---
 
 ## Español
+
+### 2026-11-04 — Entrada 064: Confirmar el email, avisos de error, chat con el SDK oficial, plan del VPS
+**Confirmar el email al darse de alta.** Hasta ahora cualquiera podía abrir una cuenta con el email de otro.
+Ahora la cuenta nueva queda cerrada hasta que su dueño abre el enlace que le enviamos (`/verificar#token=…`):
+token aleatorio de 256 bits, solo se guarda su SHA-256, vale 48 horas y una sola vez — igual que la recuperación
+de contraseña. La comprobación va en un `UserChecker` *después* de la contraseña (`checkPostAuth`): con una
+contraseña mala nunca se sabe si la cuenta existe o está confirmada. «Reenviar» responde siempre lo mismo (no
+deja averiguar qué emails tienen cuenta) y tiene límite por IP y por dirección. La migración marca como
+confirmadas las cuentas que ya existían; restablecer la contraseña también confirma el email (demuestra lo
+mismo). La web ya no entra sola tras registrarse: muestra «Revisa tu correo» con un botón de reenviar, y un
+login rechazado ofrece el mismo botón.
+
+**Avisos de error.** `symfony/monolog-bundle` y un `AlertMailHandler` propio: en producción, cada error se manda
+por correo a `ALERT_EMAIL` — el mismo error como mucho una vez por hora, nunca el cuerpo de la petición, y si el
+correo falla no rompe la petición (ni entra en bucle). Apagado mientras `ALERT_EMAIL` esté vacío.
+
+**Chat con el SDK oficial.** El chat antiguo llamaba a la API a mano con HttpClient. Ahora pasa por el mismo
+`ClaudeGateway` que el asistente del certificado (SDK oficial `anthropic-ai/sdk`, `claude-opus-5-5`, esfuerzo
+bajo, *fallback* en el servidor), con la clave de cada usuario; si algo falla, responde el resumen fijo. Los
+datos de la cuenta van marcados en el prompt como datos, nunca como instrucciones.
+
+**No hecho a propósito — la IP real del cliente.** Detrás de Vercel → Render la API ve la IP de Vercel, así que
+los límites por IP cuentan a todos juntos. Confiar ahí en `X-Forwarded-For` dejaría que cualquiera se la
+inventase llamando directamente a `cuentia-api.onrender.com`. Se arregla de verdad al pasar al VPS
+(`docs/PLAN-VPS.md`), donde a la API solo llega Caddy.
+
+**Tests:** 197 de PHPUnit, 74 de Vitest y una pasada de Playwright por todo el flujo (registro → revisa tu correo
+→ login rechazado + reenviar → enlace → confirmado → el enlace usado otra vez se rechaza → entrar).
 
 ### 2026-11-04 — Entrada 063: Revisión de seguridad de todo el código
 **Encontrado y arreglado**

@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusException;
 use Symfony\Component\Security\Core\Exception\TooManyLoginAttemptsAuthenticationException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 
@@ -26,6 +27,15 @@ class AuthenticationFailureHandler implements AuthenticationFailureHandlerInterf
             return new JsonResponse(
                 ['error' => 'Too many login attempts, please wait a moment', 'code' => 'too_many_attempts'],
                 Response::HTTP_TOO_MANY_REQUESTS,
+            );
+        }
+
+        // Right password, e-mail not confirmed yet: say so, so the user can ask for the e-mail again.
+        // ES: Contraseña correcta pero email sin confirmar: se dice, para poder pedir el correo otra vez.
+        if ($exception instanceof CustomUserMessageAccountStatusException && $exception->getMessageKey() === 'email_not_verified') {
+            return new JsonResponse(
+                ['error' => 'Confirm your e-mail before logging in', 'code' => 'email_not_verified'],
+                Response::HTTP_FORBIDDEN,
             );
         }
 
