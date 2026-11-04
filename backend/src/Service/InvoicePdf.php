@@ -27,7 +27,9 @@ class InvoicePdf
     {
         $options = new Options();
         $options->set('defaultFont', 'DejaVu Sans'); // ships with Dompdf; has € and accents
-        $options->set('isRemoteEnabled', true);      // allows the embedded QR (data: URI SVG)
+        // Never fetch anything: the QR and the logo are inline data: URIs, which Dompdf renders without it.
+        // ES: Nunca descargar nada: el QR y el logo van incrustados (data:), y Dompdf los pinta igual.
+        $options->set('isRemoteEnabled', false);
 
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml($this->html($invoice, $record, $showVerifactu), 'UTF-8');

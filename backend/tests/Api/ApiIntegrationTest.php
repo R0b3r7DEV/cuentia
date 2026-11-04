@@ -23,6 +23,8 @@ class ApiIntegrationTest extends WebTestCase
         // Keep the same kernel (and its in-memory DB connection) across requests in a test.
         // ES: Mantener el mismo kernel (y su conexión SQLite en memoria) entre peticiones del test.
         $this->client->disableReboot();
+        // Rate limiters (login throttling, sign-ups) start empty in every test. / Limitadores vacíos en cada test.
+        static::getContainer()->get('cache.rate_limiter')->clear();
 
         // Fresh in-memory SQLite schema for each test (created from the entity metadata).
         // ES: Esquema SQLite en memoria nuevo en cada test (creado desde los metadatos de las entidades).
@@ -713,6 +715,58 @@ class ApiIntegrationTest extends WebTestCase
         $this->registerAndLogin('otro-certins@test.local');
         [$other] = $this->json('GET', '/api/certificates/' . $cie['id'] . '/gva');
         self::assertSame(404, $other, 'another user never sees the sheet');
+    }
+
+    /** Security review: brute force on login and mass sign-ups are throttled. / Fuerza bruta y altas en masa. */
+    public function testLoginAndSignUpAreThrottled(): void
+    {
+        $this->json('POST', '/api/register', ['email' => 'victima@test.local', 'password' => 'secret123']);
+        $this->json('POST', '/api/logout');
+        $codes = [];
+        for ($i = 0; $i < 6; $i++) {
+            [$s, $b] = $this->json('POST', '/api/login', ['email' => 'victima@test.local', 'password' => 'mala-' . $i]);
+            $codes[] = $s . ':' . ($b['code'] ?? '');
+        }
+        self::assertSame('401:bad_credentials', $codes[0]);
+        self::assertSame('429:too_many_attempts', $codes[5], 'the 6th wrong password in a minute is refused: ' . implode(', ', $codes));
+        [$s] = $this->json('POST', '/api/login', ['email' => 'victima@test.local', 'password' => 'secret123']);
+        self::assertSame(429, $s, 'even the right password waits until the window passes');
+
+        static::getContainer()->get('cache.rate_limiter')->clear();
+        $statuses = [];
+        for ($i = 0; $i < 11; $i++) {
+            [$statuses[]] = $this->json('POST', '/api/register', ['email' => "alta$i@test.local", 'password' => 'secret123']);
+            $this->json('POST', '/api/logout');
+        }
+        self::assertSame(201, $statuses[9]);
+        self::assertSame(429, $statuses[10], 'the 11th sign-up from one IP in an hour is refused');
+    }
+
+    /** Security review: the CSV import has a size cap. / La importación tiene tamaño máximo. */
+    public function testCsvImportRefusesHugeFiles(): void
+    {
+        $this->registerAndLogin('csv-grande@test.local');
+        $this->client->request('POST', '/api/import/csv', [], [], ['CONTENT_TYPE' => 'text/csv'], str_repeat("2026-01-01;Algo;-1,00\n", 120000));
+        self::assertSame(413, $this->client->getResponse()->getStatusCode());
+    }
+
+    /** Security review: the invoice PDF fetches nothing remote, and the Verifactu QR still renders. */
+    public function testInvoicePdfRendersTheQrWithoutRemoteFetching(): void
+    {
+        $this->registerAndLogin('pdf-qr@test.local');
+        $this->json('PUT', '/api/account/settings', ['billingMode' => 'verifactu', 'businessName' => 'José Pérez', 'taxId' => '12345678Z', 'fiscalAddress' => 'C/ Major 1']);
+        [, $inv] = $this->json('POST', '/api/invoices', ['customer' => ['name' => 'ACME', 'taxId' => 'B12345674'], 'lines' => [['description' => 'x', 'quantity' => '1', 'unitPrice' => '10.00', 'vatRate' => '21.00']]]);
+        $this->client->request('GET', '/api/invoices/' . $inv['id'] . '/pdf');
+        $pdf = (string) $this->client->getResponse()->getContent();
+        self::assertStringStartsWith('%PDF', $pdf);
+        // The QR is an SVG drawn as vector paths: compare with the same invoice without it (standard mode).
+        // ES: El QR es un SVG dibujado con trazos: se compara con la misma factura sin QR (modo estándar).
+        $this->json('PUT', '/api/account/settings', ['billingMode' => 'standard']);
+        $this->client->request('GET', '/api/invoices/' . $inv['id'] . '/pdf');
+        $plain = (string) $this->client->getResponse()->getContent();
+        self::assertGreaterThan(strlen($plain) + 2000, strlen($pdf), 'the QR adds its drawing to the PDF');
+        $src = (string) file_get_contents(dirname(__DIR__, 2) . '/src/Service/InvoicePdf.php');
+        self::assertStringContainsString("'isRemoteEnabled', false", $src);
     }
 
     /** Marking an invoice paid is bookkeeping: it never touches the Verifactu chain. */

@@ -9,6 +9,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 class RegistrationController extends AbstractController
@@ -21,7 +23,12 @@ class RegistrationController extends AbstractController
         UserPasswordHasherInterface $hasher,
         EntityManagerInterface $em,
         UserRepository $users,
+        #[Autowire(service: 'limiter.registration_ip')] RateLimiterFactoryInterface $registrationLimiter,
     ): JsonResponse {
+        // No mass account creation from one place. / Sin crear cuentas en masa desde un mismo sitio.
+        if (!$registrationLimiter->create($request->getClientIp() ?? 'unknown')->consume()->isAccepted()) {
+            return $this->json(['error' => 'Too many sign-ups, please try again later', 'code' => 'too_many_requests'], 429);
+        }
         $data = json_decode($request->getContent(), true);
         $email = is_array($data) ? trim((string) ($data['email'] ?? '')) : '';
         $password = is_array($data) ? (string) ($data['password'] ?? '') : '';
