@@ -5,6 +5,7 @@ import Icon from '../components/Icon'
 import AppGlow from '../components/AppGlow'
 import LiveLoads from '../components/landing/LiveLoads'
 import { CIRCUITS, INITIAL_BOARD, act, statusKey } from '../lib/board'
+import LogoWord from '../components/LogoWord'
 
 // Three.js only downloads after the page is up, as its own chunk. / Three.js se descarga después, aparte.
 const Board3D = lazy(() => import('../components/landing/Board3D'))
@@ -86,7 +87,7 @@ export default function LandingPage() {
       <AppGlow />
       <header className="landing-hero">
         <div className="landing-bar">
-          <span className="landing-logo"><b>Cuentia<i>.</i></b><small>{t('landing.tag')}</small><span className="earth" aria-hidden="true" /></span>
+          <span className="landing-logo"><LogoWord auto /><small>{t('landing.tag')}</small></span>
           <div className="landing-bar-actions">
             <button type="button" className="landing-lang" onClick={() => setLang(lang === 'es' ? 'en' : 'es')} title="Change language / Cambiar idioma">{lang === 'es' ? 'EN' : 'ES'}</button>
             <Link to="/entrar" className="btn btn-primary landing-enter-sm">{t('landing.enter')}</Link>

@@ -327,8 +327,6 @@ label.btn { display: inline-block; }
 .landing-logo b { font-family: var(--display); font-weight: 800; font-size: 38px; }
 .landing-logo b i { font-style: normal; color: var(--lime); }
 .landing-logo small { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; margin-top: 4px; color: #a9afba; }
-/* the earth conductor's green-yellow stripe under the logo / la franja verde-amarilla del cable de tierra */
-.earth { display: block; height: 4px; width: 64px; margin-top: 6px; border-radius: 2px; background: repeating-linear-gradient(120deg, #2e9e4f 0 8px, #f2c500 8px 16px); }
 .landing-lang { font: inherit; font-size: 13px; font-weight: 700; padding: 8px 10px; border-radius: var(--radius-btn); border: 1px solid #353d4c; background: transparent; color: #f2f4f7; cursor: pointer; }
 .landing-enter-sm { min-height: 42px; display: inline-flex; align-items: center; text-decoration: none; }
 .landing-hero-grid { max-width: 1100px; margin: 0 auto; display: grid; gap: 22px; padding-top: 18px; }
@@ -939,3 +937,31 @@ body { background: var(--page-bg); }
 .live-cie span.done { background: var(--lime); color: var(--black); }
 .live-cups { font-size: 13px; color: #6e9bf2; margin-top: 8px; min-height: 18px; }
 @media (prefers-reduced-motion: reduce) { .live-sig path { animation: none; stroke-dashoffset: 0; } }
+
+/* ── Logo: short-circuit effect / logo: efecto cortocircuito ─────────────────
+   The letters flicker like a faulty tube and split for an instant into cobalt and lime like an arc; sparks
+   jump from the lime dot. Fired by LogoWord (on hover, and now and then on the landing and login).
+   ES: Las letras parpadean como un fluorescente con mal contacto y se desdoblan en cobalto y lima como un
+   arco; saltan chispas del punto lima. */
+.logo-word { position: relative; display: inline-block; }
+.logo-word .logo-dot { position: relative; font-style: normal; color: var(--lime); }
+.sparks { position: absolute; left: 50%; bottom: 0.2em; width: 0; height: 0; pointer-events: none; }
+.sparks span { position: absolute; left: -2px; top: -2px; width: 4px; height: 4px; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 8px 3px var(--lime); opacity: 0; }
+.logo-word.shorting { animation: logo-short 0.9s steps(1, end); }
+.logo-word.shorting .logo-dot { animation: logo-dot-flash 0.9s ease-out; }
+.logo-word.shorting .sparks span { animation: logo-spark 0.6s ease-out forwards; animation-delay: calc(var(--i) * 24ms); }
+@keyframes logo-short {
+  0% { opacity: 1; }
+  8% { opacity: 0.3; text-shadow: -3px 0 #1558c9, 3px 0 #d4ff24; }
+  12% { opacity: 1; text-shadow: none; }
+  20% { opacity: 0.55; transform: translateX(1px); text-shadow: 2px 0 #1558c9, -2px 0 #d4ff24; }
+  26% { opacity: 1; transform: none; text-shadow: none; }
+  40% { opacity: 0.15; }
+  46% { opacity: 1; text-shadow: 0 0 18px rgba(212, 255, 36, 0.7); }
+  62% { text-shadow: none; }
+  100% { opacity: 1; }
+}
+@keyframes logo-dot-flash { 0%, 100% { text-shadow: none; } 10%, 50% { color: #fff; text-shadow: 0 0 10px #d4ff24, 0 0 22px #d4ff24; } }
+@keyframes logo-spark { 0% { opacity: 1; transform: translate(0, 0) scale(1.2); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3); } }
+@media (prefers-reduced-motion: reduce) { .logo-word.shorting, .logo-word.shorting .logo-dot, .logo-word.shorting .sparks span { animation: none; } }

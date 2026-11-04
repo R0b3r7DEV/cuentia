@@ -5,6 +5,7 @@ import { useAuth } from '../auth/AuthContext'
 import { useTheme } from '../theme/ThemeContext'
 import Icon from './Icon'
 import { ACCOUNT, GROUPS, MAIN, MORE_GROUPS, isCurrent } from '../lib/nav'
+import LogoWord from './LogoWord'
 
 const item = (base) => ({ isActive }) => `${base}${isActive ? ' active' : ''}`
 
@@ -45,7 +46,7 @@ export default function Navbar() {
       {/* Computer: side menu / Ordenador: menú lateral */}
       <aside className="sidebar" aria-label={t('nav.main')}>
         <NavLink to="/" className="sidebar-brand" aria-label="Cuentia">
-          <b>Cuentia<i>.</i></b><small>{t('landing.tag')}</small><span className="earth" aria-hidden="true" />
+          <LogoWord /><small>{t('landing.tag')}</small>
         </NavLink>
         <nav className="sidebar-nav">
           {GROUPS.map((g, i) => (
