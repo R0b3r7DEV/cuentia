@@ -12,6 +12,17 @@ recientes van arriba.*
 
 ## English
 
+### 2026-11-04 — Entry 062: A working distribution board in 3D on the landing page
+**Done**
+- The landing's centrepiece is now a **3D distribution board that behaves like a real one** (React Three Fiber):
+  IGA, RCD and three breakers. Flip a breaker and its cable stops carrying current and the card it powers below
+  goes dark; flip it back and the card plays a short demo (the signature drawing itself, the invoice sealed into
+  the Verifactu chain, the certificate filling A–G). The RCD's **T button trips it**, as in real life; nothing is
+  live without the IGA and the RCD up. Status flags (green I / red O), LEDs, a "clack".
+- Pure board logic in `lib/board.js` with tests. The same actions as page buttons, for the keyboard and screen
+  readers; "reduce motion" stops the movement. Three.js loads after the page, in a chunk shared with the floor
+  plan's 3D (the main bundle grows 7 kB); without WebGL, the 2D breakers do the same job.
+
 ### 2026-11-04 — Entry 061: Paid or not — "Por cobrar" on Hoy
 **Done**
 - An invoice can be **marked paid** (and undone): new `invoice.paid_at`, `POST /api/invoices/{id}/paid`. It is
@@ -1014,6 +1025,17 @@ recientes van arriba.*
 ---
 
 ## Español
+
+### 2026-11-04 — Entrada 062: Un cuadro eléctrico en 3D que funciona, en la portada
+**Hecho**
+- La pieza central de la portada es ahora un **cuadro eléctrico en 3D que se comporta como uno real** (React Three
+  Fiber): IGA, diferencial y tres automáticos. Al bajar uno, su cable deja de llevar corriente y la tarjeta que
+  alimenta se apaga; al subirlo, la tarjeta reproduce una demostración (la firma dibujándose, la factura sellándose
+  en la cadena Verifactu, el certificado rellenándose de la A a la G). El **botón T del diferencial lo hace
+  saltar**, como en la realidad; sin IGA ni diferencial no hay tensión. Indicadores I/O, pilotos y un «clac».
+- La lógica del cuadro en `lib/board.js`, con tests. Las mismas acciones como botones de la página, para teclado y
+  lectores de pantalla; «reducir movimiento» lo deja quieto. Three.js se carga después de la página, en un bloque
+  compartido con el 3D del plano (el bloque principal crece 7 kB); sin WebGL, los automáticos 2D hacen lo mismo.
 
 ### 2026-11-04 — Entrada 061: Cobrada o no — «Por cobrar» en Hoy
 **Hecho**
