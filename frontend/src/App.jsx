@@ -25,7 +25,7 @@ export default function App() {
   if (loading) return null
   // A password-reset link opens the reset form even if this browser is still logged in.
   // ES: Un enlace de recuperación abre el formulario aunque este navegador siga con sesión.
-  const resetting = window.location.pathname.startsWith('/restablecer')
+  const resetting = /^\/(restablecer|verificar)/.test(window.location.pathname)
 
   if (!user || resetting) {
     return (
@@ -35,6 +35,7 @@ export default function App() {
           <Route path="/entrar" element={<AuthPage />} />
           <Route path="/registro" element={<AuthPage initialMode="register" />} />
           <Route path="/restablecer" element={<AuthPage />} />
+          <Route path="/verificar" element={<AuthPage />} />
           {/* any app address while logged out (an old bookmark, a shared link) asks to log in first */}
           <Route path="*" element={<Navigate to="/entrar" replace />} />
         </Routes>

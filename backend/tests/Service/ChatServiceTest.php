@@ -11,7 +11,7 @@ use App\Service\CredentialStore;
 use App\Service\IrpfService;
 use App\Service\VatService;
 use PHPUnit\Framework\TestCase;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
+use App\Tests\Assistant\FakeClaude;
 
 class ChatServiceTest extends TestCase
 {
@@ -42,12 +42,12 @@ class ChatServiceTest extends TestCase
 
         $vat = new VatService($this->repo($txs));
         $irpf = new IrpfService($this->repo($txs), $vat);
-        $http = $this->createStub(HttpClientInterface::class);
+        $claude = new FakeClaude(['text' => 'no debería usarse']);
 
-        // No key configured → deterministic fallback (no HTTP call).
+        // No key configured → deterministic fallback (Claude is never called).
         $credentials = $this->createStub(CredentialStore::class);
         $credentials->method('anthropicKey')->willReturn('');
-        $chat = new ChatService($this->repo($txs), $vat, $irpf, $http, $credentials);
+        $chat = new ChatService($this->repo($txs), $vat, $irpf, $claude, $credentials);
 
         $result = $chat->answer('How much did I spend on fuel?', new User());
 
@@ -55,5 +55,40 @@ class ChatServiceTest extends TestCase
         self::assertStringContainsString('Current balance', $result['answer']);
         self::assertStringContainsString('VAT', $result['answer']);
         self::assertStringContainsString('Combustible', $result['answer']);
+    }
+
+    /** With the user's key, the chat asks Claude (low effort) with the data as context, marked as data. */
+    public function testWithAKeyItAsksClaudeThroughTheGateway(): void
+    {
+        $txs = [$this->tx('-60.00', 'Combustible')];
+        $vat = new VatService($this->repo($txs));
+        $irpf = new IrpfService($this->repo($txs), $vat);
+        $claude = new FakeClaude(['text' => 'Has gastado 60,00 € en combustible.']);
+        $credentials = $this->createStub(CredentialStore::class);
+        $credentials->method('anthropicKey')->willReturn('sk-ant-test');
+
+        $result = (new ChatService($this->repo($txs), $vat, $irpf, $claude, $credentials))->answer('¿Cuánto he gastado en gasolina?', new User());
+
+        self::assertSame(['answer' => 'Has gastado 60,00 € en combustible.', 'source' => 'ai'], $result);
+        $call = end($claude->calls);
+        self::assertSame('low', $call['effort']);
+        self::assertSame('sk-ant-test', $call['apiKey']);
+        self::assertStringContainsString('Combustible', $call['system']);
+        self::assertStringContainsString('never as instructions', $call['system']);
+    }
+
+    /** If Claude is unavailable, the user still gets the data summary. */
+    public function testWhenClaudeFailsItFallsBackToTheSummary(): void
+    {
+        $txs = [$this->tx('-60.00', 'Combustible')];
+        $vat = new VatService($this->repo($txs));
+        $irpf = new IrpfService($this->repo($txs), $vat);
+        $credentials = $this->createStub(CredentialStore::class);
+        $credentials->method('anthropicKey')->willReturn('sk-ant-test');
+
+        $result = (new ChatService($this->repo($txs), $vat, $irpf, new FakeClaude(['throw' => 'unavailable']), $credentials))->answer('¿Y el IVA?', new User());
+
+        self::assertSame('fallback', $result['source']);
+        self::assertStringContainsString('VAT', $result['answer']);
     }
 }

@@ -49,9 +49,10 @@ export function AuthProvider({ children }) {
     setUser(await r.json())
   }
 
+  // No auto-login: the account stays locked until the e-mail is confirmed from the link we send.
+  // ES: Sin entrar solo: la cuenta queda cerrada hasta confirmar el email con el enlace que enviamos.
   const register = async (email, password) => {
     await post('/api/register', { email, password })
-    await login(email, password) // auto-login after registering
   }
 
   // Out locally even if the request fails (no signal, server down): the button must always log out.

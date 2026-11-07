@@ -42,6 +42,10 @@ class PasswordResetTest extends WebTestCase
     private function register(string $email, string $password = 'secret123'): void
     {
         $this->json('POST', '/api/register', ['email' => $email, 'password' => $password]);
+        // these tests are about the password, not the confirmation e-mail / el email, ya confirmado
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $em->getRepository(\App\Entity\User::class)->findOneBy(['email' => $email])?->setEmailVerifiedAt(new \DateTimeImmutable());
+        $em->flush();
     }
 
     private function login(string $email, string $password): int
@@ -58,6 +62,18 @@ class PasswordResetTest extends WebTestCase
         preg_match('~#token=([a-f0-9]{64})~', $email->getTextBody(), $m);
 
         return $m[1];
+    }
+
+    /** A reset proves the address too: an unconfirmed account can still recover and get in. */
+    public function testAResetAlsoConfirmsTheEmail(): void
+    {
+        $this->json('POST', '/api/register', ['email' => 'sin-confirmar@test.local', 'password' => 'secret123']);
+        self::assertSame(403, $this->login('sin-confirmar@test.local', 'secret123'));
+
+        $this->json('POST', '/api/password/forgot', ['email' => 'sin-confirmar@test.local']);
+        [$s] = $this->json('POST', '/api/password/reset', ['token' => $this->tokenFromLastEmail(), 'password' => 'nueva-clave-1']);
+        self::assertSame(200, $s);
+        self::assertSame(200, $this->login('sin-confirmar@test.local', 'nueva-clave-1'));
     }
 
     public function testFullResetFlow(): void

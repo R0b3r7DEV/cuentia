@@ -91,6 +91,10 @@ class PasswordResetService
 
         $user = $record->getUser();
         $user->setPassword($this->hasher->hashPassword($user, $password));
+        // Opening the reset link proves the address is theirs. / Abrir el enlace demuestra que el email es suyo.
+        if (!$user->isEmailVerified()) {
+            $user->setEmailVerifiedAt($this->clock->now())->setEmailVerification(null, null);
+        }
         $this->deleteTokensOf($user); // single use, and any other pending link dies too
         $this->em->flush();
     }

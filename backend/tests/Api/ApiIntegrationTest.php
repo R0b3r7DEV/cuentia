@@ -45,7 +45,17 @@ class ApiIntegrationTest extends WebTestCase
     private function registerAndLogin(string $email): void
     {
         $this->json('POST', '/api/register', ['email' => $email, 'password' => 'secret123']);
+        $this->confirmEmail($email);
         $this->json('POST', '/api/login', ['email' => $email, 'password' => 'secret123']);
+    }
+
+    /** Most tests are not about the confirmation e-mail: mark the address confirmed directly. */
+    private function confirmEmail(string $email): void
+    {
+        $em = static::getContainer()->get(\Doctrine\ORM\EntityManagerInterface::class);
+        $user = $em->getRepository(\App\Entity\User::class)->findOneBy(['email' => $email]);
+        $user?->setEmailVerifiedAt(new \DateTimeImmutable());
+        $em->flush();
     }
 
     public function testUnauthenticatedRequestsAreBlocked(): void
@@ -58,6 +68,26 @@ class ApiIntegrationTest extends WebTestCase
     {
         [$status] = $this->json('POST', '/api/register', ['email' => 'ana@test.local', 'password' => 'secret123']);
         self::assertSame(201, $status);
+
+        // Sign-up sends the confirmation e-mail; until it is confirmed, the right password is not enough.
+        // ES: El alta envía el correo de confirmación; sin confirmar, la contraseña correcta no basta.
+        $mail = self::getMailerMessage();
+        self::assertInstanceOf(\Symfony\Component\Mime\Email::class, $mail);
+        self::assertMatchesRegularExpression('~/verificar#token=([a-f0-9]{64})~', $mail->getTextBody());
+        preg_match('~#token=([a-f0-9]{64})~', $mail->getTextBody(), $m);
+        [$status, $body] = $this->json('POST', '/api/login', ['email' => 'ana@test.local', 'password' => 'secret123']);
+        self::assertSame([403, 'email_not_verified'], [$status, $body['code']]);
+        [$status, $body] = $this->json('POST', '/api/login', ['email' => 'ana@test.local', 'password' => 'mala1234']);
+        self::assertSame([401, 'bad_credentials'], [$status, $body['code']], 'a wrong password never reveals the account');
+
+        [$status, $body] = $this->json('POST', '/api/email/verify', ['token' => str_repeat('a', 64)]);
+        self::assertSame([400, 'invalid_token'], [$status, $body['code']]);
+        [$status, $body] = $this->json('POST', '/api/email/verify', ['token' => $m[1]]);
+        self::assertSame([200, 'email_verified'], [$status, $body['code']]);
+        [$status] = $this->json('POST', '/api/email/verify', ['token' => $m[1]]);
+        self::assertSame(400, $status, 'the link works once');
+        [$status, $body] = $this->json('POST', '/api/email/resend', ['email' => 'nadie@test.local']);
+        self::assertSame([202, 'verification_sent'], [$status, $body['code']], 'same answer for unknown addresses');
 
         [$status, $body] = $this->json('POST', '/api/login', ['email' => 'ana@test.local', 'password' => 'secret123']);
         self::assertSame(200, $status);

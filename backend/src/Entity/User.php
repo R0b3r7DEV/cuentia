@@ -84,9 +84,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $gocardlessSecretKey = null;
 
+    /**
+     * When the user proved the e-mail is theirs (the link in the confirmation e-mail, or a password reset).
+     * Null: not confirmed yet, so logging in is refused. Accounts from before this existed were marked confirmed.
+     * ES: Cuándo demostró que el email es suyo. Null: sin confirmar, no puede entrar.
+     */
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $emailVerifiedAt = null;
+
+    /** SHA-256 of the pending confirmation token (the token itself only travels in the e-mail). */
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $emailVerificationHash = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $emailVerificationExpiresAt = null;
+
     public function getId(): ?int { return $this->id; }
 
     public function getEmail(): string { return $this->email; }
+    public function isEmailVerified(): bool { return $this->emailVerifiedAt !== null; }
+    public function getEmailVerifiedAt(): ?\DateTimeImmutable { return $this->emailVerifiedAt; }
+    public function setEmailVerifiedAt(?\DateTimeImmutable $at): self { $this->emailVerifiedAt = $at; return $this; }
+    public function getEmailVerificationHash(): ?string { return $this->emailVerificationHash; }
+    public function getEmailVerificationExpiresAt(): ?\DateTimeImmutable { return $this->emailVerificationExpiresAt; }
+    public function setEmailVerification(?string $hash, ?\DateTimeImmutable $expiresAt): self
+    {
+        $this->emailVerificationHash = $hash;
+        $this->emailVerificationExpiresAt = $expiresAt;
+        return $this;
+    }
     public function setEmail(string $email): self { $this->email = $email; return $this; }
 
     public function getTaxId(): ?string { return $this->taxId; }
